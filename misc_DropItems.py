@@ -2,7 +2,7 @@ import sys
 
 #magazynier
 magazynID = 0x51B09F1E
-itemsToDrop = [0x09D7, 0x15F8]
+itemsToDrop = [0x09D7, 0x15F8,0x0FF6]
 dragDelay = 700
 
 def MoveToGround():
