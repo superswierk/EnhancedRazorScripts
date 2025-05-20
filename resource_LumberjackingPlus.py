@@ -8,14 +8,16 @@
    ## Stop
 
 import sys
-   
+# you want boards or logs?
+logsToBoards = False
+
 singleMode = True
-silentMode = True
-dropLogs = True
-scanRadius = 30
+silentMode = False
+dropLogs = False
+scanRadius = 40
 #********************
 # serial of your beetle, logs go here when full
-if dropLogs == False: 
+if dropLogs == False and logsToBoards == False:
     beetle = Target.PromptTarget( 'Wybierz konia beetle' )
     Player.ChatSay( 77, '.pojemnik' )
     Target.WaitForTarget( 5000 , True )
@@ -31,9 +33,7 @@ else:
 
 # Attack nearest grey script name (must be exact)
 autoFightMacroName = 'pvm_AttackGrey.py'
-
-# you want boards or logs?
-logsToBoards = False
+sawId = 0x1035
 
 
 # Trees where there is no longer enough wood to be harvested will not be revisited until this much time has passed
@@ -46,19 +46,26 @@ alert = False
 chopCounter=0
 
 # Parameters
-treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
-    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
-    0x0CCC, 0x0CCD, 0x0CD0, 0x0CD3, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
-    0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
-    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
-    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
-    0x0C9E, ]
-    
-if Misc.ShardName() == 'Ultima Forever':
-    treeStaticIDsToRemove = [ 0x0C99, 0x0C9A, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6, 0x0CC4, ]
-    for treeStaticIDToRemove in treeStaticIDsToRemove:
-        if treeStaticIDToRemove in treeStaticIDs:
-            treeStaticIDs.remove( treeStaticIDToRemove )
+#treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
+#    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
+#    0x0CCC, 0x0CCD, 0x0CD0, 0x0CD3, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
+#    0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
+#    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
+#    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
+#    0x0C9E, ]
+#treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]zwykle
+#treeStaticIDs = [ 0x0CD6,] cedr
+#cis 0x12B9
+#cyprys 0x0D01 0x0CFE
+# Parameters wszystkie bez zwyklych
+#treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
+#    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
+#    0x0CCC, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
+#    0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
+#    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
+#    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
+#    0x0C9E, ]
+treeStaticIDs = [ 0x0D01, 0x0CFE ]
     
 #axeSerial = None
 EquipAxeDelay = 1000
@@ -81,6 +88,21 @@ axeList = [ 0x0F43 ]
 rightHand = Player.CheckLayer( 'RightHand' )
 leftHand = Player.CheckLayer( 'LeftHand' )
 
+
+# Helper Functions
+###################################
+def getByItemID(itemid, source):
+    #find an item id in container serial
+    searchItem = Items.FindBySerial(source)
+    if hasattr(searchItem,'Contains'):
+        for item in searchItem.Contains:
+            if item.ItemID == itemid:
+                return item
+            else:
+                Misc.NoOperation()
+    else:
+        Misc.NoOperation()
+###################################
 
 # System Variables
 from System.Collections.Generic import List
@@ -241,7 +263,7 @@ def MoveToTree():
     
     
     if PathFinding.Go( treeCoords ):
-        #Misc.SendMessage('First Try')
+        Misc.SendMessage('First Try')
         Misc.Pause( 1000 )
     else:
         Misc.Resync()
@@ -361,13 +383,15 @@ def CutTree():
     Timer.Create('choppingTimer',choppingTime)
     Misc.SendMessage( '--> GumpStarID: %i' % ( gumpId), 11 )
     while ( Timer.Check('choppingTimer') == True ):
-        if (Journal.Search( 'Zniszczyles klody' ) or 
-            Journal.Search( 'Sciales' )or 
-            Journal.Search( 'Nie masz miejsca w Twoim plecaku' )or 
-            Journal.Search( 'martwego' ) or 
-            Journal.Search( 'Znalazles troche' ) or 
-            (singleMode == False and Journal.Search( 'To drzewo' )) or 
-            (singleMode == False and Journal.Search( 'Jesienia' ))):
+        if (Journal.Search( 'Zniszczyles klody' ) or
+            Journal.Search( 'Sciales' ) or
+            Journal.Search( 'Obciales' ) or
+            Journal.Search( 'Nie masz miejsca w Twoim plecaku' ) or
+            Journal.Search( 'martwego' ) or
+            Journal.Search( 'Znalazles troche' ) or
+            (singleMode == False and Journal.Search( 'To drzewo' )) or
+            (singleMode == False and Journal.Search( 'Jesienia' )) or
+            (singleMode == False and Journal.Search( 'Zima' ))):
                 Journal.Clear()
                 Timer.Create('choppingTimer',choppingTime)
                 Misc.SendMessage( '--> Timer: %i' % ( chopCounter+1), 17 )
@@ -375,7 +399,7 @@ def CutTree():
                 depositLogs()
                 if singleMode == True:
                     CutTree()
-        if singleMode == True and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' )):
+        if singleMode == True and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
             return
         Misc.Pause( 100 )
         
@@ -492,43 +516,46 @@ def MoveToGround():
     
 
 def MoveToBeetle():
-    fullCheck()
+    if logsToBoards == False:
+        fullCheck()
     # Chop logs into boards
     if logsToBoards:
+        saw = getByItemID(sawId, Player.Backpack.Serial)
         for item in Player.Backpack.Contains:
             if item.ItemID == logID:
-                Items.UseItem( Player.GetItemOnLayer( 'LeftHand' ) )
-                Target.WaitForTarget( 1500, False )
-                Target.TargetExecute( item )
+                Items.UseItem(saw)
+                Target.WaitForTarget(2000, True)
+                Target.TargetExecute(item)
                 Misc.Pause( dragDelay )
-
-    if Player.Mount:
-        Mobiles.UseMobile( Player.Serial )
-        Misc.Pause( dragDelay )
+    if logsToBoards == False:
+        if Player.Mount:
+            Mobiles.UseMobile( Player.Serial )
+            Misc.Pause( dragDelay )
 
     # Move boards to beetle, if they will fit in the beetle
-    for item in Player.Backpack.Contains:
-        if logsToBoards and item.ItemID == boardID:
-            numberOfBoardsInBeetle = GetNumberOfBoardsInBeetle()
-            if numberOfBoardsInBeetle + i.Amount < 1900:
-                Items.Move( i, beetle, 0 )
-                Misc.Pause( dragDelay )
-        elif not logsToBoards and item.ItemID == logID:
-            numberOfBoardsInBeetle = GetNumberOfLogsInBeetle()
-            if numberOfBoardsInBeetle + item.Amount < 1900:
-                Items.Move( item, beetle, 0 )
-                Misc.Pause( dragDelay )
-    groundItems = filterItem([boardID,logID])
-    fullCheck()
-    if groundItems:
-        Player.HeadMessage(33, 'BEETLE FULL STOPPING')
-        say('Halo 2 Halo 2! Kon jest pelny az sie przelewa')
-        sendEmailMessage("Halo kon wzywa", "Kon jest pelny az sie przelewa")
-        sys.exit() 
+    if logsToBoards == False:
+        for item in Player.Backpack.Contains:
+            if logsToBoards and item.ItemID == boardID:
+                numberOfBoardsInBeetle = GetNumberOfBoardsInBeetle()
+                if numberOfBoardsInBeetle + i.Amount < 1900:
+                    Items.Move( i, beetle, 0 )
+                    Misc.Pause( dragDelay )
+            elif not logsToBoards and item.ItemID == logID:
+                numberOfBoardsInBeetle = GetNumberOfLogsInBeetle()
+                if numberOfBoardsInBeetle + item.Amount < 1900:
+                    Items.Move( item, beetle, 0 )
+                    Misc.Pause( dragDelay )
+        groundItems = filterItem([boardID,logID])
+        fullCheck()
+        if groundItems:
+            Player.HeadMessage(33, 'BEETLE FULL STOPPING')
+            say('Halo 2 Halo 2! Kon jest pelny az sie przelewa')
+            sendEmailMessage("Halo kon wzywa", "Kon jest pelny az sie przelewa")
+            sys.exit()
 
-    if not Player.Mount:
-        Mobiles.UseMobile( beetle )
-        Misc.Pause( dragDelay )
+        if not Player.Mount:
+            Mobiles.UseMobile( beetle )
+            Misc.Pause( dragDelay )
         
 toonFilter = Mobiles.Filter()
 toonFilter.Enabled = True
