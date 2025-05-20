@@ -102,9 +102,15 @@ Timer.Create('eatingLogTimer', 120000)
 Journal.Clear()
 doCarpet()
 craftCounter = 0
+apocalipse = False
 while True:
     if(Timer.Check('eatingLogTimer') == False):
         Timer.Create('eatingLogTimer', 120000)
+        if apocalipse == False and Journal.Search('Apokalipsa'):
+            apokalipseStr = Journal.GetLineText('Apokalipsa')
+            apocalipse = True
+            sendDiscord("Uwaga:\n" + apokalipseStr + "\n")
+  
         Player.ChatSay('.glod wszystko')
         Misc.Pause(200)
         newGlod = Journal.GetLineText('Glod')
@@ -116,7 +122,10 @@ while True:
             bialka = newBialka
             witaminy = newWitaminy
             weglowodany = newWeglowodany
-            sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany)
+            if apocalipse:
+                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n" + apokalipseStr + "\n")
+            else:
+                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n")
     if (craftCounter > 0 and Timer.Check('choppingTimer') == False) or craftCounter >= 100 or Journal.Search( '100 z 100' ) or Journal.Search( 'Pociales' ) or Journal.Search( 'odzyskac' ):
         Journal.Clear()
         Misc.SendMessage('Restart', 67)
