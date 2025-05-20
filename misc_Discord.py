@@ -1,4 +1,4 @@
-def send(message):
+def sendDiscord(message):
     try:
         Misc.Resync()
         URI = 'https://discord.com/api/webhooks/XXXXXXXXXXXXX'# your webhook url string 
