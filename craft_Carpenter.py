@@ -1,4 +1,4 @@
-from Scripts.misc_Discord import *
+from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
 from System.Net.Mail import SmtpClient, MailMessage, MailAddress
 from System.Net import NetworkCredential
