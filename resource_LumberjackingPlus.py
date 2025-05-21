@@ -6,7 +6,7 @@
 ##if Player.GetRealSkillValue('Lumberjacking') < 40:
    ## Misc.SendMessage('No skill, stopping',33)
    ## Stop
-
+from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
 # you want boards or logs?
 logsToBoards = False
@@ -56,7 +56,7 @@ chopCounter=0
 #treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]zwykle
 #treeStaticIDs = [ 0x0CD6,] cedr
 #cis 0x12B9
-#cyprys 0x0D01 0x0CFE
+#cyprys 0x0D01 0x0CFE treeStaticIDs = [ 0x0D01, 0x0CFE ]
 # Parameters wszystkie bez zwyklych
 #treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
 #    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
@@ -65,7 +65,7 @@ chopCounter=0
 #    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
 #    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
 #    0x0C9E, ]
-treeStaticIDs = [ 0x0D01, 0x0CFE ]
+treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]
     
 #axeSerial = None
 EquipAxeDelay = 1000
@@ -87,6 +87,8 @@ bankY = 1343
 axeList = [ 0x0F43 ]
 rightHand = Player.CheckLayer( 'RightHand' )
 leftHand = Player.CheckLayer( 'LeftHand' )
+
+beetleGood = True
 
 
 # Helper Functions
@@ -249,9 +251,13 @@ def MoveToTree():
     global chopCounter
     global trees
     global treeCoords
+    global silentMode
     pathlock = 0
     if silentMode == False:
-        Player.ChatSay( 77, 'Wszyscy za mna' )
+        Player.ChatSay( 77, 'Za mna!' )
+        Misc.Pause(2000)
+        Player.ChatSay( 77, 'za mna' )
+        Misc.Pause(2000)
     Misc.SendMessage( '--> Moving to TreeSpot: %i, %i' % ( trees[ 0 ].x, trees[ 0 ].y ), 77 )
     Misc.Resync()
     treeCoords = PathFinding.Route()
@@ -323,7 +329,11 @@ def MoveToTree():
             return
 
     Misc.SendMessage( '--> Reached TreeSpot: %i, %i' % ( trees[ 0 ].x, trees[ 0 ].y ), 77 )
-
+    if silentMode == False:
+        Player.ChatSay( 77, 'Podejdzcie!' )
+        Misc.Pause(2000)
+        Player.ChatSay( 77, 'Podejdzcie!' )
+        Misc.Pause(2000)
 
 def EquipAxe():
     global axeSerial
@@ -347,6 +357,7 @@ def depositLogs():
         MoveToBeetle()
 
 def CutTree():
+    global beetleGood
     global chopCounter
     global blockCount
     global trees
@@ -364,15 +375,17 @@ def CutTree():
     #if chopCounter >= 100:
      #   MoveToTree()
 
-    #CheckEnemy()
-    
+    if beetleGood == True and Journal.Search( 'Sapie' ):
+        sapanie = Journal.GetLineText('Sapie',True)
+        beetleGood = False
+        sendDiscord("Uwaga zwierze zmeczone:\n" + sapanie);
+        Misc.Pause(2000)
     Journal.Clear()
     Gumps.ResetGump()
     Items.UseItem( Player.GetItemOnLayer( 'LeftHand' ) )
     Target.WaitForTarget( TimeoutOnWaitAction , True )
     Target.TargetExecute( trees[ 0 ].x, trees[ 0 ].y, trees[ 0 ].z, trees[ 0 ].id )
-    if silentMode == False:
-        Player.ChatSay( 77, 'Podejdzcie' )
+    
     choppingTime = 8000
     if singleMode == True:
         choppingTime = 8000
@@ -490,9 +503,14 @@ def GetNumberOfLogsInBeetle():
         Misc.Pause( dragDelay )
 
     numberOfBoards = 0
-    for item in Mobiles.FindBySerial( beetle ).Backpack.Contains:
-        if item.ItemID == boardID:
-            numberOfBoards += item.Amount
+    beetleObject = Mobiles.FindBySerial( beetle )
+    if beetleObject is not None:
+        for item in beetleObject.Backpack.Contains:
+            if item.ItemID == boardID:
+                numberOfBoards += item.Amount
+    else:
+        sendEmailMessage("Cos sie popuslo", "Nie znalazlem konia")
+        sys.exit()
 
     if remount:
         Mobiles.UseItem( beetle )
