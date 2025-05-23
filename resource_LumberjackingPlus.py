@@ -8,6 +8,10 @@
    ## Stop
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
+
+lumberThumb = "https://i.imgur.com/FAb0xg0.png"
+deadThumb = "https://i.imgur.com/YvbQw56.png"
+
 # you want boards or logs?
 logsToBoards = False
 
@@ -378,7 +382,7 @@ def CutTree():
     if beetleGood == True and Journal.Search( 'Sapie' ):
         sapanie = Journal.GetLineText('Sapie',True)
         beetleGood = False
-        sendDiscord("Uwaga zwierze zmeczone:\n" + sapanie);
+        sendDiscord("Uwaga zwierze zmeczone:\n" + sapanie, 15291726, lumberThumb);
         Misc.Pause(2000)
     Journal.Clear()
     Gumps.ResetGump()
@@ -421,7 +425,9 @@ def CutTree():
             say('Halo Halo! Kon jest FULL')
             if Gumps.HasGump(gumpId):
                 Gumps.SendAction(gumpId, 1)
-            sendEmailMessage("Halo kon chyba full", "Przemienili kampon")
+            sendDiscord("Konie sa przepelnione", 15291726, lumberThumb);
+            Misc.Pause(6000)
+            #sendEmailMessage("Halo kon chyba full", "Przemienili kampon")
             sys.exit()
     Misc.Pause( 2000 )
     Misc.SendMessage( '--> Spaduwa', 77 )
@@ -509,7 +515,9 @@ def GetNumberOfLogsInBeetle():
             if item.ItemID == boardID:
                 numberOfBoards += item.Amount
     else:
-        sendEmailMessage("Cos sie popuslo", "Nie znalazlem konia")
+        sendDiscord("Cos sie popuslo - kon zaginal", 15291726, lumberThumb);
+        Misc.Pause(6000)
+        #sendEmailMessage("Cos sie popuslo", "Nie znalazlem konia")
         sys.exit()
 
     if remount:
@@ -568,7 +576,9 @@ def MoveToBeetle():
         if groundItems:
             Player.HeadMessage(33, 'BEETLE FULL STOPPING')
             say('Halo 2 Halo 2! Kon jest pelny az sie przelewa')
-            sendEmailMessage("Halo kon wzywa", "Kon jest pelny az sie przelewa")
+            sendDiscord("Najwyrazniej konie sa pelne", 15291726, lumberThumb);
+            Misc.Pause(6000)
+            #sendEmailMessage("Halo kon wzywa", "Kon jest pelny az sie przelewa")
             sys.exit()
 
         if not Player.Mount:
@@ -599,7 +609,9 @@ def fullCheck():
         if beetle == newBeetle:
             Player.HeadMessage(33, 'BEETLE FULL STOPPING')
             say('Halo Halo! Kon jest FULL')
-            sendEmailMessage("Hej konie pelne", "Przepelnienie koni trzeba je oproznic")
+            sendDiscord("Przepelnienie koni trzeba je oproznic", 15291726, lumberThumb);
+            Misc.Pause(6000)
+            #sendEmailMessage("Hej konie pelne", "Przepelnienie koni trzeba je oproznic")
             sys.exit()
         else:
             say('Ej! zmiana koni')
@@ -644,13 +656,20 @@ def safteyNet():
             Misc.NoOperation()
 ##Friend.ChangeList('lj')
 Misc.SendMessage('--> Start up Woods', 77)
+entMessage = False
 EquipAxe()
 while onLoop:
     #RecallNextSpot()
     if Player.IsGhost == True:
         say('Uwaga ! Cos sie stalo ze sie zesralo!')
+        sendDiscord("Postac umarla!", 15291726, deadThumb);
+        Misc.Pause(6000)
         sendEmailMessage("Halo postac padla", "Cos sie stalo umarles")
-        sys.exit() 
+        sys.exit()
+    if entMessage == False and Journal.Search("Ent"):
+        entMessage = True
+        sendDiscord("Uwaga ENT! Szybko uciekaj!", 15291726, deadThumb);
+        Misc.Pause(2000)
     Misc.SendMessage('--> Starting Round', 87)
     ScanStatic()
     i = 0
