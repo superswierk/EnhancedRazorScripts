@@ -46,33 +46,19 @@ def python_list_to_net_list(py_list):
     return net_list
     
 
-def sendDiscord(message, color = 14696255, thumbnail = "", scriptName = Misc.ScriptCurrent(False)):
+def sendDiscord(message, color = 14696255, scriptName = Misc.ScriptCurrent(False)):
     try:
         Misc.Resync()
-        if thumbnail == "":
-            config_data = {
-                "attachments": [
-                    
-                ],
-                "embeds": [
-                    {"title": Player.Name, "color": color, "description": "```"+message+"```", "footer": { "text": scriptName } },
-                ],
-                "content": None,
-                "avatar_url": "https://i.imgur.com/l1xQeLU.jpeg",
-                "username": "UltimaBot"
-            }
-        else:
-            config_data = {
-                "attachments": [
-                    
-                ],
-                "embeds": [
-                    {"title": Player.Name, "color": color,"thumbnail" :  { "url": thumbnail } , "description": "```"+message+"```", "footer": { "text": scriptName } },
-                ],
-                "content": None,
-                "avatar_url": "https://i.imgur.com/l1xQeLU.jpeg",
-                "username": "UltimaBot"
-            }
+        config_data = {
+            "attachments": [
+                
+            ],
+            "embeds": [
+                {"title": Player.Name, "color": color, "description": "**"+message+"**", "footer": { "text": scriptName } },
+            ],
+            "content": None,
+            "username": "UltimaBot"
+        }
         net_config_data = python_dict_to_net_dict(config_data)
         json_string = serializer.Serialize(net_config_data)
         print(json_string)
