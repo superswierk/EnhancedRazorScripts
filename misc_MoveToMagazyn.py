@@ -1,7 +1,9 @@
 import sys
 
 #magazynier
-magazynID = 0x51B09F1E
+#vaekin magazynID = 0x51B09F1E
+#dajson magazynID = 0x53D780E8
+magazynID = 0x53D780E8
 
 # Helper Functions
 ###################################
@@ -25,7 +27,12 @@ Target.WaitForTarget( 5000 , True )
 Target.TargetExecute(magazynID)
 sys.exit()
 '''
-
+'''
+Player.ChatSay('.licz')
+Target.WaitForTarget( 5000 , True )
+Target.TargetExecute(magazynID)
+sys.exit()
+'''
 itemFrom = Items.FindBySerial( Target.PromptTarget( 'Wybierz typ a przeniose wszystkie' ))
 
 if itemFrom is None:
