@@ -10,7 +10,9 @@ from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
 
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
-deadThumb = "https://i.imgur.com/YvbQw56.png"
+deadThumb = "https://i.imgur.com/QjVeOoA.png"
+foodThumb = "https://i.imgur.com/uB0tTVj.png"
+enemyThumb = "https://i.imgur.com/YvbQw56.png"
 
 # you want boards or logs?
 logsToBoards = False
@@ -69,6 +71,7 @@ chopCounter=0
 #    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
 #    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
 #    0x0C9E, ]
+# dab 0x0CDD
 treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]
     
 #axeSerial = None
@@ -125,6 +128,11 @@ treeCoords = None
 blockCount = 0
 lastRune = 5
 onLoop = True
+
+glod = ""
+bialka = ""
+witaminy = ""
+weglowodany = ""
 
 class Tree:
     x = None
@@ -266,6 +274,7 @@ def MoveToTree():
     Misc.Resync()
     treeCoords = PathFinding.Route()
     treeCoords.MaxRetry = 5
+    treeCoords.Run = False
     treeCoords.StopIfStuck = False
     treeCoords.X = trees[ 0 ].x
     treeCoords.Y = trees[ 0 ].y + 1
@@ -306,6 +315,7 @@ def MoveToTree():
             Misc.Resync()
             treeCoords = PathFinding.Route()
             treeCoords.MaxRetry = 5
+            treeCoords.Run = False
             treeCoords.StopIfStuck = False
             treeCoords.X = trees[ 0 ].x
             treeCoords.Y = trees[ 0 ].y + 1
@@ -365,6 +375,10 @@ def CutTree():
     global chopCounter
     global blockCount
     global trees
+    global glod
+    global bialka
+    global witaminy
+    global weglowodany
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -399,7 +413,35 @@ def CutTree():
     gData = Gumps.GetGumpData(gumpId)
     Timer.Create('choppingTimer',choppingTime)
     Misc.SendMessage( '--> GumpStarID: %i' % ( gumpId), 11 )
+    enemeyMessage = False
     while ( Timer.Check('choppingTimer') == True ):
+        if enemeyMessage == False:
+            enemy = Target.GetTargetFromList( 'enemywar' )
+            if enemy != None:
+                enemeyMessage = True
+                sendDiscord("Uwaga wrog w popblizu!", 15291726, enemyThumb);
+                Player.ChatSay("STRAZE POMOCY BIJA MNIE")
+                Player.ChatSay("Za mna!")
+                Player.ChatSay("Za mna")
+                Timer.Create("runTimer",12000)
+                while Timer.Check("runTimer") == True:
+                    Player.Run('Right')
+                Misc.Pause(2000)
+                Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
+        if(Timer.Check('eatingLogTimer') == False):
+            Timer.Create('eatingLogTimer', 120000)
+            Player.ChatSay('.glod wszystko')
+            Misc.Pause(1000)
+            newGlod = Journal.GetLineText('Glod')
+            newBialka = Journal.GetLineText('Bialka')
+            newWitaminy = Journal.GetLineText('Witaminy')
+            newWeglowodany = Journal.GetLineText('Weglowodany')
+            if newGlod != glod or newBialka != bialka or newWitaminy != witaminy or newWeglowodany != weglowodany :
+                glod = newGlod
+                bialka = newBialka
+                witaminy = newWitaminy
+                weglowodany = newWeglowodany
+                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
         if (Journal.Search( 'Zniszczyles klody' ) or
             Journal.Search( 'Sciales' ) or
             Journal.Search( 'Obciales' ) or
@@ -656,7 +698,14 @@ def safteyNet():
             Misc.NoOperation()
 ##Friend.ChangeList('lj')
 Misc.SendMessage('--> Start up Woods', 77)
-entMessage = False
+
+Player.ChatSay('.glod wszystko')
+Misc.Pause(1000)
+glod = Journal.GetLineText('Glod')
+bialka = Journal.GetLineText('Bialka')
+witaminy = Journal.GetLineText('Witaminy')
+weglowodany = Journal.GetLineText('Weglowodany')
+Timer.Create('eatingLogTimer', 120000)
 EquipAxe()
 while onLoop:
     #RecallNextSpot()
@@ -666,10 +715,6 @@ while onLoop:
         Misc.Pause(6000)
         sendEmailMessage("Halo postac padla", "Cos sie stalo umarles")
         sys.exit()
-    if entMessage == False and Journal.Search("Ent"):
-        entMessage = True
-        sendDiscord("Uwaga ENT! Szybko uciekaj!", 15291726, deadThumb);
-        Misc.Pause(2000)
     Misc.SendMessage('--> Starting Round', 87)
     ScanStatic()
     i = 0

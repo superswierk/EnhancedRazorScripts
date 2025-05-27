@@ -12,7 +12,7 @@ workingBag = Target.PromptTarget( 'Wybierz pojemnik do pracy' )
 claenCraftedItems = False
 tools = 0x53BE5FDC
 #boards = Target.PromptTarget( 'Wybierz deski' )
-itemsToDrop = [0x13F9,]
+itemsToDrop = [0x13F9,0x0DF0]
 boardId = 0x1BD7
 sawId = 0x1035
 cleanItemId = 0x0F64
@@ -121,6 +121,7 @@ doCarpet()
 craftCounter = 0
 apocalipse = False
 while True:
+    Journal.Clear('Brakuje Ci skladnikow')
     if Journal.Search('Brakuje Ci'):
         sendDiscord("Uwaga koniec desek!", 14696255, carpThumb)
         Misc.Pause(6000)
