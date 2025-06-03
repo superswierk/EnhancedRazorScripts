@@ -5,8 +5,6 @@ import sys
 from System.Collections.Generic import List
 from System import Byte, Int32
 from math import sqrt
-from System.Net.Mail import SmtpClient, MailMessage, MailAddress
-from System.Net import NetworkCredential
 import clr
 clr.AddReference('System.Speech')
 from System.Speech.Synthesis import SpeechSynthesizer

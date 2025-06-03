@@ -6,7 +6,7 @@
 ##if Player.GetRealSkillValue('Lumberjacking') < 40:
    ## Misc.SendMessage('No skill, stopping',33)
    ## Stop
-
+from Scripts.EnhancedRazorScripts.misc_Email import *
 import sys
    
 singleMode = True
@@ -96,8 +96,6 @@ leftHand = Player.CheckLayer( 'LeftHand' )
 from System.Collections.Generic import List
 from System import Byte, Int32
 from math import sqrt
-from System.Net.Mail import SmtpClient, MailMessage, MailAddress
-from System.Net import NetworkCredential
 import clr
 clr.AddReference('System.Speech')
 from System.Speech.Synthesis import SpeechSynthesizer
@@ -529,26 +527,6 @@ def fullCheck():
         else:
             say('Ej! zmiana koni')
             beetle = newBeetle
-            
-def sendEmailMessage(sub, tex):
-    mail = MailMessage()
-    mail.From = MailAddress("ultimaandrzej@gmail.com");
-
-
-    smtp = SmtpClient()
-    smtp.Port                  = 587;   
-    smtp.EnableSsl             = True;
-    #smtp.DeliveryMethod        = SmtpDeliveryMethod.Network; 
-    ##smtp.UseDefaultCredentials = True; 
-    smtp.Credentials = NetworkCredential("ultimaandrzej@gmail.com",  "xxxx xxxx xxxx xxxx");  
-    smtp.Host        = "smtp.gmail.com";            
-
-    mail.To.Add(MailAddress("superswierk@gmail.com"));
-    mail.IsBodyHtml = True;
-    st              = "Test";
-    mail.Subject = sub
-    mail.Body = tex;
-    smtp.Send(mail);
         
 def safteyNet():
     if alert:

@@ -1,7 +1,6 @@
 from Scripts.EnhancedRazorScripts.misc_Discord import *
+from Scripts.EnhancedRazorScripts.misc_Email import *
 import sys
-from System.Net.Mail import SmtpClient, MailMessage, MailAddress
-from System.Net import NetworkCredential
 Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
 carpThumb = "https://i.imgur.com/ssu1MFc.png"
 apoThumb = "https://i.imgur.com/eDQLGaI.png"
@@ -33,27 +32,7 @@ def getByItemID(itemid, source):
                 Misc.NoOperation()
     else:
         Misc.NoOperation()
-        
-def sendEmailMessage(sub, tex):
-    mail = MailMessage()
-    mail.From = MailAddress("ultimaandrzej@gmail.com");
 
-
-    smtp = SmtpClient()
-    smtp.Port                  = 587;   
-    smtp.EnableSsl             = True;
-    #smtp.DeliveryMethod        = SmtpDeliveryMethod.Network; 
-    ##smtp.UseDefaultCredentials = True; 
-    smtp.Credentials = NetworkCredential("ultimaandrzej@gmail.com",  "xxxx xxxx xxxx xxxx");  
-    smtp.Host        = "smtp.gmail.com";            
-
-    mail.To.Add(MailAddress("superswierk@gmail.com"));
-    mail.IsBodyHtml = True;
-    st              = "Test";
-    mail.Subject = sub
-    mail.Body = tex;
-    smtp.Send(mail);
-###################################
 
 def doCarpet():
     global workingBoards

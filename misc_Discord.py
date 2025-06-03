@@ -2,6 +2,7 @@ import clr
 clr.AddReference('System.Web.Extensions') # Dodaj referencję do biblioteki zawierającej JavaScriptSerializer
 from System.Web.Script.Serialization import JavaScriptSerializer
 from System.Collections.Generic import Dictionary, List # Potrzebne do tworzenia obiektów, które serializator zrozumie
+from Scripts.EnhancedRazorScripts.sys_Credentials import *
 
 serializer = JavaScriptSerializer()
 
@@ -76,7 +77,7 @@ def sendDiscord(message, color = 14696255, thumbnail = "", scriptName = Misc.Scr
         net_config_data = python_dict_to_net_dict(config_data)
         json_string = serializer.Serialize(net_config_data)
         print(json_string)
-        URI = 'https://discord.com/api/webhooks/XXXXXXXXXXXXX'# your webhook url string 
+        URI = SERVICE_CREDENTIALS["discord"]["webhook_url"] + SERVICE_CREDENTIALS["discord"]["bot_token"] # your webhook url string 
         report = json_string
         PARAMETERS=report
         from System.Net import WebRequest
