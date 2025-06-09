@@ -1,6 +1,3 @@
-from Scripts.utilities.items import FindItem, FindNumberOfItems, MoveItem
-from Scripts.glossary.items.ores import ores
-from Scripts.glossary.colors import colors
 import sys
 from System.Collections.Generic import List
 from System import Byte, Int32
@@ -107,14 +104,14 @@ def MoveToTree():
     
 
 def MoveToGround():
-    Misc.SendMessage( 'MoveToGround', colors[ 'cyan' ] )
+    Misc.SendMessage( 'MoveToGround', 90 )
     for item in Player.Backpack.Contains:
         if item.ItemID == 0x19B9:
             Items.DropItemGroundSelf(item,0)
             Misc.Pause( 700 )
 def doMine():
     MoveToGround()
-    Misc.SendMessage( 'doMine', colors[ 'cyan' ] )
+    Misc.SendMessage( 'doMine', 90 )
     if Player.IsGhost == True:
         sendDiscord("Nie zyjesz", 15291726, deadThumb);
         Misc.Pause(2000)
@@ -122,7 +119,7 @@ def doMine():
     hide()
     pickaxe = Player.GetItemOnLayer( 'RightHand' ).Serial
     if pickaxe == None:
-        Player.HeadMessage( colors[ 'red' ], 'You\'re out of pickaxes!' )
+        Player.HeadMessage( 1100, 'You\'re out of pickaxes!' )
         return
     Items.UseItem( pickaxe )
     Target.WaitForTarget( 2000, True )
@@ -130,7 +127,7 @@ def doMine():
 
 SetDigSpots()
 # Start mining
-Misc.SendMessage( 'Start', colors[ 'cyan' ] )
+Misc.SendMessage( 'Start', 90 )
 MoveToGround()
 MoveToTree()
 lvlCarpSkill = Round(Player.GetRealSkillValue('Gornictwo'),1)
