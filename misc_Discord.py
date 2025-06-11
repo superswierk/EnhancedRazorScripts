@@ -6,22 +6,6 @@ from Scripts.EnhancedRazorScripts.sys_Credentials import *
 
 serializer = JavaScriptSerializer()
 
-'''
-config_data = {
-    "auto_loot_items": [
-        {"graphic": 0x098A, "color": 0x0000, "name": "Gold"},
-        {"graphic": 0x0F0C, "color": 0x0000, "name": "Bandages"}
-    ],
-    "healing_settings": {
-        "use_bandages": True,
-        "min_hp_percent": 70
-    },
-    "player_name": Player.Name
-}
-'''
-
-
-
 # JavaScriptSerializer najlepiej działa ze słownikami .NET (Dictionary) i listami .NET (List)
 # Chociaż IronPython często konwertuje słowniki Pythona, jawna konwersja jest bezpieczniejsza.
 def python_dict_to_net_dict(py_dict):
