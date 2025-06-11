@@ -130,7 +130,7 @@ SetDigSpots()
 Misc.SendMessage( 'Start', 90 )
 MoveToGround()
 MoveToTree()
-lvlCarpSkill = Round(Player.GetRealSkillValue('Gornictwo'),1)
+lvlCarpSkill = Player.GetRealSkillValue('Gornictwo')
 Player.ChatSay('.glod wszystko')
 Misc.Pause(1000)
 glod = Journal.GetLineText('Glod')
@@ -158,10 +158,10 @@ while True:
             witaminy = newWitaminy
             weglowodany = newWeglowodany
             sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
-    lvlCarpSkillNew = Round(Player.GetRealSkillValue('Gornictwo'),1)
+    lvlCarpSkillNew = Player.GetRealSkillValue('Gornictwo')
     if lvlCarpSkill != lvlCarpSkillNew:
         lvlCarpSkill = lvlCarpSkillNew
-        sendDiscord("Wzrost umiejetnosci Gornictwo masz teraz: " + str(lvlCarpSkill), 5814783, lvlupThumb)
+        sendDiscord("Wzrost umiejetnosci Gornictwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
         Misc.Pause(1000)
     if Player.IsGhost == True:
         sendDiscord("Nie zyjesz", 15291726, deadThumb);
