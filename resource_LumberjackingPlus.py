@@ -3,17 +3,16 @@
 #
 # Last updated: 12/2/21
 
-##if Player.GetRealSkillValue('Lumberjacking') < 40:
-   ## Misc.SendMessage('No skill, stopping',33)
-   ## Stop
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 from Scripts.EnhancedRazorScripts.misc_Email import *
 import sys
+Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
 
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
 deadThumb = "https://i.imgur.com/QjVeOoA.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
 enemyThumb = "https://i.imgur.com/YvbQw56.png"
+lvlupThumb = "https://i.imgur.com/j5rUy80.png"
 
 # you want boards or logs?
 logsToBoards = False
@@ -22,6 +21,8 @@ singleMode = True
 silentMode = False
 dropLogs = False
 scanRadius = 40
+
+lvlCarpSkill = Player.GetRealSkillValue('Drwalstwo')
 #********************
 # serial of your beetle, logs go here when full
 if dropLogs == False and logsToBoards == False:
@@ -388,6 +389,7 @@ def CutTree():
     global bialka
     global witaminy
     global weglowodany
+    global lvlCarpSkill
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -437,6 +439,10 @@ def CutTree():
                     Player.Run('Right')
                 Misc.Pause(2000)
                 Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
+        lvlCarpSkillNew = Player.GetRealSkillValue('Drwalstwo')
+        if lvlCarpSkill != lvlCarpSkillNew:
+            lvlCarpSkill = lvlCarpSkillNew
+            sendDiscord("Wzrost umiejetnosci Drwalstwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
         if(Timer.Check('eatingLogTimer') == False):
             Timer.Create('eatingLogTimer', 120000)
             Player.ChatSay('.glod wszystko')
