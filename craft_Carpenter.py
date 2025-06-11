@@ -86,7 +86,7 @@ def doCleaning():
         Misc.Pause(3000)
         cleanItem = getByItemID(cleanItemId, workingBag)
 
-lvlCarpSkill = Round(Player.GetRealSkillValue('Stolarstwo'),1)
+lvlCarpSkill = Player.GetRealSkillValue('Stolarstwo')
 Player.ChatSay('.glod wszystko')
 Misc.Pause(1000)
 glod = Journal.GetLineText('Glod')
@@ -132,10 +132,10 @@ while True:
                 sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n" + apokalipseStr + "\n",14696255, apoThumb)
             else:
                 sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
-    lvlCarpSkillNew = Round(Player.GetRealSkillValue('Stolarstwo'),1)
+    lvlCarpSkillNew = Player.GetRealSkillValue('Stolarstwo')
     if lvlCarpSkill != lvlCarpSkillNew:
         lvlCarpSkill = lvlCarpSkillNew
-        sendDiscord("Wzrost umiejetnosci Stolarstwo masz teraz: " + str(lvlCarpSkill), 5814783, lvlupThumb)
+        sendDiscord("Wzrost umiejetnosci Stolarstwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
         Misc.Pause(1000)
     if (craftCounter > 0 and Timer.Check('choppingTimer') == False) or Journal.Search( '100 z 100' ) or Journal.Search( 'Pociales' ) or Journal.Search( 'odzyskac' ):
         Journal.Clear()

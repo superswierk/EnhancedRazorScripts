@@ -3,14 +3,23 @@
 #
 # Last updated: 12/2/21
 
-##if Player.GetRealSkillValue('Lumberjacking') < 40:
-   ## Misc.SendMessage('No skill, stopping',33)
-   ## Stop
-from Scripts.EnhancedRazorScripts.misc_Email import *
+from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
+Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
+lumberThumb = "https://i.imgur.com/FAb0xg0.png"
+farmThumb = "https://i.imgur.com/vhfYDCW.png"
+deadThumb = "https://i.imgur.com/QjVeOoA.png"
+foodThumb = "https://i.imgur.com/uB0tTVj.png"
+enemyThumb = "https://i.imgur.com/YvbQw56.png"
+lvlupThumb = "https://i.imgur.com/j5rUy80.png"
+glod = ""
+bialka = ""
+witaminy = ""
+weglowodany = ""
+
    
 singleMode = True
-silentMode = False
+silentMode = True
 dropLogs = True
 scanRadius = 30
 #********************
@@ -46,21 +55,20 @@ chopCounter=0
 #0x0C76 marchew
 #0x0C7D kukurdza
 #0x0C9B pomidor
-#0x1A9B len
+#0x1A9B len 0x1A99
 #0x0D1E winogrono
 #0x0D04 kapusta
 #0x1B22 salata 0x0C93
 #0x0C61 rzepa
 #0x0C6F cebula
-#0x1A99 len2
 #0x0C69 sprouts
 #0x0C6C dynia
 #0x0C5D adbuz
-#0x0C4F bawelna
+#0x0C4F bawelna 0x0C50
 #0x0D04 kapusta
 #0x0C55 pszenica
 #0x0D98 jablon
-treeStaticIDs = [ 0x0C76 ]
+treeStaticIDs = [ 0x1A9B, 0x1A99, 0x0C50]
 useItemID = None
 isColliding = False
     
@@ -78,7 +86,10 @@ hideDelay = 300
 #pomidor 0x0C6C
 #len 0x1A9D
 #grono 0x09D1
-vegTable = [ 0x0C6C, ]
+#bawelna 0x0DF9
+#cebula 0x0C6D
+#marchew 0x0C78
+vegTable = [ 0x1A9D, 0x0DF9 ]
 logID = 0x0C7F
 boardID = 0x1BD7
 otherResourceID = [ 0x318F, 0x3199, 0x2F5F, 0x3190, 0x3191, ]
@@ -342,6 +353,11 @@ def CutTree():
     global chopCounter
     global blockCount
     global trees
+    global glod
+    global bialka
+    global witaminy
+    global weglowodany
+    global lvlCarpSkill
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -355,11 +371,9 @@ def CutTree():
     if Player.Weight >= weightLimit or Journal.Search( 'Nie masz miejsca w Twoim plecaku' ):
         depositLogs()
         Misc.SendMessage( '--> Przeciazenie!', 77 )
-        sendEmailMessage("Halo jestes full", "Jest pan pelny")
+        sendDiscord("Jestes full", 15291726, farmThumb);
+        Misc.Pause(6000)
         sys.exit()
-    #if chopCounter >= 100:
-     #   MoveToTree()
-
     
     
     Journal.Clear()
@@ -381,6 +395,25 @@ def CutTree():
     gData = Gumps.GetGumpData(gumpId)
     Timer.Create('choppingTimer',choppingTime)
     while ( Timer.Check('choppingTimer') == True ):
+        lvlCarpSkillNew = Player.GetRealSkillValue('Rolnictwo')
+        if lvlCarpSkill != lvlCarpSkillNew:
+            lvlCarpSkill = lvlCarpSkillNew
+            sendDiscord("Wzrost umiejetnosci Rolnictwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
+        Misc.Pause(1000)
+        if(Timer.Check('eatingLogTimer') == False):
+            Timer.Create('eatingLogTimer', 120000)
+            Player.ChatSay('.glod wszystko')
+            Misc.Pause(3000)
+            newGlod = Journal.GetLineText('Glod')
+            newBialka = Journal.GetLineText('Bialka')
+            newWitaminy = Journal.GetLineText('Witaminy')
+            newWeglowodany = Journal.GetLineText('Weglowodany')
+            if newGlod != glod or newBialka != bialka or newWitaminy != witaminy or newWeglowodany != weglowodany :
+                glod = newGlod
+                bialka = newBialka
+                witaminy = newWitaminy
+                weglowodany = newWeglowodany
+                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
         if (Journal.Search( 'Nie udalo Ci sie' ) or 
             Journal.Search( 'Udalo Ci sie' )or 
             Journal.Search( 'Nie masz miejsca w Twoim plecaku' )or 
@@ -403,7 +436,8 @@ def CutTree():
             say('Halo Halo! Kon jest FULL')
             if Gumps.HasGump(gumpId):
                 Gumps.SendAction(gumpId, 1)
-            sendEmailMessage("Halo kon chyba full", "Przemienili kampon")
+            sendDiscord("Konie sa przepelnione", 15291726, farmThumb);
+            Misc.Pause(6000)
             sys.exit()
     Misc.Pause( 2000 )
     Misc.SendMessage( '--> Spaduwa', 77 )
@@ -490,8 +524,8 @@ def MoveToBeetle():
     fullCheck()
     if groundItems:
         Player.HeadMessage(33, 'BEETLE FULL STOPPING')
-        say('Halo 2 Halo 2! Kon jest pelny az sie przelewa')
-        sendEmailMessage("Halo kon wzywa", "Kon jest pelny az sie przelewa")
+        sendDiscord("Konie sa przepelnione", 15291726, farmThumb);
+        Misc.Pause(6000)
         sys.exit() 
 
     if not Player.Mount:
@@ -521,13 +555,13 @@ def fullCheck():
     if dropLogs == False and (Journal.Search( 'zwierze nie moze') or Journal.Search( 'too heavy')):
         if beetle == newBeetle:
             Player.HeadMessage(33, 'BEETLE FULL STOPPING')
-            say('Halo Halo! Kon jest FULL')
-            sendEmailMessage("Hej konie pelne", "Przepelnienie koni trzeba je oproznic")
+            sendDiscord("Konie sa przepelnione", 15291726, farmThumb);
+            Misc.Pause(6000)
             sys.exit()
         else:
             say('Ej! zmiana koni')
             beetle = newBeetle
-        
+
 def safteyNet():
     if alert:
         toon = Mobiles.ApplyFilter(toonFilter)
@@ -547,11 +581,21 @@ def safteyNet():
             Misc.NoOperation()
 ##Friend.ChangeList('lj')
 Misc.SendMessage('--> Start up Woods', 77)
+lvlCarpSkill = Player.GetRealSkillValue('Rolnictwo')
+Player.ChatSay('.glod wszystko')
+Misc.Pause(3000)
+glod = Journal.GetLineText('Glod')
+bialka = Journal.GetLineText('Bialka')
+witaminy = Journal.GetLineText('Witaminy')
+weglowodany = Journal.GetLineText('Weglowodany')
+Timer.Create('eatingLogTimer', 120000)
 EquipAxe()
 while onLoop:
     #RecallNextSpot()
     if Player.IsGhost == True:
         say('Uwaga ! Cos sie stalo ze sie zesralo!')
+        sendDiscord("Postac umarla!", 15291726, deadThumb);
+        Misc.Pause(6000)
         sendEmailMessage("Halo postac padla", "Cos sie stalo umarles")
         sys.exit() 
     Misc.SendMessage('--> Starting Round', 87)
