@@ -132,7 +132,7 @@ def snoop(target):
     Target.TargetExecute(target)
     while True:
         Misc.Pause(200) #waiting
-        if Journal.Search('Oddaliles') or Journal.Search('za daleko'):
+        if Journal.Search('Oddaliles') or Journal.Search('za daleko') or Journal.Search('Nie widzisz'):
             Journal.Clear()
             Misc.Pause(3000)
             return False
