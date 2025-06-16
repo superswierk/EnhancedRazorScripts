@@ -11,6 +11,10 @@ lvlCarpSkill = Round(Player.GetRealSkillValue('Zagladanie'),1)
 
 musicId = 0x0E9E
 self_pack = Player.Backpack.Serial
+
+snoopTarget = Target.PromptTarget( 'Select whom to snoop' )
+
+goToItem = Items.FindBySerial(Target.PromptTarget( 'Select go to item'))
 # Helper Functions
 ###################################
 def getByItemID(itemid, source):
@@ -121,22 +125,28 @@ def FollowMobile( mobile, maxDistanceToMobile = 2, startPlayerStuckTimer = False
         FollowMobile( mobile, maxDistanceToMobile )
     return True
 
-snoopTarget = Target.PromptTarget( 'Select whom to snoop' )
 
-goToItem = Items.FindBySerial(0x53C8FE96)
 
 def snoop(target):
+    print("snoop func")
+    Timer.Create("snoopWatchdog",60000)
     Journal.Clear()
     Player.UseSkill('Zagladanie')
     Target.WaitForTarget( 5000 , True )
     Target.TargetExecute(target)
     while True:
         Misc.Pause(200) #waiting
+        if Timer.Check("snoopWatchdog") == False:
+            Journal.Clear()
+            print("snoop func ret watchdog FALSE")
+            Misc.Pause(200)
+            return False
         if Journal.Search('Oddaliles') or Journal.Search('za daleko') or Journal.Search('Nie widzisz'):
             Journal.Clear()
             Misc.Pause(3000)
+            print("snoop func ret FALSE")
             return False
-        if Journal.Search('Musisz chwile') or Journal.Search('Juz podgladasz') or Journal.Search('You must'):
+        if Journal.Search('Musisz chwile') or Journal.Search('Juz podgladasz') or Journal.Search('You must') or Journal.Search('am already'):
             Misc.Pause(3000)
             Journal.Clear()
             Player.UseSkill('Zagladanie')
@@ -144,12 +154,42 @@ def snoop(target):
             Target.TargetExecute(target)
         if Journal.Search('Udalo Ci sie otworzyc'):
             Journal.Clear('Udalo Ci sie otworzyc')
-            print('koniec zagladania SUKCES')
+            print('snoop func ret SUKCES')
             return True
         if Journal.Search('Nie udalo Ci sie otworzyc'):
             Journal.Clear('Nie udalo Ci sie otworzyc')
-            print('koniec zagladania FAIL')
+            print('snoop func ret FALSE')
             return False 
+def moveTo(target):
+    Misc.Resync()
+    print("moveto 1")
+    mobilePosition = target.Position
+    treeCoords = PathFinding.Route()
+    treeCoords.MaxRetry = 5
+    treeCoords.Run = False
+    treeCoords.IgnoreMobile = True
+    treeCoords.DebugMessage = False
+    treeCoords.Timeout = 10000
+    treeCoords.StopIfStuck = True
+    treeCoords.X = mobilePosition.X
+    treeCoords.Y = mobilePosition.Y
+    #Items.Message(trees[0], 1, "Here")
+    
+    print("moveto 2")
+    if PathFinding.Go( treeCoords ):
+        print("moveto 3 True")
+        return True
+    else:
+        print("moveto 3 second")
+        Misc.Resync()
+        #treeCoords.X = mobilePosition.X
+        treeCoords.Y = treeCoords.Y + 1
+        if PathFinding.Go( treeCoords ):
+            print("moveto 3 second True")
+            return True
+        else:
+            print("moveto 3 second False")
+            return False
 
 Journal.Clear()
 lvlCarpSkill = Player.GetRealSkillValue('Zagladanie')
@@ -168,6 +208,7 @@ Timer.Create('eatingLogTimer', 120000)
 Timer.Create('snoopDelay',1000)
 apocalipse = False
 while True:
+    Misc.Pause(400)
     if apocalipse == False and Journal.Search('Apokalipsa'):
         apokalipseStr = Journal.GetLineText('Apokalipsa')
         apocalipse = True
@@ -194,7 +235,10 @@ while True:
 
     snoopTargetGo = Mobiles.FindBySerial( snoopTarget )
     if Player.DistanceTo( snoopTargetGo ) > 1:
-        FollowMobile( snoopTargetGo, 1, True )
+        print("FollowMobile func start 1")
+        #FollowMobile( snoopTargetGo, 1, True )
+        moveTo(snoopTargetGo)
+        print("FollowMobile func end 1")
     
     if Timer.Check('snoopDelay') == False:
         if snoop(snoopTargetGo) == True:
@@ -202,6 +246,11 @@ while True:
             Timer.Create('snoopDelay',21000)
             
             if Player.DistanceTo( goToItem ) > 1:
-                FollowMobile( goToItem, 1, True )
+                print("FollowMobile func start 2")
+                #FollowMobile( goToItem, 1, True )
+                moveTo(goToItem)
+                print("FollowMobile func end 2")
         else:
             Timer.Create('snoopDelay',2000)
+            
+sendDiscord("Skrypt sie zakonczyl. Wyglada na to ze zwierze padlo",14696255, apoThumb)
