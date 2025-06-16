@@ -6,6 +6,7 @@
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 from Scripts.EnhancedRazorScripts.misc_Email import *
 import sys
+
 Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
 
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
@@ -86,7 +87,9 @@ treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
     0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
     0x0C9E, ]
 '''
-treeStaticIDs = [ 0x0CE3, 0x0CE0 ] #orzech
+#treeStaticIDs = [ 0x0CE3, 0x0CE0 ] #orzech
+#treeStaticIDs = [ 0x0CDD, 0x0CDA ] #dab
+treeStaticIDs = [ 0x0D43, 0x0D85,0x0D59,0x0D70 ]  #meranti
 #treeStaticIDs = [ 0x0CE6 ] #wierzby
 #treeStaticIDs = [ 0x0CD6, 0x0CD8 ]
 #axeSerial = None
@@ -271,7 +274,6 @@ def RangeTree():
     else:
         return False
 
-
 def MoveToTree():
     global chopCounter
     global trees
@@ -292,8 +294,13 @@ def MoveToTree():
     treeCoords.X = trees[ 0 ].x
     treeCoords.Y = trees[ 0 ].y + 1
     #Items.Message(trees[0], 1, "Here")
-    
-    
+
+    #Player.PathFindTo(treeCoords.X,treeCoords.Y,trees[ 0 ].z )
+    #while sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) )  >= 1:
+    #    print(sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) ))
+    #    Player.PathFindTo(treeCoords.X,treeCoords.Y,trees[ 0 ].z )
+    #    Misc.Pause(500)
+
     if PathFinding.Go( treeCoords ):
         Misc.SendMessage('First Try')
         Misc.Pause( 1000 )
