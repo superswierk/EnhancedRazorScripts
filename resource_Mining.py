@@ -53,7 +53,7 @@ def hide():
         Misc.Pause( 1000 )
         
         
-def SetDigSpots():
+def SetDigSpotsMistas():
     global trees
     trees = []
     trees.Add( Tree( 804, 932 ))
@@ -73,7 +73,26 @@ def SetDigSpots():
     trees.Add( Tree( 795, 915 ))
     trees.Add( Tree( 803, 920 ))
     trees.Add( Tree( 810, 927 ))
-    #trees = sorted( trees, key = lambda tree: sqrt( pow( ( tree.x - Player.Position.X ), 2 ) + pow( ( tree.y - Player.Position.Y ), 2 ) ) )
+
+    
+def SetDigSpots():
+    global trees
+    trees = []
+    trees.Add( Tree( 4738, 144 ))
+    trees.Add( Tree( 4739, 150 ))
+    trees.Add( Tree( 4737, 155 ))
+    trees.Add( Tree( 4736, 160 ))
+    trees.Add( Tree( 4735, 167 ))
+    trees.Add( Tree( 4741, 169 ))
+    trees.Add( Tree( 4732, 172 ))
+    trees.Add( Tree( 4735, 175 ))
+    trees.Add( Tree( 4739, 171 ))
+    trees.Add( Tree( 4740, 166 ))
+    trees.Add( Tree( 4743, 163 ))
+    trees.Add( Tree( 4742, 158 ))
+    trees.Add( Tree( 4742, 143 ))
+    trees.Add( Tree( 4742, 147 ))
+    trees.Add( Tree( 4740, 142 ))
 
 
     
@@ -187,24 +206,27 @@ while True:
         else:
             MoveToTree()
         print("koniec digTimer")
-        Timer.Create('digTimer',8200)
+        Timer.Create('digTimer',9000)
         doMine()
     if Journal.Search('Nie masz miejsca'):
         sendDiscord("Nie masz juz miejsca na rude", 15291726, miningThumb);
         Misc.Pause(2000)
         sys.exit()
 
-    if Journal.Search('Wykopales') or Journal.Search('Nie udalo Ci sie') or Journal.Search('W tym miejscu'):
+    if Journal.Search('Wykopales') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazles'):
         Journal.Clear('Wykopales')
-        Journal.Clear('Nie udalo Ci sie')
+        Journal.Clear('Nie udalo Ci sie wykopac')
         Journal.Clear('W tym miejscu')
+        Journal.Clear('Moze sprobuje obok')
+        Journal.Clear('Moze dalej')
+        Journal.Clear('Znalazles')
         MoveToGround()
-        Timer.Create('digTimer',8200)
+        Timer.Create('digTimer',9000)
     if Journal.Search('Trzasnales'):
         Journal.Clear('Trzasnales')
         MoveToGround()
         Misc.Pause(20000)
-        Timer.Create('digTimer',8200)
+        Timer.Create('digTimer',9000)
         #print("trzasnales kontynuuj")
         #doMine()
     Misc.Pause(200)
