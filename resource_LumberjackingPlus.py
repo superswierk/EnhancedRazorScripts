@@ -17,6 +17,7 @@ lvlupThumb = "https://i.imgur.com/j5rUy80.png"
 # you want boards or logs?
 logsToBoards = False
 
+runeAxe = True
 singleMode = True
 silentMode = False
 dropLogs = False
@@ -76,6 +77,7 @@ chopCounter=0
 # dab 0x0CDD
 #treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]
 
+'''
 treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
     0x0CA8, 0x0CAA, 0x0CAB, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
     0x0CCC, 0x0CCD, 0x0CD0, 0x0CD3, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
@@ -83,7 +85,8 @@ treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
     0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
     0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
     0x0C9E, ]
-
+'''
+treeStaticIDs = [ 0x0CE3, 0x0CE0 ] #orzech
 #treeStaticIDs = [ 0x0CE6 ] #wierzby
 #treeStaticIDs = [ 0x0CD6, 0x0CD8 ]
 #axeSerial = None
@@ -471,9 +474,9 @@ def CutTree():
                 Misc.SendMessage( '--> Timer: %i' % ( chopCounter+1), 17 )
                 chopCounter=chopCounter+1
                 depositLogs()
-                if singleMode == True:
+                if singleMode == True and runeAxe == False:
                     CutTree()
-        if singleMode == True and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
+        if (singleMode == True or runeAxe == True) and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
             return
         Misc.Pause( 100 )
         
