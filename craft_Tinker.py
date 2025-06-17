@@ -90,19 +90,12 @@ def doCleaning():
         Misc.Pause(3000)
         cleanItem = getByItemID(cleanItemId, workingBag)
 
-lvlCarpSkill = Player.GetRealSkillValue('Druciarstwo')
-Player.ChatSay('.glod wszystko')
-Misc.Pause(1000)
-glod = Journal.GetLineText('Glod')
-bialka = Journal.GetLineText('Bialka')
-witaminy = Journal.GetLineText('Witaminy')
-weglowodany = Journal.GetLineText('Weglowodany')
-Timer.Create('eatingLogTimer', 120000)
+
 Timer.Create('boardStatusTimer', 900000)
 Journal.Clear()
 doCarpet()
 craftCounter = 0
-apocalipse = False
+
 while True:
     Journal.Clear('Brakuje Ci skladnikow')
     if Journal.Search('Brakuje Ci'):
@@ -114,33 +107,7 @@ while True:
         workingBoards = getByItemID(boardId, workingBag)
         if workingBoards is not None:
             sendDiscord("Pracuje na sztabach: " + str(workingBoards.Amount) + " " + workingBoards.Name, 9592372, carpThumb)
-    if(Timer.Check('eatingLogTimer') == False):
-        Timer.Create('eatingLogTimer', 120000)
-        if apocalipse == False and Journal.Search('Apokalipsa'):
-            apokalipseStr = Journal.GetLineText('Apokalipsa')
-            apocalipse = True
-            sendDiscord("Uwaga:\n" + apokalipseStr + "\n", 14696255, apoThumb)
-  
-        Player.ChatSay('.glod wszystko')
-        Misc.Pause(1000)
-        newGlod = Journal.GetLineText('Glod')
-        newBialka = Journal.GetLineText('Bialka')
-        newWitaminy = Journal.GetLineText('Witaminy')
-        newWeglowodany = Journal.GetLineText('Weglowodany')
-        if newGlod != glod or newBialka != bialka or newWitaminy != witaminy or newWeglowodany != weglowodany :
-            glod = newGlod
-            bialka = newBialka
-            witaminy = newWitaminy
-            weglowodany = newWeglowodany
-            if apocalipse:
-                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n" + apokalipseStr + "\n",14696255, apoThumb)
-            else:
-                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
-    lvlCarpSkillNew = Player.GetRealSkillValue('Druciarstwo')
-    if lvlCarpSkill != lvlCarpSkillNew:
-        lvlCarpSkill = lvlCarpSkillNew
-        sendDiscord("Wzrost umiejetnosci Druciarstwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
-        Misc.Pause(1000)
+
     if (craftCounter > 0 and Timer.Check('choppingTimer') == False) or Journal.Search( '100 z 100' ) or Journal.Search( 'Pociales' ) or Journal.Search( 'odzyskac' ):
         Journal.Clear()
         Misc.SendMessage('Restart', 67)
