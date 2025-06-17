@@ -37,6 +37,7 @@ Target.TargetExecute(stealTarget)
 Journal.Clear()
 while True:
     Misc.Pause(400)
+    if Journal.Search("You must wait"):
     if (Journal.Search("Nie udalo Ci sie okrasc") or
        Journal.Search("Udalo Ci sie ukrasc") or
        Journal.Search("Ujawniles sie") or 
@@ -62,6 +63,3 @@ while True:
         Player.UseSkill('Okradanie')
         Target.WaitForTarget( 5000 , True )
         Target.TargetExecute(stealTarget)
-    #if Timer.Check("stealTimer") == False:
-    
-     #   Timer.Create("stealTimer",14000)
