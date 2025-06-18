@@ -8,10 +8,11 @@ enemyThumb = "https://i.imgur.com/YvbQw56.png"
 lvlupThumb = "https://i.imgur.com/j5rUy80.png"
 apoThumb = "https://i.imgur.com/eDQLGaI.png"
 
+skillName =  'Druciarstwo'
 
 Journal.Clear()
-lvlStealSkill = Player.GetRealSkillValue('Okradanie')
-lvlStealSkillNew = Player.GetRealSkillValue('Okradanie')
+lvlStealSkill = Player.GetRealSkillValue(skillName)
+lvlStealSkillNew = Player.GetRealSkillValue(skillName)
 Player.ChatSay('.glod wszystko')
 Misc.Pause(3000)
 glod = Journal.GetLineText('Glod')
@@ -30,10 +31,10 @@ while True:
         apokalipseStr = Journal.GetLineText('Apokalipsa')
         apocalipse = True
         sendDiscord("Uwaga:\n" + apokalipseStr + "\n", 14696255, apoThumb)
-    lvlStealSkillNew = Player.GetRealSkillValue('Okradanie')
+    lvlStealSkillNew = Player.GetRealSkillValue(skillName)
     if lvlStealSkill != lvlStealSkillNew:
         lvlStealSkill = lvlStealSkillNew
-        sendDiscord("Wzrost umiejetnosci Okradanie masz teraz: " + str(Round(lvlStealSkill,1)), 5814783, lvlupThumb)
+        sendDiscord("Wzrost umiejetnosci " + skillName + " masz teraz: " + str(Round(lvlStealSkill,1)), 5814783, lvlupThumb)
     if(Timer.Check('eatingLogTimer') == False):
         Timer.Create('eatingLogTimer', 120000)
         Player.ChatSay('.glod wszystko')
