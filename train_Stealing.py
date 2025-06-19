@@ -1,7 +1,7 @@
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
 
-musicId = 0x0E9E
+musicId = 0x0E9E  #0x0E9E tamburyn 0x0EB1 duza harfa
 # Helper Functions
 ###################################
 def getByItemID(itemid, source):
