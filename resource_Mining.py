@@ -7,7 +7,6 @@ clr.AddReference('System.Speech')
 from System.Speech.Synthesis import SpeechSynthesizer
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 
-Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
 silentMode = False
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
 deadThumb = "https://i.imgur.com/QjVeOoA.png"
@@ -22,9 +21,7 @@ usePetStorage = False
 rightHand = Player.CheckLayer( 'RightHand' )
 leftHand = Player.CheckLayer( 'LeftHand' )
 
-trees = []
-treeCoords = None
-
+spots = []
 
 if silentMode == False:
     beetle = Target.PromptTarget( 'Wybierz konia beetle' )
@@ -37,7 +34,7 @@ if silentMode == False:
     Target.WaitForTarget( 5000 , True )
     Target.TargetExecute(newBeetle)
 
-class Tree:
+class Spot:
     x = None
     y = None
     
@@ -54,68 +51,66 @@ def hide():
         
         
 def SetDigSpotsMistas():
-    global trees
-    trees = []
-    trees.Add( Tree( 804, 932 ))
-    trees.Add( Tree( 807, 923 ))
-    trees.Add( Tree( 813, 916 ))
-    trees.Add( Tree( 820, 906 ))
-    trees.Add( Tree( 824, 902 ))
-    trees.Add( Tree( 828, 904 ))
-    trees.Add( Tree( 825, 910 ))
-    trees.Add( Tree( 815, 920 ))
-    trees.Add( Tree( 819, 924 ))
-    trees.Add( Tree( 810, 927 ))
-    trees.Add( Tree( 803, 919 ))
-    trees.Add( Tree( 796, 920 ))
-    trees.Add( Tree( 792, 914 ))
-    trees.Add( Tree( 797, 912 ))
-    trees.Add( Tree( 795, 915 ))
-    trees.Add( Tree( 803, 920 ))
-    trees.Add( Tree( 810, 927 ))
+    global spots
+    spots = []
+    spots.Add( Spot( 804, 932 ))
+    spots.Add( Spot( 807, 923 ))
+    spots.Add( Spot( 813, 916 ))
+    spots.Add( Spot( 820, 906 ))
+    spots.Add( Spot( 824, 902 ))
+    spots.Add( Spot( 828, 904 ))
+    spots.Add( Spot( 825, 910 ))
+    spots.Add( Spot( 815, 920 ))
+    spots.Add( Spot( 819, 924 ))
+    spots.Add( Spot( 810, 927 ))
+    spots.Add( Spot( 803, 919 ))
+    spots.Add( Spot( 796, 920 ))
+    spots.Add( Spot( 792, 914 ))
+    spots.Add( Spot( 797, 912 ))
+    spots.Add( Spot( 795, 915 ))
+    spots.Add( Spot( 803, 920 ))
+    spots.Add( Spot( 810, 927 ))
 
     
 def SetDigSpots():
-    global trees
-    trees = []
-    trees.Add( Tree( 4738, 144 ))
-    trees.Add( Tree( 4739, 150 ))
-    trees.Add( Tree( 4737, 155 ))
-    trees.Add( Tree( 4736, 160 ))
-    trees.Add( Tree( 4735, 167 ))
-    trees.Add( Tree( 4741, 169 ))
-    trees.Add( Tree( 4732, 172 ))
-    trees.Add( Tree( 4735, 175 ))
-    trees.Add( Tree( 4739, 171 ))
-    trees.Add( Tree( 4740, 166 ))
-    trees.Add( Tree( 4743, 163 ))
-    trees.Add( Tree( 4742, 158 ))
-    trees.Add( Tree( 4742, 143 ))
-    trees.Add( Tree( 4742, 147 ))
-    trees.Add( Tree( 4740, 142 ))
+    global spots
+    spots = []
+    spots.Add( Spot( 4738, 144 ))
+    spots.Add( Spot( 4739, 150 ))
+    spots.Add( Spot( 4737, 155 ))
+    spots.Add( Spot( 4736, 160 ))
+    spots.Add( Spot( 4735, 167 ))
+    spots.Add( Spot( 4741, 169 ))
+    spots.Add( Spot( 4732, 172 ))
+    spots.Add( Spot( 4735, 175 ))
+    spots.Add( Spot( 4739, 171 ))
+    spots.Add( Spot( 4740, 166 ))
+    spots.Add( Spot( 4743, 163 ))
+    spots.Add( Spot( 4742, 158 ))
+    spots.Add( Spot( 4742, 143 ))
+    spots.Add( Spot( 4742, 147 ))
+    spots.Add( Spot( 4740, 142 ))
 
 
     
-def MoveToTree():
-    global trees
-    print("ide do drzew")
-    print(trees.Count)
-    print(trees[0].x)
+def MoveToSpot():
+    global spots
+    print("Move To Spot")
     if silentMode == False:
         Player.ChatSay( 77, 'Za mna!' )
         Misc.Pause(2000)
         Player.ChatSay( 77, 'za mna' )
         Misc.Pause(2000)
-    Player.PathFindTo(trees[0].x,trees[0].y,-30)
+    Player.PathFindTo(spots[0].x,spots[0].y,-30)
     Misc.Pause(14000)
-    Misc.SendMessage( '--> Reached DigSpot: %i, %i' % ( trees[ 0 ].x, trees[ 0 ].y ), 77 )
-    trees.pop( 0 )
+    Misc.SendMessage( '--> Reached DigSpot: %i, %i' % ( spots[ 0 ].x, spots[ 0 ].y ), 77 )
+    spots.pop( 0 )
     if silentMode == False:
         Player.ChatSay( 77, 'Podejdzcie!' )
         Misc.Pause(2000)
         Player.ChatSay( 77, 'Podejdzcie!' )
         Misc.Pause(2000)
-    if trees.Count == 0:
+    if spots.Count == 0:
         SetDigSpots()
 
 
@@ -138,7 +133,7 @@ def doMine():
     hide()
     pickaxe = Player.GetItemOnLayer( 'RightHand' ).Serial
     if pickaxe == None:
-        Player.HeadMessage( 1100, 'You\'re out of pickaxes!' )
+        Player.HeadMessage( 1100, 'Youre out of pickaxes!' )
         return
     Items.UseItem( pickaxe )
     Target.WaitForTarget( 2000, True )
@@ -148,14 +143,7 @@ SetDigSpots()
 # Start mining
 Misc.SendMessage( 'Start', 90 )
 MoveToGround()
-MoveToTree()
-lvlCarpSkill = Player.GetRealSkillValue('Gornictwo')
-Player.ChatSay('.glod wszystko')
-Misc.Pause(1000)
-glod = Journal.GetLineText('Glod')
-bialka = Journal.GetLineText('Bialka')
-witaminy = Journal.GetLineText('Witaminy')
-weglowodany = Journal.GetLineText('Weglowodany')
+MoveToSpot()
 Timer.Create('eatingLogTimer', 120000)
 Timer.Create('digTimer',8200)
 print("poczatek pracy")
@@ -163,25 +151,6 @@ guards = False
 Journal.Clear()
 doMine()
 while True:
-    if(Timer.Check('eatingLogTimer') == False):
-        Timer.Create('eatingLogTimer', 120000)
-        Player.ChatSay('.glod wszystko')
-        Misc.Pause(1000)
-        newGlod = Journal.GetLineText('Glod')
-        newBialka = Journal.GetLineText('Bialka')
-        newWitaminy = Journal.GetLineText('Witaminy')
-        newWeglowodany = Journal.GetLineText('Weglowodany')
-        if newGlod != glod or newBialka != bialka or newWitaminy != witaminy or newWeglowodany != weglowodany :
-            glod = newGlod
-            bialka = newBialka
-            witaminy = newWitaminy
-            weglowodany = newWeglowodany
-            sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
-    lvlCarpSkillNew = Player.GetRealSkillValue('Gornictwo')
-    if lvlCarpSkill != lvlCarpSkillNew:
-        lvlCarpSkill = lvlCarpSkillNew
-        sendDiscord("Wzrost umiejetnosci Gornictwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
-        Misc.Pause(1000)
     if Player.IsGhost == True:
         sendDiscord("Nie zyjesz", 15291726, deadThumb);
         Misc.Pause(2000)
@@ -194,7 +163,7 @@ while True:
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
         sendDiscord("Jakas potwora sie pojawila", 15291726, enemyThumb);
         Misc.Pause(200)
-        MoveToTree()
+        MoveToSpot()
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
         Misc.Pause(1000)
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
@@ -204,7 +173,7 @@ while True:
         if guards == True:
             guards = False
         else:
-            MoveToTree()
+            MoveToSpot()
         print("koniec digTimer")
         Timer.Create('digTimer',9000)
         doMine()
@@ -213,22 +182,22 @@ while True:
         Misc.Pause(2000)
         sys.exit()
 
-    if Journal.Search('Wykopales') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazles'):
-        Journal.Clear('Wykopales')
+    if Journal.Search('Wykopal') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazl'):
+        Journal.Clear('Wykopal')
         Journal.Clear('Nie udalo Ci sie wykopac')
         Journal.Clear('W tym miejscu')
         Journal.Clear('Moze sprobuje obok')
         Journal.Clear('Moze dalej')
-        Journal.Clear('Znalazles')
+        Journal.Clear('Znalazl')
         MoveToGround()
         Timer.Create('digTimer',9000)
-    if Journal.Search('Trzasnales'):
-        Journal.Clear('Trzasnales')
+    if Journal.Search('Trzasn'):
+        Journal.Clear('Trzasn')
         MoveToGround()
         Misc.Pause(20000)
         Timer.Create('digTimer',9000)
         #print("trzasnales kontynuuj")
         #doMine()
-    Misc.Pause(200)
+    Misc.Pause(400)
 
 
