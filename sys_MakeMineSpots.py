@@ -34,7 +34,7 @@ def sendgumpText():
     Gumps.AddLabel(gd,10,10,2410,'Wklej ten tekst do skryptu:')
     Gumps.AddHtml(gd,15,42,244,284,spotString,True,True)
     setText(spotString)
-    Misc.SendMessage("ZAPISANO DO SCHOWKA",1100)
+    Misc.SendMessage("ZAPISANO DO PLIKU",1100)
     Gumps.SendGump(666666, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
     buttoncheckText()
 
