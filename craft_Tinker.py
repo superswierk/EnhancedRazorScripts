@@ -98,6 +98,9 @@ craftCounter = 0
 
 while True:
     Journal.Clear('Brakuje Ci skladnikow')
+    if Journal.Search('fatalnym'):
+        Journal.Clear('fatalnym')
+        sendDiscord("Uwaga narzedzia druciarskie sie koncza!", 9592372, carpThumb)
     if Journal.Search('Brakuje Ci'):
         sendDiscord("Uwaga koniec desek!", 14696255, carpThumb)
         Misc.Pause(6000)
@@ -136,6 +139,6 @@ while True:
         Misc.Pause(5000)
         craftCounter = 0
         doCarpet()
-    Misc.Pause(200)
+    Misc.Pause(400)
     
     
