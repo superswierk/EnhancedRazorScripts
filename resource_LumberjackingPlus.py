@@ -5,8 +5,162 @@
 
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 from Scripts.EnhancedRazorScripts.misc_Email import *
+from System.Collections.Generic import List
+from System import Byte, Int32
 import sys
 
+setX = 125 
+setY = 125
+offsetLabelY = 20
+offsetRadioY = 45
+offsetButtonY = 170
+
+STATICTREES = {
+    "Wszystkie": 11,
+    "Wszystkie bez zwyklych": 12,
+    "Ohii": 13,
+    "Wierzba": 14,
+    "Orzech": 15,
+    "Dab": 16,
+    "Cyprys": 17,
+    "Cis": 18,
+    "Cedr": 19,
+    "Meranti": 20,
+    "Zwykle": 21
+}
+
+
+
+def sendgump():
+    gd = Gumps.CreateGump(movable=True) 
+    
+    Gumps.AddPage(gd, 0)
+    Gumps.AddBackground(gd, 0, 0, 200, (STATICTREES.Count + 3) * 20 + offsetRadioY, 2620) 
+
+    iY = 0
+    Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz drzewa do ciecia:')
+
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,True,STATICTREES['Wszystkie'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Wszystkie')
+
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Wszystkie bez zwyklych'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Wszystkie bez zwyklych')
+
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Ohii'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Ohii')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Wierzba'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Wierzba')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Orzech'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Orzech')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Dab'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Dab')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Cyprys'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Cyprys')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Cis'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Cis')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Cedr'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Cedr')
+    
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Meranti'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Meranti')
+
+    iY = iY + 20
+    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Zwykle'])
+    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Zwykle')
+    
+    iY = iY + 40
+    Gumps.AddButton(gd,120,iY + offsetRadioY,247,248,456,1,0)
+
+    Gumps.SendGump(696969, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
+    buttoncheck()
+
+#wszystkie drzewa
+treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
+    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
+    0x0CCC, 0x0CCD, 0x0CD0, 0x0CD3, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
+    0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
+    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
+    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
+    0x0C9E, ]
+
+
+def buttoncheck():
+    global treeStaticIDs
+    Gumps.WaitForGump(696969, 60000)
+    Gumps.CloseGump(696969)
+    gdata = Gumps.GetGumpData(696969)
+    switchList = gdata.switches
+    if switchList.Count >= 1:
+        if switchList[0] == STATICTREES['Wszystkie']:
+            treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
+                0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
+                0x0CCC, 0x0CCD, 0x0CD0, 0x0CD3, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
+                0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
+                0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
+                0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
+                0x0C9E, ]
+            print("Wszystkie")
+        elif switchList[0] == STATICTREES['Wszystkie bez zwyklych']:
+            treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
+                0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
+                0x0CCC, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
+                0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
+                0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
+                0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
+                0x0C9E, ]
+            print("Wszystkie bez zwyklych")
+        elif switchList[0] == STATICTREES['Ohii']:
+            treeStaticIDs = [ 0x0C9E ]
+            print("Ohii")
+        elif switchList[0] == STATICTREES['Wierzba']:
+            treeStaticIDs = [ 0x0CE6 ]
+            print("Wierzba")
+        elif switchList[0] == STATICTREES['Orzech']:
+            treeStaticIDs = [ 0x0CE3, 0x0CE0 ]
+            print("Orzech")
+        elif switchList[0] == STATICTREES['Dab']:
+            treeStaticIDs = [ 0x0CDD, 0x0CDA ]
+            print("Dab")
+        elif switchList[0] == STATICTREES['Cyprys']:
+            treeStaticIDs = [ 0x0D01, 0x0CFE ]
+            print("Cyprys")
+        elif switchList[0] == STATICTREES['Cis']:
+            treeStaticIDs = [ 0x12B9 ]
+            print("Cis")
+        elif switchList[0] == STATICTREES['Cedr']:
+            treeStaticIDs = [ 0x0CD6 ]
+            print("Cedr")
+        elif switchList[0] == STATICTREES['Meranti']:
+            treeStaticIDs = [ 0x0D43, 0x0D85, 0x0D59, 0x0D70 ]
+            print("Meranti")
+        elif switchList[0] == STATICTREES['Zwykle']:
+            treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3 ]
+            print("Zwykle")
+        else:
+            print("Default value " + skillName)
+    else:
+        print("error nie zaznaczyles nic uzwyam domyslnego " + skillName)
+
+
+        
+sendgump()
+Misc.Pause(2000)       
+        
 Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
 
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
@@ -30,12 +184,12 @@ lvlCarpSkill = Player.GetRealSkillValue('Drwalstwo')
 if dropLogs == False and logsToBoards == False:
     beetle = Target.PromptTarget( 'Wybierz konia beetle' )
     Player.ChatSay( 77, '.pojemnik' )
-    Target.WaitForTarget( 5000 , True )
+    Target.WaitForTarget( 25000 , True )
     Target.TargetExecute(beetle)
 
     newBeetle = Target.PromptTarget( 'Wybierz konia newBeetle' )
     Player.ChatSay( 77, '.pojemnik' )
-    Target.WaitForTarget( 5000 , True )
+    Target.WaitForTarget( 25000 , True )
     Target.TargetExecute(newBeetle)
 else:
     beetle=0x51B04FF5
@@ -56,25 +210,9 @@ alert = False
 chopCounter=0
 
 # Parameters
-#treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
-#    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
-#    0x0CCC, 0x0CCD, 0x0CD0, 0x0CD3, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
-#    0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
-#    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
-#    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
-#    0x0C9E, ]
-#treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]zwykle
-#treeStaticIDs = [ 0x0CD6,] cedr
-#cis 0x12B9
-#cyprys 0x0D01 0x0CFE treeStaticIDs = [ 0x0D01, 0x0CFE ]
+#cyprys 0x0D01 0x0CFE 
 # Parameters wszystkie bez zwyklych
-#treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
-#    0x0CA8, 0x0CAA, 0x0CAB, 0x0CC3, 0x0CC4, 0x0CC8, 0x0CCA, 0x0CCB,
-#    0x0CCC, 0x0CD6, 0x0CD8, 0x0CDA, 0x0CDD, 0x0CE0,
-#    0x0CE3, 0x0CE6, 0x0CF8, 0x0CFB, 0x0CFE, 0x0D01, 0x0D25, 0x0D27, 0x0D35,
-#    0x0D37, 0x0D38, 0x0D42, 0x0D43, 0x0D59, 0x0D70, 0x0D85, 0x0D94, 0x0D96,
-#    0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
-#    0x0C9E, ]
+
 # dab 0x0CDD
 #treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3]
 
@@ -87,12 +225,8 @@ treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
     0x0D98, 0x0D9A, 0x0DA0, 0x0DA2, 0x0DA8, 0x12B9,
     0x0C9E, ]
 '''
-#treeStaticIDs = [ 0x0CE3, 0x0CE0 ] #orzech
-#treeStaticIDs = [ 0x0CDD, 0x0CDA ] #dab
-treeStaticIDs = [ 0x0D43, 0x0D85,0x0D59,0x0D70 ]  #meranti
-#treeStaticIDs = [ 0x0CE6 ] #wierzby
+#wierzby
 #treeStaticIDs = [ 0x0CD6, 0x0CD8 ]
-#axeSerial = None
 EquipAxeDelay = 1000
 TimeoutOnWaitAction = 4000
 ChopDelay = 1000
@@ -132,8 +266,6 @@ def getByItemID(itemid, source):
 ###################################
 
 # System Variables
-from System.Collections.Generic import List
-from System import Byte, Int32
 from math import sqrt
 import clr
 clr.AddReference('System.Speech')
