@@ -1,7 +1,13 @@
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 from System.Collections.Generic import List
 from System import Byte, Int32
-import sys
+import System.IO
+import System.Diagnostics
+
+def setText(text):
+    path = ".\\clipboard.txt"
+    System.IO.File.WriteAllText(path, text)
+    System.Diagnostics.Process.Start("notepad.exe", path)
 
 class Spot:
     x = None
@@ -19,7 +25,6 @@ setY = 125
 offsetLabelY = 20
 offsetRadioY = 45
 offsetButtonY = 170
-
 def sendgumpText():
     global spotString
     gd = Gumps.CreateGump(movable=True) 
@@ -27,7 +32,9 @@ def sendgumpText():
     Gumps.AddBackground(gd, 0, 0, 283, 349, 9300) 
     Gumps.AddBackground(gd, 8, 32, 264, 304, 9350) 
     Gumps.AddLabel(gd,10,10,2410,'Wklej ten tekst do skryptu:')
-    Gumps.AddTextEntry(gd,15,42,244,284,2407,321,spotString)
+    Gumps.AddHtml(gd,15,42,244,284,spotString,True,True)
+    setText(spotString)
+    Misc.SendMessage("ZAPISANO DO SCHOWKA",1100)
     Gumps.SendGump(666666, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
     buttoncheckText()
 
@@ -59,7 +66,7 @@ def buttoncheck():
     gdata = Gumps.GetGumpData(696669)
     if gdata.buttonid == 123:
         print("dodaj spot")
-        spots.Add( Spot( Player.Position.X, Player.Position.Y ))
+        spots.Add( Spot(Player.Position.X, Player.Position.Y))
         print(str(spots.Count) + ". X=" + str(spots[spots.Count - 1].x) + " Y=" + str(spots[spots.Count - 1].y))
         Misc.Pause(200)
         sendgump()

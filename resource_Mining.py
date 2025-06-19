@@ -76,21 +76,20 @@ def SetDigSpots():
     global spots
     spots = []
     spots.Add( Spot( 4738, 144 ))
-    spots.Add( Spot( 4739, 150 ))
-    spots.Add( Spot( 4737, 155 ))
-    spots.Add( Spot( 4736, 160 ))
-    spots.Add( Spot( 4735, 167 ))
-    spots.Add( Spot( 4741, 169 ))
+    spots.Add( Spot( 4740, 151 ))
+    spots.Add( Spot( 4737, 156 ))
+    spots.Add( Spot( 4734, 162 ))
+    spots.Add( Spot( 4735, 166 ))
     spots.Add( Spot( 4732, 172 ))
-    spots.Add( Spot( 4735, 175 ))
-    spots.Add( Spot( 4739, 171 ))
-    spots.Add( Spot( 4740, 166 ))
+    spots.Add( Spot( 4736, 174 ))
+    spots.Add( Spot( 4740, 171 ))
+    spots.Add( Spot( 4743, 168 ))
     spots.Add( Spot( 4743, 163 ))
-    spots.Add( Spot( 4742, 158 ))
-    spots.Add( Spot( 4742, 143 ))
-    spots.Add( Spot( 4742, 147 ))
-    spots.Add( Spot( 4740, 142 ))
-
+    spots.Add( Spot( 4738, 165 ))
+    spots.Add( Spot( 4740, 160 ))
+    spots.Add( Spot( 4742, 155 ))
+    spots.Add( Spot( 4742, 148 ))
+    spots.Add( Spot( 4740, 143 ))
 
     
 def MoveToSpot():
@@ -98,11 +97,15 @@ def MoveToSpot():
     print("Move To Spot")
     if silentMode == False:
         Player.ChatSay( 77, 'Za mna!' )
-        Misc.Pause(2000)
+        Misc.Pause(1500)
         Player.ChatSay( 77, 'za mna' )
-        Misc.Pause(2000)
-    Player.PathFindTo(spots[0].x,spots[0].y,-30)
-    Misc.Pause(14000)
+        Misc.Pause(1500)
+    if sqrt( pow( ( spots[0].x - Player.Position.X ), 2 ) + pow( ( spots[0].y - Player.Position.Y ), 2 ) ) > 20:
+        print("ERROR point to far away")
+        sys.exit()
+    Player.PathFindTo(spots[0].x,spots[0].y,Player.Position.Z)
+    while sqrt( pow( ( spots[0].x - Player.Position.X ), 2 ) + pow( ( spots[0].y - Player.Position.Y ), 2 ) )  >= 2:
+        Misc.Pause(50)
     Misc.SendMessage( '--> Reached DigSpot: %i, %i' % ( spots[ 0 ].x, spots[ 0 ].y ), 77 )
     spots.pop( 0 )
     if silentMode == False:
