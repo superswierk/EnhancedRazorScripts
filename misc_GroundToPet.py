@@ -20,8 +20,8 @@ groundItems = filterItem([itemToMoveID])
     
 Misc.Pause(400)
 for item in groundItems:
-    if item.ItemID == itemToMoveID and item.Hue == 0x0000:
-        Items.Move(item.Serial,containerObj,-1, 70,70)
+    if item.ItemID == itemToMoveID and item.Hue == 0x04b9:
+        Items.Move(item.Serial,containerObj,-1)
         Misc.Pause( 500 )
 Misc.Pause(400)
 
