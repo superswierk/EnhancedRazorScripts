@@ -6,7 +6,26 @@ import clr
 clr.AddReference('System.Speech')
 from System.Speech.Synthesis import SpeechSynthesizer
 from Scripts.EnhancedRazorScripts.misc_Discord import *
+import System.IO
 
+pathToScript = Misc.ScriptCurrent()
+directoryPath = pathToScript.rsplit("\\",1)[0]
+
+fileList = System.IO.Directory.GetFiles(directoryPath, "mineSpots_*")
+prefix = "mineSpots_"
+suffix = ".txt"
+
+mapTable = {}
+print("test")
+idI = 0
+for file in fileList:
+    fileBody = System.IO.File.ReadAllText(file)
+    mname = file.rsplit("\\",1)[1]
+    mname = mname[len(prefix):]
+    mname = mname[:-len(suffix)]
+    mapTable[mname] = { "id" : idI, "code" : fileBody }
+    idI = idI + 1
+    
 silentMode = False
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
 deadThumb = "https://i.imgur.com/QjVeOoA.png"
@@ -21,7 +40,71 @@ usePetStorage = False
 rightHand = Player.CheckLayer( 'RightHand' )
 leftHand = Player.CheckLayer( 'LeftHand' )
 
+stringCodeToRun = ""
+
 spots = []
+
+class Spot:
+    x = None
+    y = None
+    
+    def __init__ ( self, x, y):
+        self.x = x
+        self.y = y
+
+        
+###UI code start 
+setX = 125 
+setY = 125
+offsetLabelY = 20
+offsetRadioY = 45
+offsetButtonY = 170
+
+def sendgump():
+    global mapTable
+    gd = Gumps.CreateGump(movable=True) 
+    
+    Gumps.AddPage(gd, 0)
+    Gumps.AddBackground(gd, 0, 0, 240, (mapTable.Count + 3) * 20 + offsetRadioY, 2620) 
+
+    iY = 0
+    Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz kopalnie w jakiej jestes:')
+
+    for mapname in mapTable:
+        defaultState = False
+        if iY == 0:
+            defaultState = True
+        Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,defaultState,mapTable[mapname]['id'])
+        Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,mapname)
+        iY = iY + 20
+
+    iY = iY + 10
+    Gumps.AddButton(gd,140,iY + offsetRadioY,247,248,456,1,0)
+
+    Gumps.SendGump(767676, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
+    buttoncheck()
+
+def buttoncheck():
+    global mapTable
+    global stringCodeToRun
+    Gumps.WaitForGump(767676, 60000)
+    Gumps.CloseGump(767676)
+    gdata = Gumps.GetGumpData(767676)
+    switchList = gdata.switches
+    if switchList.Count >= 1:
+        for mapname in mapTable:
+            if mapTable[mapname]["id"] == switchList[0]:
+                stringCodeToRun = mapTable[mapname]["code"]
+        print("Mapa przeczytana")
+    else:
+        stringCodeToRun = "sys.exit()"
+        print("error nie zaznaczyles nic ")
+        sys.exit()
+
+###UI code end
+
+sendgump()
+Misc.Pause(1000)
 
 if silentMode == False:
     beetle = Target.PromptTarget( 'Wybierz konia beetle' )
@@ -33,63 +116,20 @@ if silentMode == False:
     Player.ChatSay( 77, '.pojemnik' )
     Target.WaitForTarget( 5000 , True )
     Target.TargetExecute(newBeetle)
-
-class Spot:
-    x = None
-    y = None
-    
-    def __init__ ( self, x, y):
-        self.x = x
-        self.y = y
-
+        
 def hide():
     if  Player.BuffsExist('Ukrywanie') == False and Timer.Check('hideTimer') == False:
         Misc.Pause( 700 )
         Player.UseSkill('Ukrywanie')
         Timer.Create('hideTimer',10000)
         Misc.Pause( 1000 )
-        
-        
-def SetDigSpotsMistas():
-    global spots
-    spots = []
-    spots.Add( Spot( 804, 932 ))
-    spots.Add( Spot( 807, 923 ))
-    spots.Add( Spot( 813, 916 ))
-    spots.Add( Spot( 820, 906 ))
-    spots.Add( Spot( 824, 902 ))
-    spots.Add( Spot( 828, 904 ))
-    spots.Add( Spot( 825, 910 ))
-    spots.Add( Spot( 815, 920 ))
-    spots.Add( Spot( 819, 924 ))
-    spots.Add( Spot( 810, 927 ))
-    spots.Add( Spot( 803, 919 ))
-    spots.Add( Spot( 796, 920 ))
-    spots.Add( Spot( 792, 914 ))
-    spots.Add( Spot( 797, 912 ))
-    spots.Add( Spot( 795, 915 ))
-    spots.Add( Spot( 803, 920 ))
-    spots.Add( Spot( 810, 927 ))
 
     
 def SetDigSpots():
     global spots
+    global stringCodeToRun
     spots = []
-    spots.Add( Spot( 4738, 144 ))
-    spots.Add( Spot( 4740, 150 ))
-    spots.Add( Spot( 4738, 155 ))
-    spots.Add( Spot( 4736, 161 ))
-    spots.Add( Spot( 4735, 168 ))
-    spots.Add( Spot( 4730, 176 ))
-    spots.Add( Spot( 4733, 181 ))
-    spots.Add( Spot( 4734, 192 ))
-    spots.Add( Spot( 4735, 200 ))
-    spots.Add( Spot( 4746, 196 ))
-    spots.Add( Spot( 4742, 186 ))
-    spots.Add( Spot( 4740, 179 ))
-    spots.Add( Spot( 4741, 168 ))
-    spots.Add( Spot( 4743, 155 ))
-    spots.Add( Spot( 4741, 146 ))
+    exec(stringCodeToRun)
 
     
 def MoveToSpot():
@@ -116,9 +156,6 @@ def MoveToSpot():
     if spots.Count == 0:
         SetDigSpots()
 
-
-
-    
 
 def MoveToGround():
     Misc.SendMessage( 'MoveToGround', 90 )
