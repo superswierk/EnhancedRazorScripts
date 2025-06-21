@@ -28,9 +28,80 @@ def playMusic():
     else:
         print('nie gram muzyki cos nie tak!')
         
+def snoop(target):
+    print("snoop func")
+    Timer.Create("snoopWatchdog",60000)
+    Journal.Clear()
+    Player.UseSkill('Zagladanie')
+    Target.WaitForTarget( 5000 , True )
+    Target.TargetExecute(target)
+    while True:
+        Misc.Pause(200) #waiting
+        if Timer.Check("snoopWatchdog") == False:
+            Journal.Clear()
+            print("snoop func ret watchdog FALSE")
+            Misc.Pause(200)
+            return False
+        if Journal.Search('Oddaliles') or Journal.Search('za daleko') or Journal.Search('Nie widzisz'):
+            Journal.Clear()
+            Misc.Pause(3000)
+            print("snoop func ret FALSE")
+            return False
+        if Journal.Search('Musisz chwile') or Journal.Search('Juz podgladasz') or Journal.Search('You must') or Journal.Search('am already'):
+            Misc.Pause(3000)
+            Journal.Clear()
+            Player.UseSkill('Zagladanie')
+            Target.WaitForTarget( 5000 , True )
+            Target.TargetExecute(target)
+        if Journal.Search('Udalo Ci sie otworzyc'):
+            Journal.Clear('Udalo Ci sie otworzyc')
+            print('snoop func ret SUKCES')
+            return True
+        if Journal.Search('Nie udalo Ci sie otworzyc'):
+            Journal.Clear('Nie udalo Ci sie otworzyc')
+            print('snoop func ret FALSE')
+            return False 
+        
+def steal(itemToSteal):
+    print("steal func")
+    Journal.Clear()
+    Timer.Create("stealWatchdog",14000)
+    Player.UseSkill('Okradanie')
+    Target.WaitForTarget( 5000 , True )
+    Target.TargetExecute(itemToSteal)
+    while True:
+        Misc.Pause(200)#waiting
+        if Timer.Check("stealWatchdog") == False or Journal.Search("Tego nie da Ci"):
+            return False
+        if Journal.Search('You must') or Journal.Search('am already'):
+            Misc.Pause(1000)
+            Journal.Clear()
+            Timer.Create("stealWatchdog",14000)
+            return True
+        if (Journal.Search("Udalo Ci sie ukrasc") or
+            Journal.Search("Nie Udalo Ci sie ukrasc") or
+            Journal.Search("Udalo Ci sie ukrasc") or 
+            Journal.Search("Ujawniles sie")):
+            Misc.Pause(4000)
+            Journal.Clear()
+            Timer.Create("stealWatchdog",14000)
+            return True
 
+            
 stealTarget = Target.PromptTarget( 'Select whom to steal' )
 
+while True:
+    Misc.Pause(200)
+    if snoop(stealTarget) == True:
+        Misc.Pause(2000)
+        while True:
+            item = Items.FindByID(0x09D7,0x0000,0x543C2CEA,False,False)
+            if steal(item) == False:
+                break
+    Misc.Pause(2000)
+    print("restart main loop")
+    
+sys.exit()
 Player.UseSkill('Okradanie')
 Target.WaitForTarget( 5000 , True )
 Target.TargetExecute(stealTarget)
