@@ -76,20 +76,20 @@ def SetDigSpots():
     global spots
     spots = []
     spots.Add( Spot( 4738, 144 ))
-    spots.Add( Spot( 4740, 151 ))
-    spots.Add( Spot( 4737, 156 ))
-    spots.Add( Spot( 4734, 162 ))
-    spots.Add( Spot( 4735, 166 ))
-    spots.Add( Spot( 4732, 172 ))
-    spots.Add( Spot( 4736, 174 ))
-    spots.Add( Spot( 4740, 171 ))
-    spots.Add( Spot( 4743, 168 ))
-    spots.Add( Spot( 4743, 163 ))
-    spots.Add( Spot( 4738, 165 ))
-    spots.Add( Spot( 4740, 160 ))
-    spots.Add( Spot( 4742, 155 ))
-    spots.Add( Spot( 4742, 148 ))
-    spots.Add( Spot( 4740, 143 ))
+    spots.Add( Spot( 4740, 150 ))
+    spots.Add( Spot( 4738, 155 ))
+    spots.Add( Spot( 4736, 161 ))
+    spots.Add( Spot( 4735, 168 ))
+    spots.Add( Spot( 4730, 176 ))
+    spots.Add( Spot( 4733, 181 ))
+    spots.Add( Spot( 4734, 192 ))
+    spots.Add( Spot( 4735, 200 ))
+    spots.Add( Spot( 4746, 196 ))
+    spots.Add( Spot( 4742, 186 ))
+    spots.Add( Spot( 4740, 179 ))
+    spots.Add( Spot( 4741, 168 ))
+    spots.Add( Spot( 4743, 155 ))
+    spots.Add( Spot( 4741, 146 ))
 
     
 def MoveToSpot():
@@ -159,7 +159,7 @@ while True:
         Misc.Pause(2000)
         Misc.Pause(200)
         break
-    if Journal.Search("Przyciagnales uwage",) or Journal.Search("podchodzi zobaczyc co ciekawego ") or Journal.Search("wir"):
+    if Journal.Search("Przyciagnales uwage",) or Journal.Search("podchodzi zobaczyc co ciekawego"):
         guards = True
         Misc.Pause(1000)
         Journal.Clear()
