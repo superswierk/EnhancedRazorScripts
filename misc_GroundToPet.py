@@ -21,7 +21,9 @@ groundItems = filterItem([itemToMoveID])
 Misc.Pause(400)
 for item in groundItems:
     if item.ItemID == itemToMoveID and item.Hue == 0x04b9:
+        print("Przenosze...")
         Items.Move(item.Serial,containerObj,-1)
         Misc.Pause( 500 )
+print("Zebrane DONE!")
 Misc.Pause(400)
 
