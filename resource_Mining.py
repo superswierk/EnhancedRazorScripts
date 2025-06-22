@@ -198,6 +198,9 @@ while True:
         break
     if Journal.Search("Przyciagnales uwage",) or Journal.Search("podchodzi zobaczyc co ciekawego"):
         guards = True
+        savedTime = 0
+        if Timer.Check('digTimer'):
+           savedTime = Timer.Remaining('digTimer')
         Misc.Pause(1000)
         Journal.Clear()
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
@@ -207,7 +210,8 @@ while True:
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
         Misc.Pause(1000)
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
-        
+        if savedTime > 0:
+            Timer.Create('digTimer',savedTime)
 
     if Timer.Check('digTimer') == False:
         if guards == True:
