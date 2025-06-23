@@ -30,7 +30,7 @@ CRAFTITEMS = {
     "zloty_naszyjnik": { "itemID" : 4233, "pageID" : 4, "type" : "klejnot" },
     "szpony": { "itemID" : 41520, "pageID" : 5, "type" : "metal" },
     "tekagi": { "itemID" : 10230, "pageID" : 5, "type" : "metal" },
-    "ciemnie_jingasa": { "itemID" : 10103, "pageID" : 5, "type" : "metal" },
+    "ciemne_jingasa": { "itemID" : 10103, "pageID" : 5, "type" : "metal" },
     "plytowe_jingasa": { "itemID" : 10113, "pageID" : 5, "type" : "metal" },
     "diadem": { "itemID" : 11118, "pageID" : 5, "type" : "klejnot" },
     "swiecznikA": { "itemID" : 2599, "pageID" : 12, "type" : "metal" },
