@@ -25,7 +25,7 @@ CRAFTITEMS = {
     "narzedzia_druciarskie": { "itemID" : 7868, "pageID" : 3, "type" : "metal" },
     "narzedzia_szewskie": { "itemID" : 3997, "pageID" : 3, "type" : "metal" },
     "pila": { "itemID" : 4149, "pageID" : 3, "type" : "metal" },
-    "dluto": { "itemID" : 4787, "pageID" : 3, "type" : "metal" },
+    "dluto": { "itemID" : 4787, "pageID" : 3, "type" : "drewno" },
     "kolczyki": { "itemID" : 4231, "pageID" : 4, "type" : "klejnot" },
     "zloty_naszyjnik": { "itemID" : 4233, "pageID" : 4, "type" : "klejnot" },
     "szpony": { "itemID" : 41520, "pageID" : 5, "type" : "metal" },
@@ -126,10 +126,27 @@ def getByItemIDColor(itemsIds, color, source):
                     Misc.NoOperation()
     else:
         Misc.NoOperation()
+        
+def usun_ostatnia_linie(tekst):
+    # Dzieli string na listę linii. '\n' jest domyślnym separatorem.
+    linie = tekst.splitlines()
+
+    # Sprawdza, czy są jakieś linie do usunięcia.
+    if len(linie) > 0:
+        # Łączy wszystkie linie z wyjątkiem ostatniej, używając znaku nowej linii.
+        return '\n'.join(linie[:-1])
+    else:
+        # Jeśli string jest pusty, zwraca pusty string.
+        return ""
+        
+        
 errorMessage = "Nieznany blad! Nie udalo sie dokonczyc craftowania"
+realItemsCrafted = 0
 def craftItem( itemToCraft ):
     global errorMessage
     global workingBag
+    global realItemsCrafted
+    realItemsCrafted = 0
     endString = str(itemToCraft.amount) + " z " + str(itemToCraft.amount)
     print(endString)
     tools = getByItemID(toolsId, self_pack)
@@ -177,12 +194,14 @@ def craftItem( itemToCraft ):
             return False
         if Journal.Search( 'miejsca w pojemniku' ):
             print("Nie ma juz miejsca w pojemniku")
+            realItemsCrafted += 1
             errorMessage = "Nie ma juz miejsca w pojemniku"
             Misc.Pause(2000)
             return False
         if  Journal.Search( endString ) or Timer.Check('craftingTimer') == False:
             if craftCounter > 0:
                 print("Skonczylem craftowanie tego itemu")
+                realItemsCrafted += 1
                 Misc.Pause(2000)
                 return True
             else:
@@ -191,6 +210,8 @@ def craftItem( itemToCraft ):
                 Misc.Pause(2000)
                 return False
         if Journal.Search( 'Stworzyles' ) or Journal.Search( 'przeskoczyly' ):
+            if Journal.Search( 'Stworzyles' ):
+                realItemsCrafted += 1
             Journal.Clear('Stworzyles')
             Journal.Clear('przeskoczyly')
             Timer.Create('craftingTimer',12000)
@@ -199,34 +220,79 @@ def craftItem( itemToCraft ):
 
 pathToScript = Misc.ScriptCurrent()
 directoryPath = pathToScript.rsplit("\\",1)[0]
+
 fileName = directoryPath + "\\craft_ItemList.txt"
 fileBody = System.IO.File.ReadAllText(fileName)
 jobsTable = fileBody.split("\n")
-craftItems = []
+fileNameProgress = directoryPath + "\\craft_ItemList.progress"
 
+craftItems = []
 for job in jobsTable:
     print("to je linia: " + job + " end")
-    line = job.split(";")
-    craftItems.Add( CraftItem( CRAFTITEMS[line[0]]["itemID"], ORES[line[1]],CRAFTITEMS[line[0]]["pageID"], CRAFTITEMS[line[0]]["type"], int(line[2]), line[0]) )
+    if job != "":
+        line = job.split(";")
+        craftItems.Add( CraftItem( CRAFTITEMS[line[0]]["itemID"], ORES[line[1]],CRAFTITEMS[line[0]]["pageID"], CRAFTITEMS[line[0]]["type"], int(line[2]), line[0]) )
 
+overrideLastAmount = 0
+filePrevBody = System.IO.File.ReadAllText(fileNameProgress)
+if filePrevBody != "":
+    jobsDoneTable = filePrevBody.split("\n")
+    prevIt = 0
+    for jobDone in jobsDoneTable:
+        print("to je linia: " + job + " end")
+        if jobDone != "":
+            line = jobDone.split(";")
+            newAmount = int(craftItems[prevIt].amount) - int(line[1])
+            if newAmount > 0:
+                tempBody = usun_ostatnia_linie(filePrevBody)
+                System.IO.File.WriteAllText(fileNameProgress,tempBody)
+                overrideLastAmount = int(craftItems[prevIt].amount)
+            if newAmount < 0:
+                newAmount = 0
+            craftItems[prevIt].amount = newAmount
+            prevIt += 1
+
+        
 #itemID = None
 #oreColor = None
-#type = None
+#pageID = None
+#typ = None
 #amount = None
-    
+#itemName = None
+
 craftIterator = 0
 successIterator = 0
+wasFail = False
 for item in craftItems:
     Misc.Pause(300)
     craftIterator = craftIterator + 1
     print("craftuje item nr " + str(craftIterator))
+    if item.amount <= 0:
+        print("skipping item nr " + str(craftIterator))
+        continue
     if craftItem(item) == True:
         print("Sukces udalo sie scraftowac nr " + str(craftIterator))
         successIterator += 1
+        
+        if overrideLastAmount > 0:
+                realItemsCrafted = overrideLastAmount
+                System.IO.File.AppendAllText(fileNameProgress, "\n" )
+                overrideLastAmount = 0
+        System.IO.File.AppendAllText(fileNameProgress, f"{item.itemName};{realItemsCrafted}\n" )
     else:
-        sendDiscord(errorMessage + f"\n Ukonczono tylko {successIterator} zadan", 14696255, carpErrorThumb)
+        wasFail = True
+        sendDiscord(errorMessage + f"\nUkonczono z sukcesem tylko {successIterator} zadan", 14696255, carpErrorThumb)
         print("Nie udalo sie scraftowac nr " + str(craftIterator))
         print("PRZERYWAM SKRYPT COS NIE TAK")
+        if realItemsCrafted > 0:
+            if overrideLastAmount > 0:
+                realItemsCrafted = overrideLastAmount
+                System.IO.File.AppendAllText(fileNameProgress, "\n" )
+                overrideLastAmount = 0
+            System.IO.File.AppendAllText(fileNameProgress, f"{item.itemName};{realItemsCrafted}\n" )
         break
-sendDiscord(f"Sukces zakonczone craftowanie {successIterator} zadan", 9592372, carpThumb)
+    
+if wasFail == False:
+    System.IO.File.WriteAllText(fileNameProgress, "" )
+    sendDiscord(f"Sukces zakonczone craftowanie {successIterator} zadan", 9592372, carpThumb)
 Misc.Pause(2000)
