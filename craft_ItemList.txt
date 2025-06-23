@@ -1,0 +1,2 @@
+swiecznikA;zelazo;14
+swiecznikB;zelazo;33
