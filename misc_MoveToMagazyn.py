@@ -11,7 +11,7 @@ magazynID = 0x53D780E8
 if Player.Name == "Vaekin":
     magazynID = 0x51B09F1E
 if Player.Name == "Dajson":
-    magazynID = 0x51B09F1E
+    magazynID = 0x53D780E8
     
 # Helper Functions
 ###################################
