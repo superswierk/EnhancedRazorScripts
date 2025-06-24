@@ -22,7 +22,7 @@ CRAFTITEMS = {
     "mozdzierz": { "itemID" : 3739, "pageID" : 3, "type" : "metal" },
     "narzedzie_szklarskie": { "itemID" : 36870, "pageID" : 3, "type" : "metal" },
     "narzedzia_naprawcze": { "itemID" : 7865, "pageID" : 3, "type" : "metal" },
-    "narzedzia_druciarskie": { "itemID" : 7868, "pageID" : 3, "type" : "metal" },
+    "narzedzia_druciarza": { "itemID" : 7868, "pageID" : 3, "type" : "metal" },
     "narzedzia_szewskie": { "itemID" : 3997, "pageID" : 3, "type" : "metal" },
     "pila": { "itemID" : 4149, "pageID" : 3, "type" : "metal" },
     "dluto": { "itemID" : 4787, "pageID" : 3, "type" : "drewno" },
@@ -35,6 +35,7 @@ CRAFTITEMS = {
     "diadem": { "itemID" : 11118, "pageID" : 5, "type" : "klejnot" },
     "swiecznikA": { "itemID" : 2599, "pageID" : 12, "type" : "metal" },
     "swiecznikB":{ "itemID" :  2601, "pageID" : 12, "type" : "metal" },
+    "swieczka": { "itemID" : 6217, "pageID" : 12, "type" : "metal" },
     "waga": { "itemID" : 6225, "pageID" : 12, "type" : "metal" },
     "lichtarzykA": { "itemID" : 2561, "pageID" : 12, "type" : "metal" },
     "lichtarzykB": { "itemID" : 2571, "pageID" : 12, "type" : "metal" },
@@ -47,7 +48,8 @@ CRAFTITEMS = {
     "globus": { "itemID" : 4167, "pageID" : 7, "type" : "drewno" },
     "paleta": { "itemID" : 4033, "pageID" : 7, "type" : "drewno" },
     "pioro": { "itemID" : 4031, "pageID" : 7, "type" : "drewno" },
-    "pioro_kartografa": { "itemID" : 25345, "pageID" : 7, "type" : "drewno" }
+    "pioro_kartografa": { "itemID" : 25345, "pageID" : 7, "type" : "drewno" },
+    "narzedzie_stolarskie": { "itemID" : 4140, "pageID" : 7, "type" : "drewno" }
 }
 
 
@@ -148,7 +150,6 @@ def craftItem( itemToCraft ):
     global realItemsCrafted
     realItemsCrafted = 0
     endString = str(itemToCraft.amount) + " z " + str(itemToCraft.amount)
-    print(endString)
     tools = getByItemID(toolsId, self_pack)
     Items.UseItem(tools)
     Misc.SendMessage('czekam na gump craftingu', 77)
