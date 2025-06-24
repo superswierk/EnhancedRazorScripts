@@ -143,7 +143,7 @@ def buttoncheck():
             treeStaticIDs = [ 0x12B9 ]
             print("Cis")
         elif switchList[0] == STATICTREES['Cedr']:
-            treeStaticIDs = [ 0x0CD6 ]
+            treeStaticIDs = [ 0x0CD6, 0x0CD8 ]
             print("Cedr")
         elif switchList[0] == STATICTREES['Meranti']:
             treeStaticIDs = [ 0x0D43, 0x0D85, 0x0D59, 0x0D70 ]
