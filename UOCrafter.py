@@ -3,52 +3,52 @@ import os
 import json
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QComboBox, QLineEdit, QPushButton, QListWidget, QLabel,
-                             QMessageBox, QTextBrowser)
+                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor
 
 class ShoppingListApp(QWidget):
     # Slownik definiujacy zasoby potrzebne do wytworzenia kazdego artykulu
     CRAFTING_RESOURCES = {
-        "tworzenie_lukuw": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "mlotek_kowalski": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "mlot_kowalski": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "wytrych": {"sztaby": 0, "deski": 2, "klejnoty": 2}, # Przyklad: wytrych nie wymaga sztab
-        "kilof": {"sztaby": 2, "deski": 0, "klejnoty": 2},   # Przyklad: kilof nie wymaga desek
-        "sierp": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "mozdzierz": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "narzedzie_szklarskie": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "narzedzia_naprawcze": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "narzedzia_druciarza": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "narzedzia_szewskie": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "pila": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "dluto": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "kolczyki": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "zloty_naszyjnik": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "szpony": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "tekagi": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "ciemne_jingasa": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "plytowe_jingasa": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "diadem": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "swiecznikA": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "swiecznikB": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "swieczka": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "waga": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "lichtarzykA": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "lichtarzykB": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "luneta": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "bola": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "czesci_do_zegara": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "kurek_do_beczki": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "obrecz": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "narzedzia_stolarskie": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "globus": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "paleta": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "pioro": {"sztaby": 2, "deski": 2, "klejnoty": 2},
-        "pioro_kartografa": {"sztaby": 2, "deski": 2, "klejnoty": 2}
+        "tworzenie_lukuw": {"sztaby": 4, "deski": 2, "klejnoty": 0},
+        "mlotek_kowalski": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "mlot_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+        "wytrych": {"sztaby": 1, "deski": 0, "klejnoty": 0}, # Przyklad: wytrych nie wymaga sztab
+        "kilof": {"sztaby": 5, "deski": 0, "klejnoty": 0},   # Przyklad: kilof nie wymaga desek
+        "sierp": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "mozdzierz": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "narzedzie_szklarskie": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "narzedzia_naprawcze": {"sztaby": 2, "deski": 0, "klejnoty": 0},
+        "narzedzia_druciarza": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "narzedzia_szewskie": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "pila": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "dluto": {"sztaby": 2, "deski": 4, "klejnoty": 0},
+        "kolczyki": {"sztaby": 1, "deski": 0, "klejnoty": 1},
+        "zloty_naszyjnik": {"sztaby": 1, "deski": 0, "klejnoty": 1},
+        "szpony": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "tekagi": {"sztaby": 6, "deski": 0, "klejnoty": 0},
+        "ciemne_jingasa": {"sztaby": 12, "deski": 0, "klejnoty": 0},
+        "plytowe_jingasa": {"sztaby": 9, "deski": 0, "klejnoty": 0},
+        "diadem": {"sztaby": 4, "deski": 0, "klejnoty": 10},
+        "swiecznikA": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "swiecznikB": {"sztaby": 15, "deski": 0, "klejnoty": 0},
+        "swieczka": {"sztaby": 2, "deski": 0, "klejnoty": 0},
+        "waga": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+        "lichtarzykA": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+        "lichtarzykB": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+        "luneta": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "bola": {"sztaby": 2, "deski": 0, "klejnoty": 0},
+        "czesci_do_zegara": {"sztaby": 1, "deski": 0, "klejnoty": 0},
+        "kurek_do_beczki": {"sztaby": 1, "deski": 0, "klejnoty": 0},
+        "obrecz": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+        "narzedzia_stolarskie": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+        "globus": {"sztaby": 0, "deski": 5, "klejnoty": 0},
+        "paleta": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+        "pioro": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+        "pioro_kartografa": {"sztaby": 0, "deski": 4, "klejnoty": 0}
     }
 
-    # Listy dla typow sztab i desek (z dodanym "Brak materialu" dla sytuacji, gdy nie sa wymagane)
+    # Listy dla typow sztab i desek (bez "Brak materialu" jako elementu do wyboru, gdy jest wymagany)
     METAL_TYPES = ["zelazo", "zloto", "srebro", "veryt", "blackrock",
                    "agapit", "valoryt", "mytheril", "azuryt", "bloodrock", "royal", "grafit"]
     WOOD_TYPES = ["zwykle", "dab", "orzech", "cedr", "cis", "cyprys"]
@@ -79,30 +79,59 @@ class ShoppingListApp(QWidget):
         # Etykieta dla QComboBox artykulow
         add_item_layout.addWidget(QLabel("Wybierz artykul:"))
 
-        # QComboBox - rozwijana lista artykulow
+        # QComboBox - rozwijana lista artykulow (z autouzupełnianiem)
         self.item_combo = QComboBox(self)
+        self.item_combo.setEditable(True) # Umozliwia wpisywanie tekstu
         self.item_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
+        # Ustawienie QCompleter dla listy artykulow
+        self.completer_item = QCompleter(list(self.CRAFTING_RESOURCES.keys()), self.item_combo)
+        self.completer_item.setCaseSensitivity(Qt.CaseInsensitive) # Nieczula na wielkosc liter
+        self.completer_item.setFilterMode(Qt.MatchContains) # Proponuje pozycje zawierajace wpisany tekst
+        self.completer_item.setCompletionMode(QCompleter.PopupCompletion) # Wyswietla w popupie
+        self.item_combo.setCompleter(self.completer_item)
         self.item_combo.currentIndexChanged.connect(self.update_material_combos_state)
         add_item_layout.addWidget(self.item_combo)
 
-        # Etykieta i QComboBox dla rodzaju sztab
+        # Etykieta i QComboBox dla rodzaju sztab (z autouzupełnianiem)
         add_item_layout.addWidget(QLabel("Rodzaj sztab:"))
         self.metal_type_combo = QComboBox(self)
-        self.metal_type_combo.addItems([self.NO_MATERIAL_OPTION] + self.METAL_TYPES)
+        self.metal_type_combo.setEditable(True) # Umozliwia wpisywanie tekstu
+        # Poczatkowo dodajemy tylko METAL_TYPES. NO_MATERIAL_OPTION bedzie dodane dynamicznie jesli potrzeba.
+        self.metal_type_combo.addItems(self.METAL_TYPES)
+        # Ustawienie QCompleter dla listy sztab
+        self.completer_metal = QCompleter(self.METAL_TYPES, self.metal_type_combo)
+        self.completer_metal.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer_metal.setFilterMode(Qt.MatchContains)
+        self.completer_metal.setCompletionMode(QCompleter.PopupCompletion)
+        self.metal_type_combo.setCompleter(self.completer_metal)
+        
+        # Ustaw domyslna wartosc na "zelazo"
         if "zelazo" in self.METAL_TYPES:
             self.metal_type_combo.setCurrentIndex(self.metal_type_combo.findText("zelazo"))
-        else:
-            self.metal_type_combo.setCurrentIndex(self.metal_type_combo.findText(self.NO_MATERIAL_OPTION))
+        else: # Fallback jesli "zelazo" nie istnieje
+            self.metal_type_combo.setCurrentIndex(0) # Wybierz pierwszy element
+
         add_item_layout.addWidget(self.metal_type_combo)
 
-        # Etykieta i QComboBox dla rodzaju desek
+        # Etykieta i QComboBox dla rodzaju desek (z autouzupełnianiem)
         add_item_layout.addWidget(QLabel("Rodzaj desek:"))
         self.wood_type_combo = QComboBox(self)
-        self.wood_type_combo.addItems([self.NO_MATERIAL_OPTION] + self.WOOD_TYPES)
+        self.wood_type_combo.setEditable(True) # Umozliwia wpisywanie tekstu
+        # Poczatkowo dodajemy tylko WOOD_TYPES. NO_MATERIAL_OPTION bedzie dodane dynamicznie jesli potrzeba.
+        self.wood_type_combo.addItems(self.WOOD_TYPES)
+        # Ustawienie QCompleter dla listy desek
+        self.completer_wood = QCompleter(self.WOOD_TYPES, self.wood_type_combo)
+        self.completer_wood.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer_wood.setFilterMode(Qt.MatchContains)
+        self.completer_wood.setCompletionMode(QCompleter.PopupCompletion)
+        self.wood_type_combo.setCompleter(self.completer_wood)
+        
+        # Ustaw domyslna wartosc na "zwykle"
         if "zwykle" in self.WOOD_TYPES:
             self.wood_type_combo.setCurrentIndex(self.wood_type_combo.findText("zwykle"))
-        else:
-            self.wood_type_combo.setCurrentIndex(self.wood_type_combo.findText(self.NO_MATERIAL_OPTION))
+        else: # Fallback jesli "zwykle" nie istnieje
+            self.wood_type_combo.setCurrentIndex(0) # Wybierz pierwszy element
+
         add_item_layout.addWidget(self.wood_type_combo)
 
         # Etykieta dla QLineEdit ilosci
@@ -122,7 +151,7 @@ class ShoppingListApp(QWidget):
         main_layout.addLayout(add_item_layout)
 
         # QListWidget - wyswietla aktualna liste zakupow
-        main_layout.addWidget(QLabel("Twoja lista zakupow:"))
+        main_layout.addWidget(QLabel("Twoja lista itemow:"))
         self.shopping_list_widget = QListWidget(self)
         main_layout.addWidget(self.shopping_list_widget)
 
@@ -230,7 +259,7 @@ class ShoppingListApp(QWidget):
 
     def set_dark_mode(self):
         """Ustawia motyw aplikacji na ciemny."""
-        palette = QPalette()
+        palette = QApplication.instance().palette() # Pobierz biezaca palete
         palette.setColor(QPalette.Window, QColor(53, 53, 53))
         palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
         palette.setColor(QPalette.Base, QColor(25, 25, 25))
@@ -249,7 +278,7 @@ class ShoppingListApp(QWidget):
 
     def set_light_mode(self):
         """Ustawia motyw aplikacji na jasny."""
-        palette = QPalette()
+        palette = QApplication.instance().palette() # Pobierz biezaca palete
         palette.setColor(QPalette.Window, QColor(240, 240, 240))
         palette.setColor(QPalette.WindowText, QColor(0, 0, 0))
         palette.setColor(QPalette.Base, QColor(255, 255, 255))
@@ -281,34 +310,65 @@ class ShoppingListApp(QWidget):
         selected_item = self.item_combo.currentText()
         resources = self.CRAFTING_RESOURCES.get(selected_item, {"sztaby": 0, "deski": 0, "klejnoty": 0})
 
-        # Obsluga dla sztab
+        # --- Obsluga dla sztab ---
         if resources["sztaby"] == 0:
+            self.metal_type_combo.clear() # Wyczyść liste
+            self.metal_type_combo.addItem(self.NO_MATERIAL_OPTION) # Dodaj tylko "Brak materialu"
             self.metal_type_combo.setCurrentText(self.NO_MATERIAL_OPTION)
             self.metal_type_combo.setEnabled(False)
+            self.metal_type_combo.setEditable(False) # Nie da sie wpisywac
+            #self.completer_metal.setModel(self.metal_type_combo.model()) # Zaktualizuj model completera
+            # Ustaw model completera na model, ktory zawiera tylko "Brak materialu"
+            self.completer_metal.setModel(self.metal_type_combo.model()) 
         else:
             self.metal_type_combo.setEnabled(True)
-            # Ustaw domyslna wartosc jesli nie byla wczesniej ustawiona (np. po wlaczeniu)
-            if self.metal_type_combo.currentText() == self.NO_MATERIAL_OPTION:
-                if "zelazo" in self.METAL_TYPES:
-                    self.metal_type_combo.setCurrentText("zelazo")
-                else:
-                    # Jesli "zelazo" nie ma na liscie, wybierz pierwszy dostepny material lub "Brak materialu"
-                    self.metal_type_combo.setCurrentText(self.METAL_TYPES[0] if self.METAL_TYPES else self.NO_MATERIAL_OPTION)
+            self.metal_type_combo.setEditable(True)
+            
+            previous_selection = self.metal_type_combo.currentText() # Zapisz poprzedni wybor
+
+            self.metal_type_combo.clear() # Wyczyść liste
+            self.metal_type_combo.addItems(self.METAL_TYPES) # Dodaj tylko typy materialow
+            #self.completer_metal.setModel(self.metal_type_combo.model()) # Zaktualizuj model completera
+            # Ustaw model completera na model z pelna lista materialow
+            self.completer_metal.setModel(self.metal_type_combo.model()) 
+
+            # Sproboj przywrocic poprzedni wybor lub ustaw domyslny
+            if previous_selection in self.METAL_TYPES:
+                self.metal_type_combo.setCurrentText(previous_selection)
+            elif "zelazo" in self.METAL_TYPES:
+                self.metal_type_combo.setCurrentText("zelazo")
+            elif self.METAL_TYPES: # Fallback do pierwszego elementu jesli "zelazo" nie ma
+                self.metal_type_combo.setCurrentText(self.METAL_TYPES[0])
+            else: # Gdy METAL_TYPES jest puste (mala szansa)
+                self.metal_type_combo.setCurrentText(self.NO_MATERIAL_OPTION)
 
 
-        # Obsluga dla desek
+        # --- Obsluga dla desek ---
         if resources["deski"] == 0:
+            self.wood_type_combo.clear()
+            self.wood_type_combo.addItem(self.NO_MATERIAL_OPTION)
             self.wood_type_combo.setCurrentText(self.NO_MATERIAL_OPTION)
             self.wood_type_combo.setEnabled(False)
+            self.wood_type_combo.setEditable(False)
+            self.completer_wood.setModel(self.wood_type_combo.model())
         else:
             self.wood_type_combo.setEnabled(True)
-            # Ustaw domyslna wartosc jesli nie byla wczesniej ustawiona (np. po wlaczeniu)
-            if self.wood_type_combo.currentText() == self.NO_MATERIAL_OPTION:
-                if "zwykle" in self.WOOD_TYPES:
-                    self.wood_type_combo.setCurrentText("zwykle")
-                else:
-                    # Jesli "zwykle" nie ma na liscie, wybierz pierwszy dostepny material lub "Brak materialu"
-                    self.wood_type_combo.setCurrentText(self.WOOD_TYPES[0] if self.WOOD_TYPES else self.NO_MATERIAL_OPTION)
+            self.wood_type_combo.setEditable(True)
+
+            previous_selection = self.wood_type_combo.currentText()
+
+            self.wood_type_combo.clear()
+            self.wood_type_combo.addItems(self.WOOD_TYPES)
+            self.completer_wood.setModel(self.wood_type_combo.model())
+
+            if previous_selection in self.WOOD_TYPES:
+                self.wood_type_combo.setCurrentText(previous_selection)
+            elif "zwykle" in self.WOOD_TYPES:
+                self.wood_type_combo.setCurrentText("zwykle")
+            elif self.WOOD_TYPES:
+                self.wood_type_combo.setCurrentText(self.WOOD_TYPES[0])
+            else:
+                self.wood_type_combo.setCurrentText(self.NO_MATERIAL_OPTION)
 
 
     def add_item_to_list(self):
@@ -321,6 +381,11 @@ class ShoppingListApp(QWidget):
         selected_metal_type = self.metal_type_combo.currentText()
         selected_wood_type = self.wood_type_combo.currentText()
         quantity_text = self.quantity_input.text()
+
+        # Walidacja czy wybrany artykul istnieje
+        if selected_item not in self.CRAFTING_RESOURCES:
+            QMessageBox.warning(self, "Blad Wprowadzania", "Wybrany artykul nie istnieje na liscie do craftingu!")
+            return
 
         if not quantity_text.strip():
             QMessageBox.warning(self, "Blad Wprowadzania", "Prosze podac ilosc!")
@@ -482,8 +547,9 @@ class ShoppingListApp(QWidget):
                 display_text += f" [Sztaby: {metal_type}]"
                 display_text += f" [Deski: {wood_type}]"
 
-                list_item = self.shopping_list_widget.addItem(display_text)
-                list_item.setData(Qt.UserRole, {
+                # Zmiana: Jawne utworzenie QListWidgetItem przed ustawieniem danych i dodaniem do listy
+                new_list_item = QListWidgetItem(display_text)
+                new_list_item.setData(Qt.UserRole, {
                     'article': article,
                     'metal_type': metal_type,
                     'wood_type': wood_type,
@@ -491,6 +557,7 @@ class ShoppingListApp(QWidget):
                     'resources': total_item_resources,
                     'predominant_material_display': predominant_material_for_display
                 })
+                self.shopping_list_widget.addItem(new_list_item) # Dodajemy przygotowany element
 
             self.calculate_totals() # Zaktualizuj sumy po wczytaniu
             self.update_material_combos_state() # Zaktualizuj stan comboboxow po wczytaniu
