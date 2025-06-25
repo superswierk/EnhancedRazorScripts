@@ -143,9 +143,15 @@ def MoveToSpot():
     if sqrt( pow( ( spots[0].x - Player.Position.X ), 2 ) + pow( ( spots[0].y - Player.Position.Y ), 2 ) ) > 20:
         print("ERROR point to far away")
         sys.exit()
+    prevPosX = Player.Position.X
+    prevPosY = Player.Position.Y 
     Player.PathFindTo(spots[0].x,spots[0].y,Player.Position.Z)
-    while sqrt( pow( ( spots[0].x - Player.Position.X ), 2 ) + pow( ( spots[0].y - Player.Position.Y ), 2 ) )  >= 2:
-        Misc.Pause(50)
+    while sqrt( pow( ( spots[0].x - Player.Position.X ), 2 ) + pow( ( spots[0].y - Player.Position.Y ), 2 ) )  >= 1:
+        Misc.Pause(500)
+        if prevPosX == Player.Position.X and prevPosY == Player.Position.Y:
+            Player.PathFindTo(spots[0].x,spots[0].y,Player.Position.Z)
+        prevPosX = Player.Position.X
+        prevPosY = Player.Position.Y
     Misc.SendMessage( '--> Reached DigSpot: %i, %i' % ( spots[ 0 ].x, spots[ 0 ].y ), 77 )
     spots.pop( 0 )
     if silentMode == False:
