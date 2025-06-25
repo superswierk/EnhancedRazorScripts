@@ -80,6 +80,9 @@ KLEJNOTY = [0x0F25, 0x0F18, 0x0F15, 0x0F13]
 owen = 0x53F1D04E
 toolsId = 0x1EBC
 self_pack = Player.Backpack.Serial
+orderID = 0x14F0
+activeColor = 0x051e
+inactiveColor = 0x051e
 
 class CraftItem:
     itemID = None
@@ -99,6 +102,28 @@ class CraftItem:
         
 craftItems = []
 workingBag = Target.PromptTarget( 'Wybierz pojemnik do pracy' )
+
+srcOrd = 0x538DCD1D#Target.PromptTarget( 'Pojemnik na zamowienia' )
+ordContainer = Items.FindBySerial(srcOrd)
+if srcOrd is None:
+    Misc.SendMessage('Zly cel',33)
+    sys.exit()
+    
+def AcceptOrders():
+    print("Akceptuje zamowienia po kolei")
+    Misc.Pause(1000)
+    global ordContainer
+    for item in ordContainer.Contains:
+        if item.ItemID == orderID and item.Color == activeColor:
+            Items.UseItem(item)
+            Gumps.WaitForGump(0,10000)
+            Misc.Pause(300)
+            gumpId = Gumps.CurrentGump()
+            Gumps.SendAction(gumpId, 2)
+            Gumps.WaitForGump(gumpId,10000)
+            Misc.Pause(300)
+            Gumps.SendAction(gumpId, 0)
+            Misc.Pause(300)
 
 def createItemsToCraft():
     global craftItems
@@ -144,6 +169,14 @@ def usun_ostatnia_linie(tekst):
         
 errorMessage = "Nieznany blad! Nie udalo sie dokonczyc craftowania"
 realItemsCrafted = 0
+
+def clearJournal():
+    Journal.Clear('fatalnym')
+    Journal.Clear('Brakuje Ci')
+    Journal.Clear( 'miejsca w pojemniku' )
+    Journal.Clear( 'Stworzyles' )
+    Journal.Clear( 'przeskoczyly' )
+
 def craftItem( itemToCraft ):
     global errorMessage
     global workingBag
@@ -181,7 +214,7 @@ def craftItem( itemToCraft ):
     print("zaczynam craftowac")
     craftCounter = 0
     Timer.Create('craftingTimer', 12000)
-    Journal.Clear()
+    clearJournal()
     while True:
         Misc.Pause(300)
         Journal.Clear('Brakuje Ci skladnikow')
@@ -280,6 +313,8 @@ for item in craftItems:
                 System.IO.File.AppendAllText(fileNameProgress, "\n" )
                 overrideLastAmount = 0
         System.IO.File.AppendAllText(fileNameProgress, f"{item.itemName};{realItemsCrafted}\n" )
+        Misc.Pause(1000)
+        AcceptOrders()
     else:
         wasFail = True
         sendDiscord(errorMessage + f"\nUkonczono z sukcesem tylko {successIterator} zadan", 14696255, carpErrorThumb)
