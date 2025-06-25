@@ -15,6 +15,8 @@ offsetLabelY = 20
 offsetRadioY = 45
 offsetButtonY = 170
 
+isMerenti = False
+
 STATICTREES = {
     "Wszystkie": 11,
     "Wszystkie bez zwyklych": 12,
@@ -100,6 +102,7 @@ treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
 
 
 def buttoncheck():
+    global isMerenti
     global treeStaticIDs
     Gumps.WaitForGump(696969, 60000)
     Gumps.CloseGump(696969)
@@ -147,6 +150,7 @@ def buttoncheck():
             print("Cedr")
         elif switchList[0] == STATICTREES['Meranti']:
             treeStaticIDs = [ 0x0D43, 0x0D85, 0x0D59, 0x0D70 ]
+            isMerenti = True
             print("Meranti")
         elif switchList[0] == STATICTREES['Zwykle']:
             treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3 ]
@@ -161,8 +165,6 @@ def buttoncheck():
 sendgump()
 Misc.Pause(2000)       
         
-Round = lambda x, n: eval('"%.'+str(int(n))+'f" % '+repr(int(x)+round(float('.'+str(float(x)).split('.')[1]),n)))
-
 lumberThumb = "https://i.imgur.com/FAb0xg0.png"
 deadThumb = "https://i.imgur.com/QjVeOoA.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
@@ -178,7 +180,7 @@ silentMode = False
 dropLogs = False
 scanRadius = 40
 
-lvlCarpSkill = Player.GetRealSkillValue('Drwalstwo')
+
 #********************
 # serial of your beetle, logs go here when full
 if dropLogs == False and logsToBoards == False:
@@ -276,11 +278,6 @@ treeCoords = None
 blockCount = 0
 lastRune = 5
 onLoop = True
-
-glod = ""
-bialka = ""
-witaminy = ""
-weglowodany = ""
 
 class Tree:
     x = None
@@ -427,72 +424,91 @@ def MoveToTree():
     treeCoords.Y = trees[ 0 ].y + 1
     #Items.Message(trees[0], 1, "Here")
 
+    if isMerenti == True:
+        
+        if sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) ) > 20:
+            print("ERROR point to far away")
+            sys.exit()
+        prevPosX = Player.Position.X
+        prevPosY = Player.Position.Y    
+        Player.PathFindTo(treeCoords.X,treeCoords.Y ,trees[ 0 ].z)
+        
+        while sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) )  >= 1:
+            print(f"odleglosc: {sqrt( pow( ( trees[0].x - Player.Position.X ), 2 ) + pow( ( trees[0].y - Player.Position.Y ), 2 ) )}")
+            Misc.Pause(500)
+            if prevPosX == Player.Position.X and prevPosY == Player.Position.Y:
+                Player.PathFindTo(treeCoords.X,treeCoords.Y ,trees[ 0 ].z)
+            prevPosX = Player.Position.X
+            prevPosY = Player.Position.Y
+            
+    else:
+    
     #Player.PathFindTo(treeCoords.X,treeCoords.Y,trees[ 0 ].z )
     #while sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) )  >= 1:
     #    print(sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) ))
     #    Player.PathFindTo(treeCoords.X,treeCoords.Y,trees[ 0 ].z )
     #    Misc.Pause(500)
 
-    if PathFinding.Go( treeCoords ):
-        Misc.SendMessage('First Try')
-        Misc.Pause( 1000 )
-    else:
-        Misc.Resync()
-        treeCoords.X = trees[ 0 ].x + 1
-        treeCoords.Y = trees[ 0 ].y
         if PathFinding.Go( treeCoords ):
-            Misc.SendMessage( 'Second Try' )
+            Misc.SendMessage('First Try')
+            Misc.Pause( 1000 )
         else:
-            treeCoords.X = trees[ 0 ].x - 1
+            Misc.Resync()
+            treeCoords.X = trees[ 0 ].x + 1
             treeCoords.Y = trees[ 0 ].y
             if PathFinding.Go( treeCoords ):
-                Misc.SendMessage( 'Third Try' )
+                Misc.SendMessage( 'Second Try' )
             else:
-                treeCoords.X = trees[ 0 ].x
-                treeCoords.Y = trees[ 0 ].y - 1
-                Misc.SendMessage( 'Final Try' )
-                if PathFinding.Go( treeCoords ):
-                    Misc.NoOperation()
-                else:
-                    return
-                
-
-    Misc.Resync()
-
-    while not RangeTree():
-        CheckEnemy()
-        Misc.Pause( 100 )
-        pathlock = pathlock + 1
-        if pathlock > 350:
-            Misc.Resync()
-            treeCoords = PathFinding.Route()
-            treeCoords.MaxRetry = 5
-            treeCoords.Run = False
-            treeCoords.StopIfStuck = False
-            treeCoords.X = trees[ 0 ].x
-            treeCoords.Y = trees[ 0 ].y + 1
-            
-            if PathFinding.Go( treeCoords ):
-                #Misc.SendMessage('First Try')
-                Misc.Pause( 1000 )
-            else:
-                treeCoords.X = trees[ 0 ].x + 1
+                treeCoords.X = trees[ 0 ].x - 1
                 treeCoords.Y = trees[ 0 ].y
                 if PathFinding.Go( treeCoords ):
-                    Misc.SendMessage( 'Second Try' )
+                    Misc.SendMessage( 'Third Try' )
                 else:
-                    treeCoords.X = trees[ 0 ].x - 1
+                    treeCoords.X = trees[ 0 ].x
+                    treeCoords.Y = trees[ 0 ].y - 1
+                    Misc.SendMessage( 'Final Try' )
+                    if PathFinding.Go( treeCoords ):
+                        Misc.NoOperation()
+                    else:
+                        return
+                    
+
+        Misc.Resync()
+
+        while not RangeTree():
+            CheckEnemy()
+            Misc.Pause( 100 )
+            pathlock = pathlock + 1
+            if pathlock > 350:
+                Misc.Resync()
+                treeCoords = PathFinding.Route()
+                treeCoords.MaxRetry = 5
+                treeCoords.Run = False
+                treeCoords.StopIfStuck = False
+                treeCoords.X = trees[ 0 ].x
+                treeCoords.Y = trees[ 0 ].y + 1
+                
+                if PathFinding.Go( treeCoords ):
+                    #Misc.SendMessage('First Try')
+                    Misc.Pause( 1000 )
+                else:
+                    treeCoords.X = trees[ 0 ].x + 1
                     treeCoords.Y = trees[ 0 ].y
                     if PathFinding.Go( treeCoords ):
-                        Misc.SendMessage( 'Third Try' )
+                        Misc.SendMessage( 'Second Try' )
                     else:
-                        treeCoords.X = trees[ 0 ].x
-                        treeCoords.Y = trees[ 0 ].y - 1
-                        Misc.SendMessage( 'Final Try' )
-                        PathFinding.Go( treeCoords )
+                        treeCoords.X = trees[ 0 ].x - 1
+                        treeCoords.Y = trees[ 0 ].y
+                        if PathFinding.Go( treeCoords ):
+                            Misc.SendMessage( 'Third Try' )
+                        else:
+                            treeCoords.X = trees[ 0 ].x
+                            treeCoords.Y = trees[ 0 ].y - 1
+                            Misc.SendMessage( 'Final Try' )
+                            PathFinding.Go( treeCoords )
 
-            pathlock = 0
-            return
+                pathlock = 0
+                return
 
     Misc.SendMessage( '--> Reached TreeSpot: %i, %i' % ( trees[ 0 ].x, trees[ 0 ].y ), 77 )
     if silentMode == False:
@@ -527,11 +543,6 @@ def CutTree():
     global chopCounter
     global blockCount
     global trees
-    global glod
-    global bialka
-    global witaminy
-    global weglowodany
-    global lvlCarpSkill
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -578,27 +589,9 @@ def CutTree():
                 Player.ChatSay("Za mna")
                 Timer.Create("runTimer",12000)
                 while Timer.Check("runTimer") == True:
-                    Player.Run('Right')
+                    Player.Run('Left')
                 Misc.Pause(2000)
                 Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
-        lvlCarpSkillNew = Player.GetRealSkillValue('Drwalstwo')
-        if lvlCarpSkill != lvlCarpSkillNew:
-            lvlCarpSkill = lvlCarpSkillNew
-            sendDiscord("Wzrost umiejetnosci Drwalstwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
-        if(Timer.Check('eatingLogTimer') == False):
-            Timer.Create('eatingLogTimer', 120000)
-            Player.ChatSay('.glod wszystko')
-            Misc.Pause(1000)
-            newGlod = Journal.GetLineText('Glod')
-            newBialka = Journal.GetLineText('Bialka')
-            newWitaminy = Journal.GetLineText('Witaminy')
-            newWeglowodany = Journal.GetLineText('Weglowodany')
-            if newGlod != glod or newBialka != bialka or newWitaminy != witaminy or newWeglowodany != weglowodany :
-                glod = newGlod
-                bialka = newBialka
-                witaminy = newWitaminy
-                weglowodany = newWeglowodany
-                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
         if (Journal.Search( 'Zniszczyles klody' ) or
             Journal.Search( 'Sciales' ) or
             Journal.Search( 'Obciales' ) or
@@ -836,12 +829,6 @@ def safteyNet():
 ##Friend.ChangeList('lj')
 Misc.SendMessage('--> Start up Woods', 77)
 
-Player.ChatSay('.glod wszystko')
-Misc.Pause(1000)
-glod = Journal.GetLineText('Glod')
-bialka = Journal.GetLineText('Bialka')
-witaminy = Journal.GetLineText('Witaminy')
-weglowodany = Journal.GetLineText('Weglowodany')
 Timer.Create('eatingLogTimer', 120000)
 EquipAxe()
 while onLoop:
