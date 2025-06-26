@@ -208,6 +208,7 @@ class ShoppingListApp(QWidget):
         main_layout.addWidget(material_type_totals_label)
         self.material_totals_display = QTextBrowser(self)
         self.material_totals_display.setMinimumHeight(120)
+        self.material_totals_display.setFocusPolicy(Qt.FocusPolicy.NoFocus) # Ustawienie, aby QTextBrowser nie przyjmowal fokusu
         main_layout.addWidget(self.material_totals_display)
 
         # Nowy uklad dla przyciskow akcji dolnych i napisu atrybucji
@@ -249,7 +250,9 @@ class ShoppingListApp(QWidget):
         self.setTabOrder(self.item_combo, self.metal_type_combo)
         self.setTabOrder(self.metal_type_combo, self.wood_type_combo)
         self.setTabOrder(self.wood_type_combo, self.quantity_input)
-        self.setTabOrder(self.quantity_input, add_button) # add_button jest zmienna lokalna
+        self.setTabOrder(self.quantity_input, add_button)
+        # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do pierwszego
+        self.setTabOrder(add_button, self.item_combo) 
         
         # Ustaw poczatkowy fokus na pole wyboru artykulu
         self.item_combo.setFocus()
