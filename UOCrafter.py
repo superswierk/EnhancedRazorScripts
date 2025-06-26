@@ -1,11 +1,11 @@
 import sys
 import os
 import json
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QComboBox, QLineEdit, QPushButton, QListWidget, QLabel,
                              QMessageBox, QTextBrowser, QCompleter, QListWidgetItem)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPalette, QColor
 
 class ShoppingListApp(QWidget):
     # Slownik definiujacy zasoby potrzebne do wytworzenia kazdego artykulu
@@ -85,9 +85,9 @@ class ShoppingListApp(QWidget):
         self.item_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
         # Ustawienie QCompleter dla listy artykulow
         self.completer_item = QCompleter(list(self.CRAFTING_RESOURCES.keys()), self.item_combo)
-        self.completer_item.setCaseSensitivity(Qt.CaseInsensitive) # Nieczula na wielkosc liter
-        self.completer_item.setFilterMode(Qt.MatchContains) # Proponuje pozycje zawierajace wpisany tekst
-        self.completer_item.setCompletionMode(QCompleter.PopupCompletion) # Wyswietla w popupie
+        self.completer_item.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer_item.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.completer_item.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         self.item_combo.setCompleter(self.completer_item)
         self.item_combo.currentIndexChanged.connect(self.update_material_combos_state)
         add_item_layout.addWidget(self.item_combo)
@@ -100,9 +100,9 @@ class ShoppingListApp(QWidget):
         self.metal_type_combo.addItems(self.METAL_TYPES)
         # Ustawienie QCompleter dla listy sztab
         self.completer_metal = QCompleter(self.METAL_TYPES, self.metal_type_combo)
-        self.completer_metal.setCaseSensitivity(Qt.CaseInsensitive)
-        self.completer_metal.setFilterMode(Qt.MatchContains)
-        self.completer_metal.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer_metal.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer_metal.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.completer_metal.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         self.metal_type_combo.setCompleter(self.completer_metal)
         
         # Ustaw domyslna wartosc na "zelazo"
@@ -121,9 +121,9 @@ class ShoppingListApp(QWidget):
         self.wood_type_combo.addItems(self.WOOD_TYPES)
         # Ustawienie QCompleter dla listy desek
         self.completer_wood = QCompleter(self.WOOD_TYPES, self.wood_type_combo)
-        self.completer_wood.setCaseSensitivity(Qt.CaseInsensitive)
-        self.completer_wood.setFilterMode(Qt.MatchContains)
-        self.completer_wood.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer_wood.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer_wood.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.completer_wood.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         self.wood_type_combo.setCompleter(self.completer_wood)
         
         # Ustaw domyslna wartosc na "zwykle"
@@ -153,7 +153,7 @@ class ShoppingListApp(QWidget):
         # QListWidget - wyswietla aktualna liste zakupow
         main_layout.addWidget(QLabel("Twoja lista itemow:"))
         self.shopping_list_widget = QListWidget(self)
-        self.shopping_list_widget.setFocusPolicy(Qt.NoFocus) # Exclude from tab order
+        self.shopping_list_widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         main_layout.addWidget(self.shopping_list_widget)
 
         # Uklad dla przyciskow usuwania i eksportu
@@ -161,13 +161,13 @@ class ShoppingListApp(QWidget):
 
         # QPushButton - przycisk "Usun zaznaczone"
         remove_selected_button = QPushButton("Usun zaznaczone", self)
-        remove_selected_button.setFocusPolicy(Qt.NoFocus)
+        remove_selected_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         remove_selected_button.clicked.connect(self.remove_selected_item)
         action_buttons_layout.addWidget(remove_selected_button)
 
         # QPushButton - przycisk "Usun wszystko"
         remove_all_button = QPushButton("Usun wszystko", self)
-        remove_all_button.setFocusPolicy(Qt.NoFocus)
+        remove_all_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         remove_all_button.clicked.connect(self.remove_all_items)
         action_buttons_layout.addWidget(remove_all_button)
 
@@ -178,22 +178,22 @@ class ShoppingListApp(QWidget):
             "QPushButton { background-color: #DC3545; color: white; border-radius: 5px; padding: 5px; }"
             "QPushButton:hover { background-color: #C82333; }"
         )
-        self.export_button.setFocusPolicy(Qt.NoFocus)
+        self.export_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         action_buttons_layout.addWidget(self.export_button)
 
         main_layout.addLayout(action_buttons_layout)
 
         # Etykiety do wyswietlania sumy zasobow (globalne)
         totals_label = QLabel("Wymagane zasoby (suma):")
-        totals_label.setFocusPolicy(Qt.NoFocus)
+        totals_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         main_layout.addWidget(totals_label)
 
         self.total_sztaby_label = QLabel("Sztaby: 0")
-        self.total_sztaby_label.setFocusPolicy(Qt.NoFocus)
+        self.total_sztaby_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.total_deski_label = QLabel("Deski: 0")
-        self.total_deski_label.setFocusPolicy(Qt.NoFocus)
+        self.total_deski_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.total_klejnoty_label = QLabel("Klejnoty: 0")
-        self.total_klejnoty_label.setFocusPolicy(Qt.NoFocus)
+        self.total_klejnoty_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         # Uklad poziomy dla sumy zasobow globalnych
         totals_layout = QHBoxLayout()
@@ -204,7 +204,7 @@ class ShoppingListApp(QWidget):
 
         # Etykieta i QTextBrowser do wyswietlania sumy zasobow wedlug typu materialu
         material_type_totals_label = QLabel("Wymagane zasoby (wg typu materialu):")
-        material_type_totals_label.setFocusPolicy(Qt.NoFocus)
+        material_type_totals_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         main_layout.addWidget(material_type_totals_label)
         self.material_totals_display = QTextBrowser(self)
         self.material_totals_display.setMinimumHeight(120)
@@ -216,20 +216,20 @@ class ShoppingListApp(QWidget):
         # Przycisk "Zapisz zmiany"
         self.save_button = QPushButton("Zapisz zmiany", self)
         self.save_button.clicked.connect(self.save_data)
-        self.save_button.setFocusPolicy(Qt.NoFocus)
+        self.save_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         bottom_controls_layout.addWidget(self.save_button)
 
         # Przycisk "Wczytaj zmiany"
         self.load_button = QPushButton("Wczytaj zmiany", self)
         self.load_button.clicked.connect(self.load_data)
-        self.load_button.setFocusPolicy(Qt.NoFocus)
+        self.load_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         bottom_controls_layout.addWidget(self.load_button)
 
         # Przycisk do przelaczania motywu (mniejszy, po lewej, obok przyciskow zapisu/odczytu)
         self.theme_toggle_button = QPushButton("Przelacz Motyw", self)
         self.theme_toggle_button.clicked.connect(self.toggle_theme)
         self.theme_toggle_button.setFixedSize(120, 30) # Ustawienie stalego, mniejszego rozmiaru
-        self.theme_toggle_button.setFocusPolicy(Qt.NoFocus)
+        self.theme_toggle_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         bottom_controls_layout.addWidget(self.theme_toggle_button)
         
         # Rozpychacz, aby napis atrybucji byl po prawej
@@ -237,8 +237,8 @@ class ShoppingListApp(QWidget):
 
         # Napis atrybucji (po prawej)
         attribution_label = QLabel("Created by RichRichie with Gemini 2.5 Flash")
-        attribution_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        attribution_label.setFocusPolicy(Qt.NoFocus) 
+        attribution_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        attribution_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         bottom_controls_layout.addWidget(attribution_label)
         
         main_layout.addLayout(bottom_controls_layout) # Dodaj uklad do glownego ukladu
@@ -251,8 +251,7 @@ class ShoppingListApp(QWidget):
         self.setTabOrder(self.wood_type_combo, self.quantity_input)
         self.setTabOrder(self.quantity_input, add_button) # add_button jest zmienna lokalna
         
-
-         # Ustaw poczatkowy fokus na pole wyboru artykulu
+        # Ustaw poczatkowy fokus na pole wyboru artykulu
         self.item_combo.setFocus()
 
         # Wywolaj aktualizacje stanow comboboxow i sum przy starcie
@@ -267,54 +266,53 @@ class ShoppingListApp(QWidget):
         if self.unsaved_changes:
             reply = QMessageBox.question(self, 'Niezapisane zmiany',
                                          "Masz niezapisane zmiany. Czy chcesz je zapisac przed zamknieciem?",
-                                         QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
-                                         QMessageBox.Save)
-            if reply == QMessageBox.Save:
+                                         QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+                                         QMessageBox.StandardButton.Save)
+            if reply == QMessageBox.StandardButton.Save:
                 self.save_data() # Zapisz dane
                 event.accept() # Kontynuuj zamykanie
-            elif reply == QMessageBox.Discard:
+            elif reply == QMessageBox.StandardButton.Discard:
                 event.accept() # Zamknij bez zapisu
             else:
                 event.ignore() # Anuluj zamykanie
         else:
             event.accept() # Zamknij bez pytania, jesli brak zmian
 
-
     def set_dark_mode(self):
         """Ustawia motyw aplikacji na ciemny."""
         palette = QApplication.instance().palette() # Pobierz biezaca palete
-        palette.setColor(QPalette.Window, QColor(53, 53, 53))
-        palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
-        palette.setColor(QPalette.Base, QColor(25, 25, 25))
-        palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-        palette.setColor(QPalette.ToolTipBase, QColor(255, 255, 255))
-        palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
-        palette.setColor(QPalette.Text, QColor(255, 255, 255))
-        palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
-        palette.setColor(QPalette.BrightText, QColor(255, 0, 0))
-        palette.setColor(QPalette.Link, QColor(42, 130, 218))
-        palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-        palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
+        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+        palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+        palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+        palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+        palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+        palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
         QApplication.instance().setPalette(palette)
         self.is_dark_theme = True
 
     def set_light_mode(self):
         """Ustawia motyw aplikacji na jasny."""
         palette = QApplication.instance().palette() # Pobierz biezaca palete
-        palette.setColor(QPalette.Window, QColor(240, 240, 240))
-        palette.setColor(QPalette.WindowText, QColor(0, 0, 0))
-        palette.setColor(QPalette.Base, QColor(255, 255, 255))
-        palette.setColor(QPalette.AlternateBase, QColor(240, 240, 240))
-        palette.setColor(QPalette.ToolTipBase, QColor(0, 0, 0))
-        palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
-        palette.setColor(QPalette.Text, QColor(0, 0, 0))
-        palette.setColor(QPalette.Button, QColor(200, 200, 200))
-        palette.setColor(QPalette.ButtonText, QColor(0, 0, 0))
-        palette.setColor(QPalette.BrightText, QColor(255, 0, 0))
-        palette.setColor(QPalette.Link, QColor(0, 0, 238))
-        palette.setColor(QPalette.Highlight, QColor(140, 180, 255))
-        palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(240, 240, 240))
+        palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Text, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.Button, QColor(200, 200, 200))
+        palette.setColor(QPalette.ColorRole.ButtonText, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+        palette.setColor(QPalette.ColorRole.Link, QColor(0, 0, 238))
+        palette.setColor(QPalette.ColorRole.Highlight, QColor(140, 180, 255))
+        palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
         QApplication.instance().setPalette(palette)
         self.is_dark_theme = False
 
@@ -457,7 +455,7 @@ class ShoppingListApp(QWidget):
         list_item = self.shopping_list_widget.addItem(display_text)
         # Przechowaj wszystkie potrzebne dane w QListWidgetItem
         self.shopping_list_widget.item(self.shopping_list_widget.count() - 1).setData(
-            Qt.UserRole, {
+            Qt.ItemDataRole.UserRole, {
                 'article': selected_item,
                 'metal_type': selected_metal_type,
                 'wood_type': selected_wood_type,
@@ -502,7 +500,7 @@ class ShoppingListApp(QWidget):
         data_to_save = []
         for i in range(self.shopping_list_widget.count()):
             item = self.shopping_list_widget.item(i)
-            item_data = item.data(Qt.UserRole)
+            item_data = item.data(Qt.ItemDataRole.UserRole)
             if item_data:
                 # Zapisz tylko te dane, ktore sa potrzebne do odtworzenia stanu
                 data_to_save.append({
@@ -572,7 +570,7 @@ class ShoppingListApp(QWidget):
 
                 # Zmiana: Jawne utworzenie QListWidgetItem przed ustawieniem danych i dodaniem do listy
                 new_list_item = QListWidgetItem(display_text)
-                new_list_item.setData(Qt.UserRole, {
+                new_list_item.setData(Qt.ItemDataRole.UserRole, {
                     'article': article,
                     'metal_type': metal_type,
                     'wood_type': wood_type,
@@ -617,7 +615,7 @@ class ShoppingListApp(QWidget):
             with open(file_path, 'w', encoding='utf-8') as f:
                 for i in range(self.shopping_list_widget.count()):
                     item = self.shopping_list_widget.item(i)
-                    item_data = item.data(Qt.UserRole)
+                    item_data = item.data(Qt.ItemDataRole.UserRole)
                     
                     article = item_data.get('article', 'Nieznany artykul')
                     # Uzyj predominant_material_display do eksportu jako "kolor"
@@ -645,7 +643,7 @@ class ShoppingListApp(QWidget):
 
         for i in range(self.shopping_list_widget.count()):
             item = self.shopping_list_widget.item(i)
-            item_data = item.data(Qt.UserRole)
+            item_data = item.data(Qt.ItemDataRole.UserRole)
             
             if item_data and 'resources' in item_data:
                 resources_for_item = item_data['resources']
@@ -714,4 +712,4 @@ if __name__ == '__main__':
     # Utworzenie instancji aplikacji i ustawienie poczatkowego motywu
     ex = ShoppingListApp()
     ex.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
