@@ -12,7 +12,7 @@ class ShoppingListApp(QWidget):
     # Slownik definiujacy zasoby potrzebne do wytworzenia kazdego artykulu
     CRAFTING_RESOURCES = {
         "tworzenie_lukuw": {"sztaby": 4, "deski": 2, "klejnoty": 0},
-        "mlotek_kowalski": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+        "mlotek_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
         "mlot_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
         "wytrych": {"sztaby": 1, "deski": 0, "klejnoty": 0}, # Przyklad: wytrych nie wymaga sztab
         "kilof": {"sztaby": 5, "deski": 0, "klejnoty": 0},   # Przyklad: kilof nie wymaga desek
