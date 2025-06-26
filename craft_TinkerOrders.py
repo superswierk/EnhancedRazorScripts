@@ -1,11 +1,12 @@
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 import sys
 from System.Collections.Generic import List
-from System import Byte, Int32
+from System import Byte, Int32, Double
 from math import sqrt
 import System.IO
+import time
 
-carpThumb = "https://i.imgur.com/wGXF6p5.png"
+carpThumb = "https://i.imgur.com/2gNQSny.png"
 carpErrorThumb = "https://i.imgur.com/VctK73J.png"
 apoThumb = "https://i.imgur.com/eDQLGaI.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
@@ -109,21 +110,45 @@ if srcOrd is None:
     Misc.SendMessage('Zly cel',33)
     sys.exit()
     
+def currentTime():
+    return Double(time.time() + Double(7200))
+
+def isInJournal(text, secondsAgo):
+    jList = Journal.GetJournalEntry( currentTime() - secondsAgo )
+    for element in jList:
+        if (element.Text.find(text) != -1):
+            return True
+    return False
+    
 def AcceptOrders():
+    global ordContainer
     print("Akceptuje zamowienia po kolei")
     Misc.Pause(1000)
-    global ordContainer
+    if isInJournal("Zapis Stanu",40) == True:
+        while isInJournal("Koniec zapisywania",40) == False:
+            Misc.Pause(1000)
+            print("Czekam na zapis swiata...");
+        Misc.Pause(3000)
     for item in ordContainer.Contains:
         if item.ItemID == orderID and item.Color == activeColor:
             Items.UseItem(item)
-            Gumps.WaitForGump(0,10000)
-            Misc.Pause(300)
-            gumpId = Gumps.CurrentGump()
+            gumpId = 0
+            Misc.Pause(500)
+            while gumpId == 0:
+                Misc.Pause(100)
+                gumpId = Gumps.CurrentGump()
+            print(f"First gump {gumpId} found")
             Gumps.SendAction(gumpId, 2)
             Gumps.WaitForGump(gumpId,10000)
-            Misc.Pause(300)
+            Misc.Pause(1000)
+            #gumpId = 0
+            #while gumpId == 0:
+            #    Misc.Pause(100)
+            #    gumpId = Gumps.CurrentGump()
+            print(f"Second gump {gumpId} found")
             Gumps.SendAction(gumpId, 0)
-            Misc.Pause(300)
+            Misc.Pause(1000)
+
 
 def createItemsToCraft():
     global craftItems
