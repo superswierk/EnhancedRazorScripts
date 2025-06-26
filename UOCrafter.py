@@ -153,6 +153,7 @@ class ShoppingListApp(QWidget):
         # QListWidget - wyswietla aktualna liste zakupow
         main_layout.addWidget(QLabel("Twoja lista itemow:"))
         self.shopping_list_widget = QListWidget(self)
+        self.shopping_list_widget.setFocusPolicy(Qt.NoFocus) # Exclude from tab order
         main_layout.addWidget(self.shopping_list_widget)
 
         # Uklad dla przyciskow usuwania i eksportu
@@ -160,11 +161,13 @@ class ShoppingListApp(QWidget):
 
         # QPushButton - przycisk "Usun zaznaczone"
         remove_selected_button = QPushButton("Usun zaznaczone", self)
+        remove_selected_button.setFocusPolicy(Qt.NoFocus)
         remove_selected_button.clicked.connect(self.remove_selected_item)
         action_buttons_layout.addWidget(remove_selected_button)
 
         # QPushButton - przycisk "Usun wszystko"
         remove_all_button = QPushButton("Usun wszystko", self)
+        remove_all_button.setFocusPolicy(Qt.NoFocus)
         remove_all_button.clicked.connect(self.remove_all_items)
         action_buttons_layout.addWidget(remove_all_button)
 
@@ -175,17 +178,22 @@ class ShoppingListApp(QWidget):
             "QPushButton { background-color: #DC3545; color: white; border-radius: 5px; padding: 5px; }"
             "QPushButton:hover { background-color: #C82333; }"
         )
+        self.export_button.setFocusPolicy(Qt.NoFocus)
         action_buttons_layout.addWidget(self.export_button)
 
         main_layout.addLayout(action_buttons_layout)
 
         # Etykiety do wyswietlania sumy zasobow (globalne)
         totals_label = QLabel("Wymagane zasoby (suma):")
+        totals_label.setFocusPolicy(Qt.NoFocus)
         main_layout.addWidget(totals_label)
 
         self.total_sztaby_label = QLabel("Sztaby: 0")
+        self.total_sztaby_label.setFocusPolicy(Qt.NoFocus)
         self.total_deski_label = QLabel("Deski: 0")
+        self.total_deski_label.setFocusPolicy(Qt.NoFocus)
         self.total_klejnoty_label = QLabel("Klejnoty: 0")
+        self.total_klejnoty_label.setFocusPolicy(Qt.NoFocus)
 
         # Uklad poziomy dla sumy zasobow globalnych
         totals_layout = QHBoxLayout()
@@ -196,6 +204,7 @@ class ShoppingListApp(QWidget):
 
         # Etykieta i QTextBrowser do wyswietlania sumy zasobow wedlug typu materialu
         material_type_totals_label = QLabel("Wymagane zasoby (wg typu materialu):")
+        material_type_totals_label.setFocusPolicy(Qt.NoFocus)
         main_layout.addWidget(material_type_totals_label)
         self.material_totals_display = QTextBrowser(self)
         self.material_totals_display.setMinimumHeight(120)
@@ -207,17 +216,20 @@ class ShoppingListApp(QWidget):
         # Przycisk "Zapisz zmiany"
         self.save_button = QPushButton("Zapisz zmiany", self)
         self.save_button.clicked.connect(self.save_data)
+        self.save_button.setFocusPolicy(Qt.NoFocus)
         bottom_controls_layout.addWidget(self.save_button)
 
         # Przycisk "Wczytaj zmiany"
         self.load_button = QPushButton("Wczytaj zmiany", self)
         self.load_button.clicked.connect(self.load_data)
+        self.load_button.setFocusPolicy(Qt.NoFocus)
         bottom_controls_layout.addWidget(self.load_button)
 
         # Przycisk do przelaczania motywu (mniejszy, po lewej, obok przyciskow zapisu/odczytu)
         self.theme_toggle_button = QPushButton("Przelacz Motyw", self)
         self.theme_toggle_button.clicked.connect(self.toggle_theme)
         self.theme_toggle_button.setFixedSize(120, 30) # Ustawienie stalego, mniejszego rozmiaru
+        self.theme_toggle_button.setFocusPolicy(Qt.NoFocus)
         bottom_controls_layout.addWidget(self.theme_toggle_button)
         
         # Rozpychacz, aby napis atrybucji byl po prawej
@@ -226,11 +238,22 @@ class ShoppingListApp(QWidget):
         # Napis atrybucji (po prawej)
         attribution_label = QLabel("Created by RichRichie with Gemini 2.5 Flash")
         attribution_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        attribution_label.setFocusPolicy(Qt.NoFocus) 
         bottom_controls_layout.addWidget(attribution_label)
         
         main_layout.addLayout(bottom_controls_layout) # Dodaj uklad do glownego ukladu
 
         self.setLayout(main_layout)
+
+        # Ustawienie jawnej kolejnosci tabulacji dla glownych widgetow wejsciowych
+        self.setTabOrder(self.item_combo, self.metal_type_combo)
+        self.setTabOrder(self.metal_type_combo, self.wood_type_combo)
+        self.setTabOrder(self.wood_type_combo, self.quantity_input)
+        self.setTabOrder(self.quantity_input, add_button) # add_button jest zmienna lokalna
+        
+
+         # Ustaw poczatkowy fokus na pole wyboru artykulu
+        self.item_combo.setFocus()
 
         # Wywolaj aktualizacje stanow comboboxow i sum przy starcie
         self.update_material_combos_state()
