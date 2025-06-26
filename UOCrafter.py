@@ -4,9 +4,9 @@ import json
 import base64 # Importujemy modul base64 do obslugi danych ikon
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QComboBox, QLineEdit, QPushButton, QListWidget, QLabel,
-                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem)
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPalette, QColor, QIcon, QPixmap # Importujemy QIcon i QPixmap
+                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem, QSplashScreen)
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QPalette, QColor, QIcon, QPixmap, QFont # Importujemy QIcon i QPixmap
 
 class ShoppingListApp(QWidget):
     # Slownik definiujacy zasoby potrzebne do wytworzenia kazdego artykulu
@@ -232,6 +232,8 @@ class ShoppingListApp(QWidget):
         self.theme_toggle_button.clicked.connect(self.toggle_theme)
         self.theme_toggle_button.setFixedSize(120, 30) # Ustawienie stalego, mniejszego rozmiaru
         self.theme_toggle_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.theme_toggle_button.setEnabled(False)
+        self.theme_toggle_button.setVisible(False)
         bottom_controls_layout.addWidget(self.theme_toggle_button)
         
         # Rozpychacz, aby napis atrybucji byl po prawej
@@ -284,6 +286,8 @@ class ShoppingListApp(QWidget):
 
     def set_dark_mode(self):
         """Ustawia motyw aplikacji na ciemny."""
+        self.is_dark_theme = True
+        return
         palette = QApplication.instance().palette() # Pobierz biezaca palete
         palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
         palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
@@ -303,6 +307,8 @@ class ShoppingListApp(QWidget):
 
     def set_light_mode(self):
         """Ustawia motyw aplikacji na jasny."""
+        self.is_dark_theme = False
+        return
         palette = QApplication.instance().palette() # Pobierz biezaca palete
         palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
         palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
@@ -701,13 +707,7 @@ class ShoppingListApp(QWidget):
 
 # Punkt wejscia do aplikacji
 if __name__ == '__main__':
-    # Dodanie argumentu do sys.argv, aby wymusic ciemny motyw na ramce okna Windows
-    # Nalezy pamietac, ze to dziala tylko na Windows i wymaga odpowiednich ustawien systemowych
-   # sys.argv.append('-platformplugin')
-   # sys.argv.append('windows')
-   # sys.argv.append('-platform')
-   # sys.argv.append('windows:darkmode=1')
-
+ 
     app = QApplication(sys.argv)
 
     # Dane ikony Base64 wygenerowane przez imagen-3.0-generate-002
@@ -718,7 +718,18 @@ if __name__ == '__main__':
     # Tworzenie QPixmap z danych Base64
     pixmap = QPixmap()
     pixmap.loadFromData(icon_data)
+
+     # Tworzenie splash screen
+    splash = QSplashScreen(pixmap)
+    splash.show()
     
+
+    # Ustawienie czcionki i koloru dla napisu na splash screen
+    font = QFont("Arial", 50, QFont.Weight.Bold)
+    splash.setFont(font)
+    splash.showMessage("UO Crafter", Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter, Qt.GlobalColor.white)
+
+
     # Ustawianie ikony aplikacji
     app_icon = QIcon(pixmap)
     app.setWindowIcon(app_icon)
@@ -728,5 +739,9 @@ if __name__ == '__main__':
     
     # Utworzenie instancji aplikacji i ustawienie poczatkowego motywu
     ex = ShoppingListApp()
-    ex.show()
+    
+    # Uruchomienie QTimer, aby zamknac splash screen po 3 sekundach
+    # i pokazac glowna aplikacje
+    QTimer.singleShot(1000, lambda: (splash.close(), ex.show()))
+
     sys.exit(app.exec())
