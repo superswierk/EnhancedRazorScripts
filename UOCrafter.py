@@ -66,10 +66,20 @@ class ShoppingListApp(QWidget):
         self.set_dark_mode() # Ustawienie poczatkowego motywu na ciemny
         self.load_data_on_startup() # Proba wczytania danych przy starcie aplikacji
 
+    def center(self):
+
+        qr = self.frameGeometry()
+        cp = self.screen().availableGeometry().center()
+
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
     def initUI(self):
         # Ustawienia okna glownego
         self.setWindowTitle('UOCrafter') # Zmieniona nazwa aplikacji
-        self.setGeometry(100, 100, 580, 680)
+        self.resize(800,680)
+        self.center()
+    
 
         # Glowny uklad pionowy dla calego okna
         main_layout = QVBoxLayout()
@@ -721,9 +731,9 @@ if __name__ == '__main__':
 
      # Tworzenie splash screen
     splash = QSplashScreen(pixmap)
+    splash.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
     splash.show()
-    
-
+    QTimer.singleShot(1000, lambda: (splash.close()))
     # Ustawienie czcionki i koloru dla napisu na splash screen
     font = QFont("Arial", 50, QFont.Weight.Bold)
     splash.setFont(font)
@@ -742,6 +752,6 @@ if __name__ == '__main__':
     
     # Uruchomienie QTimer, aby zamknac splash screen po 3 sekundach
     # i pokazac glowna aplikacje
-    QTimer.singleShot(1000, lambda: (splash.close(), ex.show()))
-
+    
+    ex.show()
     sys.exit(app.exec())
