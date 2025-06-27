@@ -1,11 +1,12 @@
-from Scripts.EnhancedRazorScripts.misc_Discord import *
 from System.Collections.Generic import List
 from System import Byte, Int32
 import System.IO
 import System.Diagnostics
 
 def setText(text):
-    path = ".\\clipboard.txt"
+    pathToScript = Misc.ScriptCurrent()
+    directoryPath = pathToScript.rsplit("\\",1)[0]
+    path = directoryPath + ".\\mineSpots_Tymczasowa.txt"
     System.IO.File.WriteAllText(path, text)
     System.Diagnostics.Process.Start("notepad.exe", path)
 

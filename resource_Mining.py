@@ -2,10 +2,6 @@ import sys
 from System.Collections.Generic import List
 from System import Byte, Int32
 from math import sqrt
-import clr
-clr.AddReference('System.Speech')
-from System.Speech.Synthesis import SpeechSynthesizer
-from Scripts.EnhancedRazorScripts.misc_Discord import *
 import System.IO
 
 pathToScript = Misc.ScriptCurrent()
@@ -16,7 +12,11 @@ prefix = "mineSpots_"
 suffix = ".txt"
 
 mapTable = {}
-print("test")
+
+if fileList.Count == 0:
+    print("ERROR! brakuje pliku mineSpots_Tymczasowa.txt\nUzyj skryptu sys_MakeMineSpots.py aby stworzyc pierwsza mape")
+    sys.exit()
+
 idI = 0
 for file in fileList:
     fileBody = System.IO.File.ReadAllText(file)
@@ -34,15 +34,57 @@ lvlupThumb = "https://i.imgur.com/j5rUy80.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
 miningThumb = "https://i.imgur.com/cEvazS3.png"
 
-useMount = False
-usePetStorage = False
-
 rightHand = Player.CheckLayer( 'RightHand' )
 leftHand = Player.CheckLayer( 'LeftHand' )
+
+oreOptions = {
+    "send_discord" : {"id" : 997, "state" : False},
+    "all" : {"id" : 101, "state" : True},
+    "only_titan" : {"id" : 102, "state" : False}
+}
+
+ORES = {
+    "zelazo": 0x0000, #0x1BF2
+    "zloto": 0x0461,
+    "srebro": 0x0515,
+    "veryt": 0x0590,
+    "blackrock": 0x0455,
+    "agapit": 0x0400,
+    "valoryt": 0x07d1,
+    "mytheril": 0x0528,
+    "azuryt": 0x04df,
+    "bloodrock": 0x051d,
+    "royal": 0x04b9,
+    "tytan": 0x0415,
+    "grafit": 0x03e7,
+    "zwykle": 0x0000, #0x1BD7
+    "dab": 0x0096,
+    "orzech": 0x0611,
+    "cedr": 0x0094,
+    "cis": 0x0220,
+    "cyprys": 0x0091
+}
+
+sendDiscordMgs = False
 
 stringCodeToRun = ""
 
 spots = []
+
+def isInTable(value, table):
+    for item in table:
+        if item == value:
+            return True
+    return False
+
+getOnlyOre = []
+def shoudGatherOre(oreId):
+    global getOnlyOre
+    if getOnlyOre.Count == 0:
+        return True
+    return isInTable(oreId, getOnlyOre)
+        
+     
 
 class Spot:
     x = None
@@ -59,27 +101,58 @@ setY = 125
 offsetLabelY = 20
 offsetRadioY = 45
 offsetButtonY = 170
+oreID = 0x19B9 
 
 def sendgump():
     global mapTable
+    if  Misc.CheckSharedValue("miningGumpState") == True:
+        miningGumpState = Misc.ReadSharedValue("miningGumpState")
+    else:
+        miningGumpState = None
+
+    
     gd = Gumps.CreateGump(movable=True) 
     
     Gumps.AddPage(gd, 0)
-    Gumps.AddBackground(gd, 0, 0, 240, (mapTable.Count + 3) * 20 + offsetRadioY, 2620) 
+    Gumps.AddBackground(gd, 0, 0, 310, (mapTable.Count + 4) * 20 + offsetRadioY, 2620) 
 
     iY = 0
-    Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz kopalnie w jakiej jestes:')
-
+    Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz kopalnie i rude:')
+    
+    Gumps.AddGroup(gd,100)
     for mapname in mapTable:
         defaultState = False
-        if iY == 0:
-            defaultState = True
+        if miningGumpState is None:
+            if iY == 0:
+                defaultState = True
+        else:
+            defaultState = isInTable(mapTable[mapname]['id'], miningGumpState)
         Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,defaultState,mapTable[mapname]['id'])
         Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,mapname)
         iY = iY + 20
-
-    iY = iY + 10
-    Gumps.AddButton(gd,140,iY + offsetRadioY,247,248,456,1,0)
+        
+        
+        
+    if miningGumpState is not None:
+        oreOptions['all']['state'] = isInTable(oreOptions['all']['id'], miningGumpState)
+        oreOptions['only_titan']['state'] = isInTable(oreOptions['only_titan']['id'], miningGumpState)
+        oreOptions['send_discord']['state'] = isInTable(oreOptions['send_discord']['id'], miningGumpState)
+    iY = 0
+    Gumps.AddGroup(gd,200)
+    Gumps.AddRadio(gd,110,iY + offsetRadioY,209,208,oreOptions['all']['state'],oreOptions['all']['id'])
+    Gumps.AddLabel(gd,135,iY + offsetRadioY,2407,"Wszystko")
+    iY = iY + 20
+    Gumps.AddRadio(gd,110,iY + offsetRadioY,209,208,oreOptions['only_titan']['state'],oreOptions['only_titan']['id'])
+    Gumps.AddLabel(gd,135,iY + offsetRadioY,2407,"Tylko Tytan")
+    iY = iY + 20
+    
+    iY = 0
+    Gumps.AddCheck(gd,225,offsetRadioY,210, 211,oreOptions['send_discord']['state'],oreOptions['send_discord']['id'])
+    Gumps.AddLabel(gd,250,iY + offsetRadioY,2407,"Discord")
+    iY = iY + 20
+    
+    iY = iY + 40
+    Gumps.AddButton(gd,220,iY + offsetRadioY,247,248,456,1,0)
 
     Gumps.SendGump(767676, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
     buttoncheck()
@@ -87,42 +160,61 @@ def sendgump():
 def buttoncheck():
     global mapTable
     global stringCodeToRun
+    global getOnlyOre
+    global sendDiscordMgs
     Gumps.WaitForGump(767676, 60000)
     Gumps.CloseGump(767676)
     gdata = Gumps.GetGumpData(767676)
+    miningGumpState = []
+    if Misc.CheckSharedValue("miningGumpState") == True:
+        Misc.RemoveSharedValue("miningGumpState")
     switchList = gdata.switches
-    if switchList.Count >= 1:
+    print(gdata.switches)
+    if switchList.Count >= 2:
         for mapname in mapTable:
             if mapTable[mapname]["id"] == switchList[0]:
+                miningGumpState.Add(mapTable[mapname]["id"])
                 stringCodeToRun = mapTable[mapname]["code"]
         print("Mapa przeczytana")
+        if switchList[1] == oreOptions['only_titan']['id']:
+            getOnlyOre = []
+            getOnlyOre.Add(ORES["tytan"])
+            miningGumpState.Add(oreOptions['only_titan']['id'])
+        else:
+            getOnlyOre = []
+            miningGumpState.Add(oreOptions['all']['id'])
+        if isInTable(oreOptions['send_discord']['id'], switchList) == True:
+            sendDiscordMgs = True
+            miningGumpState.Add(oreOptions['send_discord']['id'])
     else:
         stringCodeToRun = "sys.exit()"
         print("error nie zaznaczyles nic ")
         sys.exit()
-
+    Misc.SetSharedValue("miningGumpState",miningGumpState)       
 ###UI code end
 
 sendgump()
+print("Koniec Gumpa")
 Misc.Pause(1000)
+if sendDiscordMgs == True:
+    print("wlazlo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    from Scripts.EnhancedRazorScripts.misc_Discord import *
+
 
 if silentMode == False:
-    beetle = Target.PromptTarget( 'Wybierz konia beetle' )
-    Player.ChatSay( 77, '.pojemnik' )
-    Target.WaitForTarget( 5000 , True )
-    Target.TargetExecute(beetle)
-
-    newBeetle = Target.PromptTarget( 'Wybierz konia newBeetle' )
-    Player.ChatSay( 77, '.pojemnik' )
-    Target.WaitForTarget( 5000 , True )
-    Target.TargetExecute(newBeetle)
-        
-def hide():
-    if  Player.BuffsExist('Ukrywanie') == False and Timer.Check('hideTimer') == False:
-        Misc.Pause( 700 )
-        Player.UseSkill('Ukrywanie')
-        Timer.Create('hideTimer',10000)
-        Misc.Pause( 1000 )
+    petOne = Target.PromptTarget( 'Wybierz konia Nr1' )
+    if getOnlyOre.Count == 0:
+        Player.ChatSay( 77, '.pojemnik' )
+        Target.WaitForTarget( 5000 , True )
+        Target.TargetExecute(petOne)
+        petTwo = Target.PromptTarget( 'Wybierz konia Nr2' )
+        Player.ChatSay( 77, '.pojemnik' )
+        Target.WaitForTarget( 25000 , True )
+        Target.TargetExecute(petTwo)
+    else:
+        Player.ChatSay( 77, '.pojemnik' )
+        Target.WaitForTarget( 25000 , True )
+        Target.TargetExecute(Player.Backpack)
 
     
 def SetDigSpots():
@@ -162,21 +254,81 @@ def MoveToSpot():
     if spots.Count == 0:
         SetDigSpots()
 
+def fullCheck():
+    if Journal.Search( 'zwierze nie moze') or Journal.Search( 'too heavy'):
+        Player.HeadMessage(33, 'KON JEST PELNY STOP!')
+        if sendDiscordMgs == True:
+            sendDiscord("Przepelnienie koni trzeba je oproznic", 15291726, lumberThumb);
+        Misc.Pause(3000)
+        sys.exit()
 
-def MoveToGround():
-    Misc.SendMessage( 'MoveToGround', 90 )
+def GetNumberOfOresInPet():
+    global petOne
+    global oreID
+    
+    remount = False
+    if not Mobiles.FindBySerial( petOne ):
+        remount = True
+        print("use3")
+        Mobiles.UseMobile( Player.Serial )
+        Misc.Pause( 700 )
+
+    numberOfOres = 0
+    petObject = Mobiles.FindBySerial( petOne )
+    if petObject is not None:
+        print(petObject)
+        for item in petObject.Contains:
+            if item.ItemID == oreID:
+                numberOfOres += item.Amount
+    else:
+        if sendDiscordMgs == True:
+            sendDiscord("Cos sie popuslo - kon zaginal", 15291726, lumberThumb);
+        Misc.Pause("Cos sie popuslo - Kon za dalego")
+        Misc.Pause(3000)
+        #sendEmailMessage("Cos sie popuslo", "Nie znalazlem konia")
+        sys.exit()
+
+    if remount:
+        print("use4")
+        Mobiles.UseItem( petOne )
+        Misc.Pause( 700 )
+
+    return numberOfOres
+        
+def MoveToPet():
+    if Player.Mount:
+        print("use1")
+        Mobiles.UseMobile( Player.Serial )
+        Misc.Pause( 700 )
     for item in Player.Backpack.Contains:
-        if item.ItemID == 0x19B9:
+        if item.ItemID == oreID and shoudGatherOre(item.Color) == True:
+            numberOfOresInPet = GetNumberOfOresInPet()
+            if numberOfOresInPet + item.Amount < 1900:
+                Items.Move( item, petOne, 0 )
+                Misc.Pause( 700 )
+    fullCheck()
+    if not Player.Mount:
+        print("use2")
+        Mobiles.UseMobile( petOne )
+        Misc.Pause( 700 )
+
+def MoveToGround(withPet = True):
+    Misc.SendMessage( 'MoveToGroundOrPet', 90 )
+    if getOnlyOre.Count > 0 and withPet == True:
+        MoveToPet()
+    for item in Player.Backpack.Contains:
+        if item.ItemID == oreID and shoudGatherOre(item.Color) == False:
             Items.DropItemGroundSelf(item,0)
             Misc.Pause( 700 )
 def doMine():
-    MoveToGround()
+    MoveToGround(False)
     Misc.SendMessage( 'doMine', 90 )
     if Player.IsGhost == True:
-        sendDiscord("Nie zyjesz", 15291726, deadThumb);
+        if sendDiscordMgs == True:
+            sendDiscord("Nie zyjesz", 15291726, deadThumb);
         Misc.Pause(2000)
         sys.exit()
-    hide()
+    Misc.Pause(1000)
     pickaxe = Player.GetItemOnLayer( 'RightHand' ).Serial
     if pickaxe == None:
         Player.HeadMessage( 1100, 'Youre out of pickaxes!' )
@@ -198,7 +350,9 @@ Journal.Clear()
 doMine()
 while True:
     if Player.IsGhost == True:
-        sendDiscord("Nie zyjesz", 15291726, deadThumb);
+        Misc.SendMessage("UMARLES!")
+        if sendDiscordMgs == True:
+            sendDiscord("Nie zyjesz", 15291726, deadThumb);
         Misc.Pause(2000)
         Misc.Pause(200)
         break
@@ -210,7 +364,8 @@ while True:
         Misc.Pause(1000)
         Journal.Clear()
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
-        sendDiscord("Jakas potwora sie pojawila", 15291726, enemyThumb);
+        if sendDiscordMgs == True:
+            sendDiscord("Jakas potwora sie pojawila", 15291726, enemyThumb);
         Misc.Pause(200)
         MoveToSpot()
         Player.ChatSay("STRAZE POMOCY BIJA MNIE")
@@ -228,7 +383,8 @@ while True:
         Timer.Create('digTimer',9000)
         doMine()
     if Journal.Search('Nie masz miejsca'):
-        sendDiscord("Nie masz juz miejsca na rude", 15291726, miningThumb);
+        if sendDiscordMgs == True:
+            sendDiscord("Nie masz juz miejsca na rude", 15291726, miningThumb);
         Misc.Pause(2000)
         sys.exit()
 
@@ -246,8 +402,4 @@ while True:
         MoveToGround()
         Misc.Pause(20000)
         Timer.Create('digTimer',9000)
-        #print("trzasnales kontynuuj")
-        #doMine()
     Misc.Pause(400)
-
-
