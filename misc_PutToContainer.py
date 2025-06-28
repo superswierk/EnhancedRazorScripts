@@ -2,7 +2,10 @@ containerObj = Target.PromptTarget( 'Wybierz pojemnik z ktorego brac' )
 
 container = Items.FindBySerial(containerObj)
 
-itemToMoveID = 0x09D7
+#talez 0x09D7
+#wiadro 0x0FAB
+#topor 0x0F43
+itemToMoveID = 0x0F43
 
 
 while True:
