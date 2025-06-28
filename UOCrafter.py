@@ -9,44 +9,54 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPalette, QColor, QIcon, QPixmap, QFont # Importujemy QIcon i QPixmap
 
 class ShoppingListApp(QWidget):
-    # Slownik definiujacy zasoby potrzebne do wytworzenia kazdego artykulu
+    # Slownik definiujacy zasoby potrzebne do wytworzenia kazdego artykulu, teraz z kategoriami
     CRAFTING_RESOURCES = {
-        "tworzenie_lukuw": {"sztaby": 4, "deski": 2, "klejnoty": 0},
-        "mlotek_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
-        "mlot_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
-        "wytrych": {"sztaby": 1, "deski": 0, "klejnoty": 0}, # Przyklad: wytrych nie wymaga sztab
-        "kilof": {"sztaby": 5, "deski": 0, "klejnoty": 0},   # Przyklad: kilof nie wymaga desek
-        "sierp": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "mozdzierz": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "narzedzie_szklarskie": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "narzedzia_naprawcze": {"sztaby": 2, "deski": 0, "klejnoty": 0},
-        "narzedzia_druciarza": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "narzedzia_szewskie": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "pila": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "dluto": {"sztaby": 2, "deski": 4, "klejnoty": 0},
-        "kolczyki": {"sztaby": 1, "deski": 0, "klejnoty": 1},
-        "zloty_naszyjnik": {"sztaby": 1, "deski": 0, "klejnoty": 1},
-        "szpony": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "tekagi": {"sztaby": 6, "deski": 0, "klejnoty": 0},
-        "ciemne_jingasa": {"sztaby": 12, "deski": 0, "klejnoty": 0},
-        "plytowe_jingasa": {"sztaby": 9, "deski": 0, "klejnoty": 0},
-        "diadem": {"sztaby": 4, "deski": 0, "klejnoty": 10},
-        "swiecznikA": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "swiecznikB": {"sztaby": 15, "deski": 0, "klejnoty": 0},
-        "swieczka": {"sztaby": 2, "deski": 0, "klejnoty": 0},
-        "waga": {"sztaby": 5, "deski": 0, "klejnoty": 0},
-        "lichtarzykA": {"sztaby": 5, "deski": 0, "klejnoty": 0},
-        "lichtarzykB": {"sztaby": 5, "deski": 0, "klejnoty": 0},
-        "luneta": {"sztaby": 4, "deski": 0, "klejnoty": 0},
-        "bola": {"sztaby": 2, "deski": 0, "klejnoty": 0},
-        "czesci_do_zegara": {"sztaby": 1, "deski": 0, "klejnoty": 0},
-        "kurek_do_beczki": {"sztaby": 1, "deski": 0, "klejnoty": 0},
-        "obrecz": {"sztaby": 5, "deski": 0, "klejnoty": 0},
-        "narzedzia_stolarskie": {"sztaby": 0, "deski": 4, "klejnoty": 0},
-        "globus": {"sztaby": 0, "deski": 5, "klejnoty": 0},
-        "paleta": {"sztaby": 0, "deski": 4, "klejnoty": 0},
-        "pioro": {"sztaby": 0, "deski": 4, "klejnoty": 0},
-        "pioro_kartografa": {"sztaby": 0, "deski": 4, "klejnoty": 0}
+        "Druciarstwo": {
+            "tworzenie_lukuw": {"sztaby": 4, "deski": 2, "klejnoty": 0},
+            "mlotek_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+            "mlot_kowalski": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+            "wytrych": {"sztaby": 1, "deski": 0, "klejnoty": 0}, # Przyklad: wytrych nie wymaga sztab
+            "kilof": {"sztaby": 5, "deski": 0, "klejnoty": 0},   # Przyklad: kilof nie wymaga desek
+            "sierp": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "mozdzierz": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "narzedzie_szklarskie": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "narzedzia_naprawcze": {"sztaby": 2, "deski": 0, "klejnoty": 0},
+            "narzedzia_druciarza": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "narzedzia_szewskie": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "pila": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "dluto": {"sztaby": 2, "deski": 4, "klejnoty": 0},
+            "kolczyki": {"sztaby": 1, "deski": 0, "klejnoty": 1},
+            "zloty_naszyjnik": {"sztaby": 1, "deski": 0, "klejnoty": 1},
+            "szpony": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "tekagi": {"sztaby": 6, "deski": 0, "klejnoty": 0},
+            "ciemne_jingasa": {"sztaby": 12, "deski": 0, "klejnoty": 0},
+            "plytowe_jingasa": {"sztaby": 9, "deski": 0, "klejnoty": 0},
+            "diadem": {"sztaby": 4, "deski": 0, "klejnoty": 10},
+            "swiecznikA": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "swiecznikB": {"sztaby": 15, "deski": 0, "klejnoty": 0},
+            "swieczka": {"sztaby": 2, "deski": 0, "klejnoty": 0},
+            "waga": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+            "lichtarzykA": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+            "lichtarzykB": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+            "luneta": {"sztaby": 4, "deski": 0, "klejnoty": 0},
+            "bola": {"sztaby": 2, "deski": 0, "klejnoty": 0},
+            "czesci_do_zegara": {"sztaby": 1, "deski": 0, "klejnoty": 0},
+            "kurek_do_beczki": {"sztaby": 1, "deski": 0, "klejnoty": 0},
+            "obrecz": {"sztaby": 5, "deski": 0, "klejnoty": 0},
+            "narzedzia_stolarskie": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+            "globus": {"sztaby": 0, "deski": 5, "klejnoty": 0},
+            "paleta": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+            "pioro": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+            "pioro_kartografa": {"sztaby": 0, "deski": 4, "klejnoty": 0}
+        },
+        "Stolarstwo": {
+            "laska": {"sztaby": 0, "deski": 4, "klejnoty": 0},
+            "sekata_laska": {"sztaby": 0, "deski": 5, "klejnoty": 0}
+        },
+        "Tworzenie_Lukow": {
+            "luk": {"sztaby": 3, "deski": 3, "klejnoty": 0},
+            "dlugi_luk": {"sztaby": 4, "deski": 4, "klejnoty": 0}
+        }
     }
 
     # Listy dla typow sztab i desek (bez "Brak materialu" jako elementu do wyboru, gdy jest wymagany)
@@ -89,15 +99,26 @@ class ShoppingListApp(QWidget):
         # Sekcja dodawania artykulow (uklad poziomy dla elementow wejsciowych)
         add_item_layout = QHBoxLayout()
 
+        # Etykieta dla QComboBox kategorii
+        add_item_layout.addWidget(QLabel("Wybierz kategorie:"))
+        # QComboBox - rozwijana lista kategorii
+        self.category_combo = QComboBox(self)
+        self.category_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
+        self.category_combo.currentIndexChanged.connect(self.update_item_combo)
+        add_item_layout.addWidget(self.category_combo)
+
+
         # Etykieta dla QComboBox artykulow
         add_item_layout.addWidget(QLabel("Wybierz artykul:"))
 
         # QComboBox - rozwijana lista artykulow (z autouzupełnianiem)
         self.item_combo = QComboBox(self)
         self.item_combo.setEditable(True) # Umozliwia wpisywanie tekstu
-        self.item_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
+        # Poczatkowe ladowanie artykulow z pierwszej kategorii
+        initial_category = list(self.CRAFTING_RESOURCES.keys())[0]
+        self.item_combo.addItems(list(self.CRAFTING_RESOURCES[initial_category].keys()))
         # Ustawienie QCompleter dla listy artykulow
-        self.completer_item = QCompleter(list(self.CRAFTING_RESOURCES.keys()), self.item_combo)
+        self.completer_item = QCompleter(list(self.CRAFTING_RESOURCES[initial_category].keys()), self.item_combo)
         self.completer_item.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.completer_item.setFilterMode(Qt.MatchFlag.MatchContains)
         self.completer_item.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
@@ -265,17 +286,19 @@ class ShoppingListApp(QWidget):
         self.setLayout(main_layout)
 
         # Ustawienie jawnej kolejnosci tabulacji dla glownych widgetow wejsciowych
+        self.setTabOrder(self.category_combo, self.item_combo)
         self.setTabOrder(self.item_combo, self.metal_type_combo)
         self.setTabOrder(self.metal_type_combo, self.wood_type_combo)
         self.setTabOrder(self.wood_type_combo, self.quantity_input)
         self.setTabOrder(self.quantity_input, add_button)
         # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do pierwszego
-        self.setTabOrder(add_button, self.item_combo) 
+        self.setTabOrder(add_button, self.category_combo)
         
-        # Ustaw poczatkowy fokus na pole wyboru artykulu
-        self.item_combo.setFocus()
+        # Ustaw poczatkowy fokus na pole wyboru kategorii
+        self.category_combo.setFocus()
 
         # Wywolaj aktualizacje stanow comboboxow i sum przy starcie
+        self.update_item_combo() # Wywolaj po to, by item_combo sie uzupelnil
         self.update_material_combos_state()
         self.calculate_totals() 
 
@@ -299,47 +322,48 @@ class ShoppingListApp(QWidget):
         else:
             event.accept() # Zamknij bez pytania, jesli brak zmian
 
+
     def set_dark_mode(self):
         """Ustawia motyw aplikacji na ciemny."""
         self.is_dark_theme = True
         return
-        palette = QApplication.instance().palette() # Pobierz biezaca palete
-        palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
-        palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
-        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
-        palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
-        palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
-        palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
-        palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
-        palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
-        QApplication.instance().setPalette(palette)
-        self.is_dark_theme = True
+        # palette = QApplication.instance().palette() # Pobierz biezaca palete
+        # palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+        # palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
+        # palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+        # palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+        # palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+        # palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+        # palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+        # palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+        # QApplication.instance().setPalette(palette)
+        # self.is_dark_theme = True
 
     def set_light_mode(self):
         """Ustawia motyw aplikacji na jasny."""
         self.is_dark_theme = False
         return
-        palette = QApplication.instance().palette() # Pobierz biezaca palete
-        palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
-        palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(240, 240, 240))
-        palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
-        palette.setColor(QPalette.ColorRole.Text, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.Button, QColor(200, 200, 200))
-        palette.setColor(QPalette.ColorRole.ButtonText, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
-        palette.setColor(QPalette.ColorRole.Link, QColor(0, 0, 238))
-        palette.setColor(QPalette.ColorRole.Highlight, QColor(140, 180, 255))
-        palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
-        QApplication.instance().setPalette(palette)
-        self.is_dark_theme = False
+        # palette = QApplication.instance().palette() # Pobierz biezaca palete
+        # palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
+        # palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
+        # palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.AlternateBase, QColor(240, 240, 240))
+        # palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(0, 0, 0))
+        # palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
+        # palette.setColor(QPalette.ColorRole.Text, QColor(0, 0, 0))
+        # palette.setColor(QPalette.ColorRole.Button, QColor(200, 200, 200))
+        # palette.setColor(QPalette.ColorRole.ButtonText, QColor(0, 0, 0))
+        # palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+        # palette.setColor(QPalette.ColorRole.Link, QColor(0, 0, 238))
+        # palette.setColor(QPalette.ColorRole.Highlight, QColor(140, 180, 255))
+        # palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+        # QApplication.instance().setPalette(palette)
+        # self.is_dark_theme = False
 
     def toggle_theme(self):
         """Przelacza miedzy motywem ciemnym a jasnym."""
@@ -348,13 +372,30 @@ class ShoppingListApp(QWidget):
         else:
             self.set_dark_mode()
 
+    def update_item_combo(self):
+        """
+        Aktualizuje liste rozwijana artykulow w zaleznosci od wybranej kategorii.
+        """
+        selected_category = self.category_combo.currentText()
+        items_in_category = list(self.CRAFTING_RESOURCES.get(selected_category, {}).keys())
+        
+        self.item_combo.clear()
+        self.item_combo.addItems(items_in_category)
+        
+        # Zaktualizuj completer dla nowej listy artykulow
+        self.completer_item.setModel(self.item_combo.model())
+        self.update_material_combos_state() # Zaktualizuj stan materialow dla nowo wybranego itemu
+
     def update_material_combos_state(self):
         """
         Aktualizuje stan (enabled/disabled) i wybrane opcje
         dla rozwijanych list typow materialow na podstawie wybranego artykulu.
         """
+        selected_category = self.category_combo.currentText()
         selected_item = self.item_combo.currentText()
-        resources = self.CRAFTING_RESOURCES.get(selected_item, {"sztaby": 0, "deski": 0, "klejnoty": 0})
+        
+        # Pobierz zasoby dla wybranego przedmiotu z odpowiedniej kategorii
+        resources = self.CRAFTING_RESOURCES.get(selected_category, {}).get(selected_item, {"sztaby": 0, "deski": 0, "klejnoty": 0})
 
         # --- Obsluga dla sztab ---
         if resources["sztaby"] == 0:
@@ -363,7 +404,6 @@ class ShoppingListApp(QWidget):
             self.metal_type_combo.setCurrentText(self.NO_MATERIAL_OPTION)
             self.metal_type_combo.setEnabled(False)
             self.metal_type_combo.setEditable(False) # Nie da sie wpisywac
-            #self.completer_metal.setModel(self.metal_type_combo.model()) # Zaktualizuj model completera
             # Ustaw model completera na model, ktory zawiera tylko "Brak materialu"
             self.completer_metal.setModel(self.metal_type_combo.model()) 
         else:
@@ -374,7 +414,6 @@ class ShoppingListApp(QWidget):
 
             self.metal_type_combo.clear() # Wyczyść liste
             self.metal_type_combo.addItems(self.METAL_TYPES) # Dodaj tylko typy materialow
-            #self.completer_metal.setModel(self.metal_type_combo.model()) # Zaktualizuj model completera
             # Ustaw model completera na model z pelna lista materialow
             self.completer_metal.setModel(self.metal_type_combo.model()) 
 
@@ -423,14 +462,16 @@ class ShoppingListApp(QWidget):
         Wykonuje walidacje wprowadzonej ilosci.
         Przechowuje dane artykulu i obliczone zasoby w obiekcie QListWidgetItem.
         """
+        selected_category = self.category_combo.currentText() # Pobierz wybrana kategorie
         selected_item = self.item_combo.currentText()
         selected_metal_type = self.metal_type_combo.currentText()
         selected_wood_type = self.wood_type_combo.currentText()
         quantity_text = self.quantity_input.text()
 
-        # Walidacja czy wybrany artykul istnieje
-        if selected_item not in self.CRAFTING_RESOURCES:
-            QMessageBox.warning(self, "Blad Wprowadzania", "Wybrany artykul nie istnieje na liscie do craftingu!")
+        # Walidacja czy wybrany artykul istnieje w wybranej kategorii
+        if selected_category not in self.CRAFTING_RESOURCES or \
+           selected_item not in self.CRAFTING_RESOURCES[selected_category]:
+            QMessageBox.warning(self, "Blad Wprowadzania", "Wybrany artykul lub kategoria nie istnieje na liscie do craftingu!")
             return
 
         if not quantity_text.strip():
@@ -446,7 +487,8 @@ class ShoppingListApp(QWidget):
             QMessageBox.warning(self, "Blad Wprowadzania", "Wprowadz poprawna liczbe!")
             return
 
-        item_resources_base = self.CRAFTING_RESOURCES.get(selected_item, {"sztaby": 0, "deski": 0, "klejnoty": 0})
+        # Pobierz bazowe zasoby z odpowiedniej kategorii
+        item_resources_base = self.CRAFTING_RESOURCES[selected_category].get(selected_item, {"sztaby": 0, "deski": 0, "klejnoty": 0})
         
         # Oblicz calkowite zasoby dla tej pozycji (ilosc * zasoby_na_sztuke)
         total_item_resources = {
@@ -476,6 +518,7 @@ class ShoppingListApp(QWidget):
         item_number = self.shopping_list_widget.count() + 1
         display_text = f"{item_number}. {selected_item} ({predominant_material_for_display}) - Ilosc: {quantity}"
         # Dodaj informacje o konkretnych typach sztab i desek
+        display_text += f" [Kategoria: {selected_category}]" # Dodano wyswietlanie kategorii
         display_text += f" [Sztaby: {selected_metal_type}]"
         display_text += f" [Deski: {selected_wood_type}]"
 
@@ -487,6 +530,7 @@ class ShoppingListApp(QWidget):
         # Przechowaj wszystkie potrzebne dane w QListWidgetItem
         list_item.setData(
             Qt.ItemDataRole.UserRole, {
+                'category': selected_category, # Zapisz kategorie
                 'article': selected_item,
                 'metal_type': selected_metal_type,
                 'wood_type': selected_wood_type,
@@ -558,7 +602,10 @@ class ShoppingListApp(QWidget):
             item_data = item.data(Qt.ItemDataRole.UserRole)
             if item_data:
                 # Odczytaj oryginalny tekst bez numeru
-                original_text_without_number = item.text().split('.', 1)[-1].strip()
+                # Zakladamy, ze tekst ma format "Numer. Reszta tekstu"
+                text_parts = item.text().split('.', 1)
+                original_text_without_number = text_parts[1].strip() if len(text_parts) > 1 else item.text()
+                
                 # Ustaw nowy tekst z poprawnym numerem
                 item.setText(f"{i + 1}. {original_text_without_number}")
             # Upewnij sie, ze stan wizualny jest poprawnie zastosowany po reindeksacji
@@ -601,6 +648,7 @@ class ShoppingListApp(QWidget):
             if item_data:
                 # Zapisz tylko te dane, ktore sa potrzebne do odtworzenia stanu
                 data_to_save.append({
+                    'category': item_data.get('category'), # Zapisz kategorie
                     'article': item_data.get('article'),
                     'metal_type': item_data.get('metal_type'),
                     'wood_type': item_data.get('wood_type'),
@@ -632,6 +680,7 @@ class ShoppingListApp(QWidget):
             
             self.shopping_list_widget.clear() # Wyczyść biezaca liste przed wczytaniem
             for i, item_data_raw in enumerate(loaded_data): # Uzyj enumerate do numeracji
+                category = item_data_raw.get('category', list(self.CRAFTING_RESOURCES.keys())[0]) # Wczytaj kategorie, domyslnie pierwsza
                 article = item_data_raw.get('article')
                 metal_type = item_data_raw.get('metal_type')
                 wood_type = item_data_raw.get('wood_type')
@@ -644,7 +693,10 @@ class ShoppingListApp(QWidget):
                     continue
 
                 # Recalculate resources and predominant material for display/storage
-                item_resources_base = self.CRAFTING_RESOURCES.get(article, {"sztaby": 0, "deski": 0, "klejnoty": 0})
+                # Upewnij sie, ze kategoria i artykul istnieja w CRAFTING_RESOURCES
+                category_resources = self.CRAFTING_RESOURCES.get(category, {})
+                item_resources_base = category_resources.get(article, {"sztaby": 0, "deski": 0, "klejnoty": 0})
+
                 total_item_resources = {
                     "sztaby": item_resources_base["sztaby"] * quantity,
                     "deski": item_resources_base["deski"] * quantity,
@@ -662,8 +714,9 @@ class ShoppingListApp(QWidget):
                     elif wood_type != self.NO_MATERIAL_OPTION:
                         predominant_material_for_display = wood_type
                 
-                # Odtworz tekst wyswietlany na liscie z numerem
+                # Odtworz tekst wyswietlany na liscie z numerem i kategoria
                 display_text = f"{i + 1}. {article} ({predominant_material_for_display}) - Ilosc: {quantity}"
+                display_text += f" [Kategoria: {category}]" # Dodano wyswietlanie kategorii
                 display_text += f" [Sztaby: {metal_type}]"
                 display_text += f" [Deski: {wood_type}]"
 
@@ -673,6 +726,7 @@ class ShoppingListApp(QWidget):
                 new_list_item.setCheckState(Qt.CheckState.Checked if is_enabled else Qt.CheckState.Unchecked)
 
                 new_list_item.setData(Qt.ItemDataRole.UserRole, {
+                    'category': category, # Zapisz kategorie
                     'article': article,
                     'metal_type': metal_type,
                     'wood_type': wood_type,
@@ -685,7 +739,7 @@ class ShoppingListApp(QWidget):
                 self.update_item_visual_state(new_list_item) # Zaktualizuj wyglad po wczytaniu
 
             self.calculate_totals() # Zaktualizuj sumy po wczytaniu
-            self.update_material_combos_state() # Zaktualizuj stan comboboxow po wczytaniu
+            # self.update_material_combos_state() # Juz wywolane przez update_item_combo po zmianie kategorii
             if show_message:
                 QMessageBox.information(self, "Wczytano", "Dane zostaly wczytane pomyslnie.")
             self.unsaved_changes = False # Wczytano zmiany, resetuj flage
