@@ -4,7 +4,7 @@ import json
 import base64 # Importujemy modul base64 do obslugi danych ikon
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QComboBox, QLineEdit, QPushButton, QListWidget, QLabel,
-                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem, QSplashScreen)
+                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem, QSplashScreen, QGroupBox) # Dodano QGroupBox
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPalette, QColor, QIcon, QPixmap, QFont # Importujemy QIcon i QPixmap
 
@@ -86,6 +86,7 @@ class ShoppingListApp(QWidget):
         # Przesuwa okno w lewy górny róg ramki
         self.move(qr.topLeft())
 
+
     def initUI(self):
         # Ustawienia okna glownego
         self.setWindowTitle('UOCrafter') # Zmieniona nazwa aplikacji
@@ -96,18 +97,23 @@ class ShoppingListApp(QWidget):
         # Glowny uklad pionowy dla calego okna
         main_layout = QVBoxLayout()
 
-        # Sekcja dodawania artykulow (uklad poziomy dla elementow wejsciowych)
-        add_item_layout = QHBoxLayout()
-
-        # Etykieta dla QComboBox kategorii
-        add_item_layout.addWidget(QLabel("Wybierz kategorie:"))
-        # QComboBox - rozwijana lista kategorii
+        # Sekcja wyboru kategorii (poza QGroupBox)
+        category_selection_layout = QHBoxLayout()
+        category_selection_layout.addWidget(QLabel("Wybierz kategorie:"))
         self.category_combo = QComboBox(self)
         self.category_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
         self.category_combo.currentIndexChanged.connect(self.update_item_combo)
-        add_item_layout.addWidget(self.category_combo)
+        self.category_combo.setFixedWidth(150) # Ustawienie stalej szerokosci
+        category_selection_layout.addWidget(self.category_combo)
         self.category_combo.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        category_selection_layout.addStretch(1) # Rozpychacz, aby dosunac do lewej
+        main_layout.addLayout(category_selection_layout)
 
+
+        # Utworzenie QGroupBox dla sekcji dodawania artykulow
+        add_item_group_box = QGroupBox("Dodaj Nowy Przedmiot do Listy", self)
+        add_item_layout = QHBoxLayout() # Uklad poziomy dla elementow wejsciowych wewnatrz grupy
+        add_item_group_box.setLayout(add_item_layout) # Ustawienie ukladu dla grupy
 
         # Etykieta dla QComboBox artykulow
         add_item_layout.addWidget(QLabel("Wybierz artykul:"))
@@ -183,7 +189,7 @@ class ShoppingListApp(QWidget):
         add_button.clicked.connect(self.add_item_to_list)
         add_item_layout.addWidget(add_button)
 
-        main_layout.addLayout(add_item_layout)
+        main_layout.addWidget(add_item_group_box) # Dodanie QGroupBox do glownego ukladu
 
         # QListWidget - wyswietla aktualna liste zakupow
         main_layout.addWidget(QLabel("Twoja lista itemow:"))
@@ -287,13 +293,13 @@ class ShoppingListApp(QWidget):
         self.setLayout(main_layout)
 
         # Ustawienie jawnej kolejnosci tabulacji dla glownych widgetow wejsciowych
-        #self.setTabOrder(self.category_combo, self.item_combo)
+        # Zmieniona kolejność tabulacji: najpierw item_combo, potem elementy w grupie i bez katogori
         self.setTabOrder(self.item_combo, self.metal_type_combo)
         self.setTabOrder(self.metal_type_combo, self.wood_type_combo)
         self.setTabOrder(self.wood_type_combo, self.quantity_input)
         self.setTabOrder(self.quantity_input, add_button)
-        # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do drugiergo
-        self.setTabOrder(add_button, self.item_combo)
+        # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do pierwszego
+        self.setTabOrder(add_button, self.item_combo) 
         
         # Ustaw poczatkowy fokus na pole wyboru itemu
         self.item_combo.setFocus()
