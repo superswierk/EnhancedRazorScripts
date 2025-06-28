@@ -472,7 +472,9 @@ class ShoppingListApp(QWidget):
             # Jesli oba sa "Brak materialu", predominant_material_for_display pozostanie NO_MATERIAL_OPTION
 
         # Utworz sformatowany ciag znakow do dodania na liste
-        display_text = f"{selected_item} ({predominant_material_for_display}) - Ilosc: {quantity}"
+        # Dodaj numer pozycji na poczatku
+        item_number = self.shopping_list_widget.count() + 1
+        display_text = f"{item_number}. {selected_item} ({predominant_material_for_display}) - Ilosc: {quantity}"
         # Dodaj informacje o konkretnych typach sztab i desek
         display_text += f" [Sztaby: {selected_metal_type}]"
         display_text += f" [Deski: {selected_wood_type}]"
@@ -518,20 +520,49 @@ class ShoppingListApp(QWidget):
     def update_item_visual_state(self, item):
         """
         Aktualizuje wyglad elementu listy (kolor, przekreslenie) na podstawie jego stanu 'is_enabled'.
+        Zachowuje numer pozycji.
         """
         item_data = item.data(Qt.ItemDataRole.UserRole)
-        if item_data and not item_data.get('is_enabled', True):
-            # Element jest wylaczony
+        if item_data:
+            # Odczytaj numer pozycji z aktualnego tekstu, jesli istnieje
+            current_text_parts = item.text().split('.', 1)
+            item_number_prefix = ""
+            original_text_without_number = item.text()
+            if len(current_text_parts) > 1 and current_text_parts[0].strip().isdigit():
+                item_number_prefix = current_text_parts[0].strip() + ". "
+                original_text_without_number = current_text_parts[1].strip()
+
             font = item.font()
-            font.setStrikeOut(True)
-            item.setFont(font)
-            item.setForeground(QColor(150, 150, 150)) # Szary kolor
-        else:
-            # Element jest wlaczony
-            font = item.font()
-            font.setStrikeOut(False)
-            item.setFont(font)
-            item.setForeground(QColor(255, 255, 255) if self.is_dark_theme else QColor(0, 0, 0)) # Przywroc domyslny kolor
+            if not item_data.get('is_enabled', True):
+                # Element jest wylaczony
+                font.setStrikeOut(True)
+                item.setFont(font)
+                item.setForeground(QColor(150, 150, 150)) # Szary kolor
+            else:
+                # Element jest wlaczony
+                font.setStrikeOut(False)
+                item.setFont(font)
+                item.setForeground(QColor(255, 255, 255) if self.is_dark_theme else QColor(0, 0, 0)) # Przywroc domyslny kolor
+            
+            # Ponownie ustaw tekst, aby zachowac numer pozycji, jesli jest
+            item.setText(item_number_prefix + original_text_without_number)
+
+
+    def reindex_list_items(self):
+        """
+        Ponownie indeksuje wszystkie elementy na liscie po usunieciu/dodaniu,
+        aby zapewnic ciagla numeracje.
+        """
+        for i in range(self.shopping_list_widget.count()):
+            item = self.shopping_list_widget.item(i)
+            item_data = item.data(Qt.ItemDataRole.UserRole)
+            if item_data:
+                # Odczytaj oryginalny tekst bez numeru
+                original_text_without_number = item.text().split('.', 1)[-1].strip()
+                # Ustaw nowy tekst z poprawnym numerem
+                item.setText(f"{i + 1}. {original_text_without_number}")
+            # Upewnij sie, ze stan wizualny jest poprawnie zastosowany po reindeksacji
+            self.update_item_visual_state(item)
 
     def remove_selected_item(self):
         """
@@ -545,6 +576,7 @@ class ShoppingListApp(QWidget):
         
         if list_items: # Jesli cokolwiek usunieto, oznacz zmiany
             self.unsaved_changes = True
+            self.reindex_list_items() # Ponownie indeksuj liste po usunieciu
         self.calculate_totals() # Zaktualizuj sumy zasobow po usunieciu
 
     def remove_all_items(self):
@@ -555,6 +587,7 @@ class ShoppingListApp(QWidget):
             self.shopping_list_widget.clear()
             QMessageBox.information(self, "Lista Wyczysc", "Wszystkie elementy zostaly usuniete z listy.")
             self.unsaved_changes = True # Zmiana nastapila, ustaw flage
+            # Nie ma potrzeby reindeksacji po wyczyszczeniu
         self.calculate_totals() # Zaktualizuj sumy zasobow po usunieciu wszystkiego
 
     def save_data(self):
@@ -598,7 +631,7 @@ class ShoppingListApp(QWidget):
                 loaded_data = json.load(f)
             
             self.shopping_list_widget.clear() # Wyczyść biezaca liste przed wczytaniem
-            for item_data_raw in loaded_data:
+            for i, item_data_raw in enumerate(loaded_data): # Uzyj enumerate do numeracji
                 article = item_data_raw.get('article')
                 metal_type = item_data_raw.get('metal_type')
                 wood_type = item_data_raw.get('wood_type')
@@ -629,8 +662,8 @@ class ShoppingListApp(QWidget):
                     elif wood_type != self.NO_MATERIAL_OPTION:
                         predominant_material_for_display = wood_type
                 
-                # Odtworz tekst wyswietlany na liscie
-                display_text = f"{article} ({predominant_material_for_display}) - Ilosc: {quantity}"
+                # Odtworz tekst wyswietlany na liscie z numerem
+                display_text = f"{i + 1}. {article} ({predominant_material_for_display}) - Ilosc: {quantity}"
                 display_text += f" [Sztaby: {metal_type}]"
                 display_text += f" [Deski: {wood_type}]"
 
