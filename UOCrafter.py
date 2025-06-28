@@ -67,11 +67,13 @@ class ShoppingListApp(QWidget):
         self.load_data_on_startup() # Proba wczytania danych przy starcie aplikacji
 
     def center(self):
-
+        # Pobiera geometrię głównego okna
         qr = self.frameGeometry()
+        # Pobiera centrum dostępnej geometrii ekranu
         cp = self.screen().availableGeometry().center()
-
+        # Przesuwa środek ramki okna do środka punktu ekranu
         qr.moveCenter(cp)
+        # Przesuwa okno w lewy górny róg ramki
         self.move(qr.topLeft())
 
     def initUI(self):
@@ -166,6 +168,9 @@ class ShoppingListApp(QWidget):
         self.shopping_list_widget = QListWidget(self)
         self.shopping_list_widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         main_layout.addWidget(self.shopping_list_widget)
+
+        # Polaczenie sygnalu itemChanged z nowa funkcja obslugujaca zmiany stanu zaznaczenia
+        self.shopping_list_widget.itemChanged.connect(self.handle_item_checked_state_changed)
 
         # Uklad dla przyciskow usuwania i eksportu
         action_buttons_layout = QHBoxLayout()
@@ -472,22 +477,61 @@ class ShoppingListApp(QWidget):
         display_text += f" [Sztaby: {selected_metal_type}]"
         display_text += f" [Deski: {selected_wood_type}]"
 
-        list_item = self.shopping_list_widget.addItem(display_text)
+        list_item = QListWidgetItem(display_text)
+        # Ustaw element listy jako zaznaczalny i domyslnie zaznaczony
+        list_item.setFlags(list_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+        list_item.setCheckState(Qt.CheckState.Checked)
+
         # Przechowaj wszystkie potrzebne dane w QListWidgetItem
-        self.shopping_list_widget.item(self.shopping_list_widget.count() - 1).setData(
+        list_item.setData(
             Qt.ItemDataRole.UserRole, {
                 'article': selected_item,
                 'metal_type': selected_metal_type,
                 'wood_type': selected_wood_type,
                 'quantity': quantity,
                 'resources': total_item_resources, # Zasoby ogolne dla tej pozycji
-                'predominant_material_display': predominant_material_for_display # Material przewazajacy do eksportu
+                'predominant_material_display': predominant_material_for_display, # Material przewazajacy do eksportu
+                'is_enabled': True # Domyslnie element jest wlaczony
             }
         )
+        self.shopping_list_widget.addItem(list_item) # Dodaj przygotowany element
         self.unsaved_changes = True # Zmiana nastapila, ustaw flage
 
         self.quantity_input.clear()
         self.calculate_totals() # Zaktualizuj sumy zasobow
+
+    def handle_item_checked_state_changed(self, item):
+        """
+        Obsluguje zmiane stanu zaznaczenia elementu listy (checkbox).
+        Aktualizuje flagę 'is_enabled' w danych elementu i ponownie oblicza sumy.
+        """
+        self.unsaved_changes = True # Zmiana nastapila, ustaw flage
+        item_data = item.data(Qt.ItemDataRole.UserRole)
+        if item_data is not None:
+            new_state = item.checkState() == Qt.CheckState.Checked
+            item_data['is_enabled'] = new_state
+            item.setData(Qt.ItemDataRole.UserRole, item_data) # Zapisz zaktualizowane dane
+
+            self.update_item_visual_state(item) # Zaktualizuj wyglad elementu
+            self.calculate_totals() # Przelicz sumy
+
+    def update_item_visual_state(self, item):
+        """
+        Aktualizuje wyglad elementu listy (kolor, przekreslenie) na podstawie jego stanu 'is_enabled'.
+        """
+        item_data = item.data(Qt.ItemDataRole.UserRole)
+        if item_data and not item_data.get('is_enabled', True):
+            # Element jest wylaczony
+            font = item.font()
+            font.setStrikeOut(True)
+            item.setFont(font)
+            item.setForeground(QColor(150, 150, 150)) # Szary kolor
+        else:
+            # Element jest wlaczony
+            font = item.font()
+            font.setStrikeOut(False)
+            item.setFont(font)
+            item.setForeground(QColor(255, 255, 255) if self.is_dark_theme else QColor(0, 0, 0)) # Przywroc domyslny kolor
 
     def remove_selected_item(self):
         """
@@ -527,7 +571,8 @@ class ShoppingListApp(QWidget):
                     'article': item_data.get('article'),
                     'metal_type': item_data.get('metal_type'),
                     'wood_type': item_data.get('wood_type'),
-                    'quantity': item_data.get('quantity')
+                    'quantity': item_data.get('quantity'),
+                    'is_enabled': item_data.get('is_enabled', True) # Zapisz rowniez stan wlaczania/wylaczania
                 })
         
         try:
@@ -558,6 +603,7 @@ class ShoppingListApp(QWidget):
                 metal_type = item_data_raw.get('metal_type')
                 wood_type = item_data_raw.get('wood_type')
                 quantity = item_data_raw.get('quantity')
+                is_enabled = item_data_raw.get('is_enabled', True) # Wczytaj stan, domyslnie True dla starych plikow
 
                 if not all([article, isinstance(quantity, int)]):
                     # Pomijanie blednych wpisow
@@ -590,15 +636,20 @@ class ShoppingListApp(QWidget):
 
                 # Zmiana: Jawne utworzenie QListWidgetItem przed ustawieniem danych i dodaniem do listy
                 new_list_item = QListWidgetItem(display_text)
+                new_list_item.setFlags(new_list_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                new_list_item.setCheckState(Qt.CheckState.Checked if is_enabled else Qt.CheckState.Unchecked)
+
                 new_list_item.setData(Qt.ItemDataRole.UserRole, {
                     'article': article,
                     'metal_type': metal_type,
                     'wood_type': wood_type,
                     'quantity': quantity,
                     'resources': total_item_resources,
-                    'predominant_material_display': predominant_material_for_display
+                    'predominant_material_display': predominant_material_for_display,
+                    'is_enabled': is_enabled # Ustawienie stanu wlaczania/wylaczania
                 })
                 self.shopping_list_widget.addItem(new_list_item) # Dodajemy przygotowany element
+                self.update_item_visual_state(new_list_item) # Zaktualizuj wyglad po wczytaniu
 
             self.calculate_totals() # Zaktualizuj sumy po wczytaniu
             self.update_material_combos_state() # Zaktualizuj stan comboboxow po wczytaniu
@@ -626,6 +677,7 @@ class ShoppingListApp(QWidget):
         """
         Metoda eksportuje cala liste zakupow do pliku craft_ItemList.txt.
         Format pliku: artykul;przewazajacy_material;ilosc w oddzielnych liniach.
+        Pominiete zostaja elementy wylaczone (odznaczone na liscie).
         """
         file_name = "craft_ItemList.txt"
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -637,6 +689,10 @@ class ShoppingListApp(QWidget):
                     item = self.shopping_list_widget.item(i)
                     item_data = item.data(Qt.ItemDataRole.UserRole)
                     
+                    # Pomijaj wylaczone elementy
+                    if item_data and not item_data.get('is_enabled', True):
+                        continue
+
                     article = item_data.get('article', 'Nieznany artykul')
                     # Uzyj predominant_material_display do eksportu jako "kolor"
                     predominant_material = item_data.get('predominant_material_display', self.NO_MATERIAL_OPTION)
@@ -652,6 +708,7 @@ class ShoppingListApp(QWidget):
         """
         Oblicza sume zasobow dla wszystkich artykulow na liscie (globalnie)
         oraz sumy dla poszczegolnych typow sztab i desek, aktualizujac etykiety i QTextBrowser.
+        Pominiete zostaja elementy wylaczone (odznaczone na liscie).
         """
         total_sztaby_global = 0
         total_deski_global = 0
@@ -665,6 +722,10 @@ class ShoppingListApp(QWidget):
             item = self.shopping_list_widget.item(i)
             item_data = item.data(Qt.ItemDataRole.UserRole)
             
+            # Pomijaj wylaczone elementy w obliczeniach
+            if item_data and not item_data.get('is_enabled', True):
+                continue
+
             if item_data and 'resources' in item_data:
                 resources_for_item = item_data['resources']
                 selected_metal_type = item_data.get('metal_type')
