@@ -106,6 +106,7 @@ class ShoppingListApp(QWidget):
         self.category_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
         self.category_combo.currentIndexChanged.connect(self.update_item_combo)
         add_item_layout.addWidget(self.category_combo)
+        self.category_combo.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
 
         # Etykieta dla QComboBox artykulow
@@ -286,16 +287,16 @@ class ShoppingListApp(QWidget):
         self.setLayout(main_layout)
 
         # Ustawienie jawnej kolejnosci tabulacji dla glownych widgetow wejsciowych
-        self.setTabOrder(self.category_combo, self.item_combo)
+        #self.setTabOrder(self.category_combo, self.item_combo)
         self.setTabOrder(self.item_combo, self.metal_type_combo)
         self.setTabOrder(self.metal_type_combo, self.wood_type_combo)
         self.setTabOrder(self.wood_type_combo, self.quantity_input)
         self.setTabOrder(self.quantity_input, add_button)
-        # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do pierwszego
-        self.setTabOrder(add_button, self.category_combo)
+        # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do drugiergo
+        self.setTabOrder(add_button, self.item_combo)
         
-        # Ustaw poczatkowy fokus na pole wyboru kategorii
-        self.category_combo.setFocus()
+        # Ustaw poczatkowy fokus na pole wyboru itemu
+        self.item_combo.setFocus()
 
         # Wywolaj aktualizacje stanow comboboxow i sum przy starcie
         self.update_item_combo() # Wywolaj po to, by item_combo sie uzupelnil
