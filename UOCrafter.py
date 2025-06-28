@@ -4,7 +4,7 @@ import json
 import base64 # Importujemy modul base64 do obslugi danych ikon
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QComboBox, QLineEdit, QPushButton, QListWidget, QLabel,
-                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem, QSplashScreen, QGroupBox) # Dodano QGroupBox
+                             QMessageBox, QTextBrowser, QCompleter, QListWidgetItem, QSplashScreen, QGroupBox, QSizePolicy) # Dodano QGroupBox
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPalette, QColor, QIcon, QPixmap, QFont # Importujemy QIcon i QPixmap
 
@@ -67,6 +67,7 @@ class ShoppingListApp(QWidget):
     # Stale dla opcji "Brak materialu"
     NO_MATERIAL_OPTION = "Brak materialu"
     DATA_FILE = "crafter_list_data.json" # Nazwa pliku do zapisu/odczytu danych
+    PROGRESS_FILE = "craft_ItemList.progress" # Nazwa pliku do zapisu postepu
 
     def __init__(self):
         super().__init__()
@@ -215,6 +216,16 @@ class ShoppingListApp(QWidget):
         remove_all_button.clicked.connect(self.remove_all_items)
         action_buttons_layout.addWidget(remove_all_button)
 
+        # Nowy przycisk "Czysc Progress"
+        self.clear_progress_button = QPushButton("Czysc Progress", self)
+        self.clear_progress_button.clicked.connect(self.clear_progress_file)
+        self.clear_progress_button.setStyleSheet(
+            "QPushButton { background-color: #4f565e; color: white; border-radius: 5px; padding: 5px; }"
+            "QPushButton:hover { background-color: #606872; }"
+        )
+        self.clear_progress_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        action_buttons_layout.addWidget(self.clear_progress_button)
+
         # QPushButton - przycisk "Eksportuj do pliku" (z czerwonym akcentem)
         self.export_button = QPushButton("Eksportuj do pliku", self)
         self.export_button.clicked.connect(self.export_list_to_file)
@@ -294,15 +305,16 @@ class ShoppingListApp(QWidget):
 
         # Ustawienie jawnej kolejnosci tabulacji dla glownych widgetow wejsciowych
         # Zmieniona kolejność tabulacji: najpierw item_combo, potem elementy w grupie i bez katogori
+        self.setTabOrder(self.category_combo, self.item_combo)
         self.setTabOrder(self.item_combo, self.metal_type_combo)
         self.setTabOrder(self.metal_type_combo, self.wood_type_combo)
         self.setTabOrder(self.wood_type_combo, self.quantity_input)
         self.setTabOrder(self.quantity_input, add_button)
         # Dodanie cyklicznego przejscia fokusu po ostatnim elemencie do pierwszego
-        self.setTabOrder(add_button, self.item_combo) 
+        self.setTabOrder(add_button, self.category_combo) 
         
-        # Ustaw poczatkowy fokus na pole wyboru itemu
-        self.item_combo.setFocus()
+        # Ustaw poczatkowy fokus na pole wyboru kategorii
+        self.category_combo.setFocus()
 
         # Wywolaj aktualizacje stanow comboboxow i sum przy starcie
         self.update_item_combo() # Wywolaj po to, by item_combo sie uzupelnil
@@ -643,6 +655,25 @@ class ShoppingListApp(QWidget):
             self.unsaved_changes = True # Zmiana nastapila, ustaw flage
             # Nie ma potrzeby reindeksacji po wyczyszczeniu
         self.calculate_totals() # Zaktualizuj sumy zasobow po usunieciu wszystkiego
+
+    def clear_progress_file(self):
+        """
+        Czyści zawartosc pliku craft_ItemList.progress, jesli istnieje.
+        """
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(script_dir, self.PROGRESS_FILE)
+
+        if os.path.exists(file_path):
+            try:
+                # Otworz plik w trybie zapisu ('w'), co spowoduje wyczyszczenie jego zawartosci
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write("") # Zapisz pusty ciag znakow
+                QMessageBox.information(self, "Czysc Progress", f"Plik {self.PROGRESS_FILE} zostal pomyslnie wyczyszczony.")
+                self.unsaved_changes = True # Zmiana nastapila, ustaw flage
+            except Exception as e:
+                QMessageBox.critical(self, "Blad Czyszczenia Progressu", f"Wystapil blad podczas czyszczenia pliku {self.PROGRESS_FILE}: {e}")
+        else:
+            QMessageBox.information(self, "Czysc Progress", f"Plik {self.PROGRESS_FILE} nie istnieje.")
 
     def save_data(self):
         """
