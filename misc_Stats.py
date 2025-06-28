@@ -142,7 +142,11 @@ newWeglowodany = Journal.GetLineText('Weglowodany')
 Timer.Create('eatingLogTimer', 120000)
 apocalipse = False
 while True:
-    Misc.Pause(2000)
+    Misc.Pause(1000)
+    if Player.IsGhost == True:
+        sendDiscord("Postac umarla!", 15291726, deadThumb);
+        Misc.Pause(2000)
+        sys.exit()
     if apocalipse == False and Journal.Search('Apokalipsa'):
         apokalipseStr = Journal.GetLineText('Apokalipsa')
         apocalipse = True
