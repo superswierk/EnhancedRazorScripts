@@ -38,6 +38,7 @@ rightHand = Player.CheckLayer( 'RightHand' )
 leftHand = Player.CheckLayer( 'LeftHand' )
 
 oreOptions = {
+    "silent_mode" : {"id" : 996, "state" : False},
     "send_discord" : {"id" : 997, "state" : False},
     "all" : {"id" : 101, "state" : True},
     "only_titan" : {"id" : 102, "state" : False}
@@ -137,6 +138,7 @@ def sendgump():
         oreOptions['all']['state'] = isInTable(oreOptions['all']['id'], miningGumpState)
         oreOptions['only_titan']['state'] = isInTable(oreOptions['only_titan']['id'], miningGumpState)
         oreOptions['send_discord']['state'] = isInTable(oreOptions['send_discord']['id'], miningGumpState)
+        oreOptions['silent_mode']['state'] = isInTable(oreOptions['silent_mode']['id'], miningGumpState)
     iY = 0
     Gumps.AddGroup(gd,200)
     Gumps.AddRadio(gd,110,iY + offsetRadioY,209,208,oreOptions['all']['state'],oreOptions['all']['id'])
@@ -147,9 +149,14 @@ def sendgump():
     iY = iY + 20
     
     iY = 0
-    Gumps.AddCheck(gd,225,offsetRadioY,210, 211,oreOptions['send_discord']['state'],oreOptions['send_discord']['id'])
+    Gumps.AddCheck(gd,225,iY + offsetRadioY,210, 211,oreOptions['send_discord']['state'],oreOptions['send_discord']['id'])
     Gumps.AddLabel(gd,250,iY + offsetRadioY,2407,"Discord")
     iY = iY + 20
+
+    Gumps.AddCheck(gd,225,iY + offsetRadioY,210, 211,oreOptions['silent_mode']['state'],oreOptions['silent_mode']['id'])
+    Gumps.AddLabel(gd,250,iY + offsetRadioY,2407,"Wyrzucaj")
+    
+    
     
     iY = iY + 40
     Gumps.AddButton(gd,220,iY + offsetRadioY,247,248,456,1,0)
@@ -162,6 +169,7 @@ def buttoncheck():
     global stringCodeToRun
     global getOnlyOre
     global sendDiscordMgs
+    global silentMode
     Gumps.WaitForGump(767676, 60000)
     Gumps.CloseGump(767676)
     gdata = Gumps.GetGumpData(767676)
@@ -186,6 +194,9 @@ def buttoncheck():
         if isInTable(oreOptions['send_discord']['id'], switchList) == True:
             sendDiscordMgs = True
             miningGumpState.Add(oreOptions['send_discord']['id'])
+        if isInTable(oreOptions['silent_mode']['id'], switchList) == True:
+            silentMode = True
+            miningGumpState.Add(oreOptions['silent_mode']['id'])
     else:
         stringCodeToRun = "sys.exit()"
         print("error nie zaznaczyles nic ")
@@ -313,11 +324,12 @@ def MoveToPet():
         Misc.Pause( 700 )
 
 def MoveToGround(withPet = True):
+    global silentMode
     Misc.SendMessage( 'MoveToGroundOrPet', 90 )
-    if getOnlyOre.Count > 0 and withPet == True:
+    if getOnlyOre.Count > 0 and withPet == True and silentMode == False:
         MoveToPet()
     for item in Player.Backpack.Contains:
-        if item.ItemID == oreID and shoudGatherOre(item.Color) == False:
+        if item.ItemID == oreID and (silentMode == True or shoudGatherOre(item.Color) == False):
             Items.DropItemGroundSelf(item,0)
             Misc.Pause( 700 )
 def doMine():
@@ -343,7 +355,7 @@ Misc.SendMessage( 'Start', 90 )
 MoveToGround()
 MoveToSpot()
 Timer.Create('eatingLogTimer', 120000)
-Timer.Create('digTimer',8200)
+Timer.Create('digTimer',9000)
 print("poczatek pracy")
 guards = False
 Journal.Clear()
@@ -388,7 +400,8 @@ while True:
         Misc.Pause(2000)
         sys.exit()
 
-    if Journal.Search('Wykopal') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazl'):
+    if Journal.Search('Zaczynasz kopac') or Journal.Search('Wykopal') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazl'):
+        Journal.Clear('Zaczynasz kopac')
         Journal.Clear('Wykopal')
         Journal.Clear('Nie udalo Ci sie wykopac')
         Journal.Clear('W tym miejscu')
