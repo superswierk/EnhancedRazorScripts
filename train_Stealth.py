@@ -61,8 +61,9 @@ while True:
         Misc.SendMessage("Prubuje zakradac", 77)
         Player.UseSkill( 'Zakradanie' )
         Timer.Create( 'stealthTimer', stealthMs )
-    if Journal.Search("Odkryles siebie"):
+    if Journal.Search("Odkryles siebie") or Journal.Search("Zeby sie skradac"):
         Journal.Clear("Odkryles siebie")
+        Journal.Clear("Zeby sie skradac")
         Misc.SendMessage("Nie udalo sie zakradac", 1100)
         waitForTimer('stealthTimer')
         forceHide()
