@@ -40,7 +40,8 @@ def sendgump():
     iY = 0
     Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz skill do sledzenia:')
     
-    defaultSelected = 0
+    defaultSelected = STATICSKILLS[list(STATICSKILLS.keys())[0]]
+    print(defaultSelected)
     if Misc.CheckSharedValue("misc_StatsState") == True:
         defaultSelected = Misc.ReadSharedValue("misc_StatsState")
     
@@ -108,7 +109,7 @@ while True:
         apocalipse = True
         sendDiscord("Uwaga:\n" + apokalipseStr + "\n", 14696255, apoThumb)
     lvlStealSkillNew = float(Player.GetRealSkillValue(skillName))
-    if lvlStealSkillNew > float(50) or int(lvlStealSkillNew) == lvlStealSkillNew:
+    if lvlStealSkillNew > float(60) or int(lvlStealSkillNew) == lvlStealSkillNew:
         if lvlStealSkill != lvlStealSkillNew:
             lvlStealSkill = lvlStealSkillNew
             sendDiscord("Wzrost umiejetnosci " + skillName + " masz teraz: " + str(Round(lvlStealSkill,1)), 5814783, lvlupThumb)
