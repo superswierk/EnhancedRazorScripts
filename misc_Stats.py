@@ -109,7 +109,7 @@ while True:
         apocalipse = True
         sendDiscord("Uwaga:\n" + apokalipseStr + "\n", 14696255, apoThumb)
     lvlStealSkillNew = float(Player.GetRealSkillValue(skillName))
-    if lvlStealSkillNew > float(60) or int(lvlStealSkillNew) == lvlStealSkillNew:
+    if lvlStealSkillNew > float(70) or int(lvlStealSkillNew) == lvlStealSkillNew:
         if lvlStealSkill != lvlStealSkillNew:
             lvlStealSkill = lvlStealSkillNew
             sendDiscord("Wzrost umiejetnosci " + skillName + " masz teraz: " + str(Round(lvlStealSkill,1)), 5814783, lvlupThumb)
