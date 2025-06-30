@@ -1,0 +1,6 @@
+itemInMagazyn = Target.PromptTarget( 'Dowolny przedmiot w magazynie' )
+itemFrom = Items.FindBySerial(itemInMagazyn)
+magazynID = Items.FindBySerial( itemFrom.Container )
+Player.ChatSay('.licz')
+Target.WaitForTarget( 5000 , True )
+Target.TargetExecute(magazynID)
