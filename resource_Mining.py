@@ -244,13 +244,22 @@ if silentMode == False:
         Target.WaitForTarget( 25000 , True )
         Target.TargetExecute(Player.Backpack)
 
-def SetDigSpots():
+def SetDigSpots(sort = False):
     global spots
     global stringCodeToRun
     spots = []
     exec(stringCodeToRun)
-
     
+    if sort == True:
+        spotsSorted = sorted( spots, key = lambda spot: sqrt( pow( ( spot.x - Player.Position.X ), 2 ) + pow( ( spot.y - Player.Position.Y ), 2 ) ) )
+        removeNo = 0
+        for i, item in enumerate(spots):
+            if item == spotsSorted[0]:
+                removeNo = i
+                break
+        for i in range(0,removeNo):
+            spots.pop(0)
+
 def MoveToSpot():
     global spots
     print("Move To Spot")
@@ -325,10 +334,9 @@ def GetNumberOfOresInPet():
 def FromPetToGround():
     print("pet to ground!")
     itemFrom = Items.FindBySerial(itemInPet)
-    if itemFrom is None or itemFrom.Container is None:
+    if itemFrom is None or itemFrom.Container is None or Items.FindBySerial( itemFrom.Container ) is None:
         Misc.SendMessage("ERROR upewnij sie ze za drugim razem wskazales item w juce",1100)
         sys.exit()
-    Items.FindBySerial( itemFrom.Container )
     containerOne = Items.FindBySerial( itemFrom.Container )#Items.FindBySerial(1416815009) 
     #containerTwo = Mobiles.FindBySerial(petOne)
     for item in containerOne.Contains:
@@ -382,7 +390,7 @@ def doMine():
     Target.WaitForTarget( 2000, True )
     Target.TargetExecuteRelative( Player.Serial, 1 )      
 
-SetDigSpots()
+SetDigSpots(True)
 # Start mining
 Misc.SendMessage( 'Start', 90 )
 MoveToGround()
