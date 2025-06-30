@@ -41,7 +41,8 @@ oreOptions = {
     "silent_mode" : {"id" : 996, "state" : False},
     "send_discord" : {"id" : 997, "state" : False},
     "all" : {"id" : 101, "state" : True},
-    "only_titan" : {"id" : 102, "state" : False}
+    "only_titan" : {"id" : 102, "state" : False},
+    "no_iron" : {"id" : 100, "state" : False}
 }
 
 ORES = {
@@ -71,6 +72,8 @@ sendDiscordMgs = False
 stringCodeToRun = ""
 
 spots = []
+
+noIronMode = False
 
 def isInTable(value, table):
     for item in table:
@@ -137,6 +140,7 @@ def sendgump():
     if miningGumpState is not None:
         oreOptions['all']['state'] = isInTable(oreOptions['all']['id'], miningGumpState)
         oreOptions['only_titan']['state'] = isInTable(oreOptions['only_titan']['id'], miningGumpState)
+        oreOptions['no_iron']['state'] = isInTable(oreOptions['no_iron']['id'], miningGumpState)
         oreOptions['send_discord']['state'] = isInTable(oreOptions['send_discord']['id'], miningGumpState)
         oreOptions['silent_mode']['state'] = isInTable(oreOptions['silent_mode']['id'], miningGumpState)
     iY = 0
@@ -146,6 +150,10 @@ def sendgump():
     iY = iY + 20
     Gumps.AddRadio(gd,110,iY + offsetRadioY,209,208,oreOptions['only_titan']['state'],oreOptions['only_titan']['id'])
     Gumps.AddLabel(gd,135,iY + offsetRadioY,2407,"Tylko Tytan")
+    iY = iY + 20
+    
+    Gumps.AddRadio(gd,110,iY + offsetRadioY,209,208,oreOptions['no_iron']['state'],oreOptions['no_iron']['id'])
+    Gumps.AddLabel(gd,135,iY + offsetRadioY,2407,"Bez Zelaza")
     iY = iY + 20
     
     iY = 0
@@ -170,6 +178,7 @@ def buttoncheck():
     global getOnlyOre
     global sendDiscordMgs
     global silentMode
+    global noIronMode
     Gumps.WaitForGump(767676, 60000)
     Gumps.CloseGump(767676)
     gdata = Gumps.GetGumpData(767676)
@@ -188,6 +197,10 @@ def buttoncheck():
             getOnlyOre = []
             getOnlyOre.Add(ORES["tytan"])
             miningGumpState.Add(oreOptions['only_titan']['id'])
+        elif switchList[1] == oreOptions['no_iron']['id']:
+            getOnlyOre = []
+            noIronMode = True
+            miningGumpState.Add(oreOptions['no_iron']['id'])
         else:
             getOnlyOre = []
             miningGumpState.Add(oreOptions['all']['id'])
@@ -218,16 +231,19 @@ if silentMode == False:
         Player.ChatSay( 77, '.pojemnik' )
         Target.WaitForTarget( 5000 , True )
         Target.TargetExecute(petOne)
-        petTwo = Target.PromptTarget( 'Wybierz konia Nr2' )
-        Player.ChatSay( 77, '.pojemnik' )
-        Target.WaitForTarget( 25000 , True )
-        Target.TargetExecute(petTwo)
+        if noIronMode == False:
+            petTwo = Target.PromptTarget( 'Wybierz konia Nr2' )
+            Player.ChatSay( 77, '.pojemnik' )
+            Target.WaitForTarget( 25000 , True )
+            Target.TargetExecute(petTwo)
+        else:
+            Misc.Pause(1000)
+            itemInPet = Target.PromptTarget( 'jakas rzecz w pojemnniku' )
     else:
         Player.ChatSay( 77, '.pojemnik' )
         Target.WaitForTarget( 25000 , True )
         Target.TargetExecute(Player.Backpack)
 
-    
 def SetDigSpots():
     global spots
     global stringCodeToRun
@@ -305,7 +321,22 @@ def GetNumberOfOresInPet():
         Misc.Pause( 700 )
 
     return numberOfOres
-        
+
+def FromPetToGround():
+    print("pet to ground!")
+    itemFrom = Items.FindBySerial(itemInPet)
+    if itemFrom is None or itemFrom.Container is None:
+        Misc.SendMessage("ERROR upewnij sie ze za drugim razem wskazales item w juce",1100)
+        sys.exit()
+    Items.FindBySerial( itemFrom.Container )
+    containerOne = Items.FindBySerial( itemFrom.Container )#Items.FindBySerial(1416815009) 
+    #containerTwo = Mobiles.FindBySerial(petOne)
+    for item in containerOne.Contains:
+        if item.ItemID == oreID and item.Color == 0x0000:
+            print("dropping")
+            Items.DropItemGroundSelf(item,0)
+            Misc.Pause( 700 )
+    
 def MoveToPet():
     if Player.Mount:
         print("use1")
@@ -328,6 +359,8 @@ def MoveToGround(withPet = True):
     Misc.SendMessage( 'MoveToGroundOrPet', 90 )
     if getOnlyOre.Count > 0 and withPet == True and silentMode == False:
         MoveToPet()
+    if noIronMode == True and withPet == True and silentMode == False:
+        FromPetToGround()
     for item in Player.Backpack.Contains:
         if item.ItemID == oreID and (silentMode == True or shoudGatherOre(item.Color) == False):
             Items.DropItemGroundSelf(item,0)
@@ -401,6 +434,9 @@ while True:
         sys.exit()
 
     if Journal.Search('Zaczynasz kopac') or Journal.Search('Wykopal') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazl'):
+        if noIronMode == True and Journal.Search('Zaczynasz kopac') and silentMode == False:
+            Mobiles.UseMobile( petOne )
+            Misc.Pause( 700 )
         Journal.Clear('Zaczynasz kopac')
         Journal.Clear('Wykopal')
         Journal.Clear('Nie udalo Ci sie wykopac')
