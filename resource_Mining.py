@@ -298,39 +298,6 @@ def fullCheck():
         Misc.Pause(3000)
         sys.exit()
 
-def GetNumberOfOresInPet():
-    global petOne
-    global oreID
-    
-    remount = False
-    if not Mobiles.FindBySerial( petOne ):
-        remount = True
-        print("use3")
-        Mobiles.UseMobile( Player.Serial )
-        Misc.Pause( 700 )
-
-    numberOfOres = 0
-    petObject = Mobiles.FindBySerial( petOne )
-    if petObject is not None:
-        print(petObject)
-        for item in petObject.Contains:
-            if item.ItemID == oreID:
-                numberOfOres += item.Amount
-    else:
-        if sendDiscordMgs == True:
-            sendDiscord("Cos sie popuslo - kon zaginal", 15291726, lumberThumb);
-        Misc.Pause("Cos sie popuslo - Kon za dalego")
-        Misc.Pause(3000)
-        #sendEmailMessage("Cos sie popuslo", "Nie znalazlem konia")
-        sys.exit()
-
-    if remount:
-        print("use4")
-        Mobiles.UseItem( petOne )
-        Misc.Pause( 700 )
-
-    return numberOfOres
-
 def FromPetToGround():
     print("pet to ground!")
     itemFrom = Items.FindBySerial(itemInPet)
@@ -346,21 +313,11 @@ def FromPetToGround():
             Misc.Pause( 700 )
     
 def MoveToPet():
-    if Player.Mount:
-        print("use1")
-        Mobiles.UseMobile( Player.Serial )
-        Misc.Pause( 700 )
     for item in Player.Backpack.Contains:
         if item.ItemID == oreID and shoudGatherOre(item.Color) == True:
-            numberOfOresInPet = GetNumberOfOresInPet()
-            if numberOfOresInPet + item.Amount < 1900:
-                Items.Move( item, petOne, 0 )
-                Misc.Pause( 700 )
+            Items.Move( item, petOne, 0 )
+            Misc.Pause( 700 )
     fullCheck()
-    if not Player.Mount:
-        print("use2")
-        Mobiles.UseMobile( petOne )
-        Misc.Pause( 700 )
 
 def MoveToGround(withPet = True):
     global silentMode
@@ -442,7 +399,7 @@ while True:
         sys.exit()
 
     if Journal.Search('Zaczynasz kopac') or Journal.Search('Wykopal') or Journal.Search('Nie udalo Ci sie wykopac') or Journal.Search('W tym miejscu')or Journal.Search('Moze sprobuje obok') or Journal.Search('Moze dalej') or Journal.Search('Znalazl'):
-        if noIronMode == True and Journal.Search('Zaczynasz kopac') and silentMode == False:
+        if (getOnlyOre.Count > 0 or noIronMode == True) and Journal.Search('Zaczynasz kopac') and silentMode == False:
             Mobiles.UseMobile( petOne )
             Misc.Pause( 700 )
         Journal.Clear('Zaczynasz kopac')
