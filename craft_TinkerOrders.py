@@ -280,10 +280,10 @@ def craftItem( itemToCraft ):
 pathToScript = Misc.ScriptCurrent()
 directoryPath = pathToScript.rsplit("\\",1)[0]
 
-fileName = directoryPath + "\\craft_ItemList.txt"
+fileName = directoryPath + "\\craft_ItemList_Druciarstwo.txt"
 fileBody = System.IO.File.ReadAllText(fileName)
 jobsTable = fileBody.split("\n")
-fileNameProgress = directoryPath + "\\craft_ItemList.progress"
+fileNameProgress = directoryPath + "\\craft_ItemList_Druciarstwo.progress"
 
 craftItems = []
 for job in jobsTable:
