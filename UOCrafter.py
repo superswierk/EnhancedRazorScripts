@@ -66,8 +66,9 @@ class ShoppingListApp(QWidget):
     
     # Stale dla opcji "Brak materialu"
     NO_MATERIAL_OPTION = "Brak materialu"
-    DATA_FILE = "crafter_list_data.json" # Nazwa pliku do zapisu/odczytu danych
-    PROGRESS_FILE = "craft_ItemList.progress" # Nazwa pliku do zapisu postepu
+    
+    # Globalna nazwa pliku danych JSON
+    GLOBAL_DATA_FILE = "crafter_list_data.json"
 
     def __init__(self):
         super().__init__()
@@ -75,6 +76,7 @@ class ShoppingListApp(QWidget):
         self.unsaved_changes = False # Nowa flaga do sledzenia niezapisanych zmian
         self.initUI()
         self.set_dark_mode() # Ustawienie poczatkowego motywu na ciemny
+        # load_data_on_startup jest wywolywane po initUI, wiec category_combo bedzie juz ustawione
         self.load_data_on_startup() # Proba wczytania danych przy starcie aplikacji
 
     def center(self):
@@ -87,6 +89,29 @@ class ShoppingListApp(QWidget):
         # Przesuwa okno w lewy górny róg ramki
         self.move(qr.topLeft())
 
+    # Metody pomocnicze do dynamicznego generowania nazw plikow
+    def _get_current_category(self):
+        """Zwraca aktualnie wybrana kategorie."""
+        return self.category_combo.currentText()
+
+    def _get_global_data_file_path(self):
+        """Zwraca pelna sciezke do globalnego pliku danych JSON."""
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(script_dir, self.GLOBAL_DATA_FILE)
+
+    def _get_progress_file_path(self):
+        """Zwraca pelna sciezke do pliku postepu dla aktualnej kategorii."""
+        category = self._get_current_category()
+        file_name = f"craft_ItemList_{category}.progress"
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(script_dir, file_name)
+
+    def _get_export_file_path(self):
+        """Zwraca pelna sciezke do pliku eksportu TXT dla aktualnej kategorii."""
+        category = self._get_current_category()
+        file_name = f"craft_ItemList_{category}.txt"
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(script_dir, file_name)
 
     def initUI(self):
         # Ustawienia okna glownego
@@ -103,6 +128,7 @@ class ShoppingListApp(QWidget):
         category_selection_layout.addWidget(QLabel("Wybierz kategorie:"))
         self.category_combo = QComboBox(self)
         self.category_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
+        # Po zmianie kategorii, zaktualizuj liste itemow (ale nie wczytuj danych, bo sa globalne)
         self.category_combo.currentIndexChanged.connect(self.update_item_combo)
         self.category_combo.setFixedWidth(150) # Ustawienie stalej szerokosci
         category_selection_layout.addWidget(self.category_combo)
@@ -394,6 +420,7 @@ class ShoppingListApp(QWidget):
     def update_item_combo(self):
         """
         Aktualizuje liste rozwijana artykulow w zaleznosci od wybranej kategorii.
+        Nie wczytuje danych, poniewaz plik danych jest globalny.
         """
         selected_category = self.category_combo.currentText()
         items_in_category = list(self.CRAFTING_RESOURCES.get(selected_category, {}).keys())
@@ -404,6 +431,7 @@ class ShoppingListApp(QWidget):
         # Zaktualizuj completer dla nowej listy artykulow
         self.completer_item.setModel(self.item_combo.model())
         self.update_material_combos_state() # Zaktualizuj stan materialow dla nowo wybranego itemu
+        # Usunieto wywolanie self.load_data() - plik danych jest globalny i nie zmienia sie z kategoria
 
     def update_material_combos_state(self):
         """
@@ -660,24 +688,23 @@ class ShoppingListApp(QWidget):
         """
         Czyści zawartosc pliku craft_ItemList.progress, jesli istnieje.
         """
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(script_dir, self.PROGRESS_FILE)
+        file_path = self._get_progress_file_path() # Uzyj dynamicznej sciezki
 
         if os.path.exists(file_path):
             try:
                 # Otworz plik w trybie zapisu ('w'), co spowoduje wyczyszczenie jego zawartosci
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write("") # Zapisz pusty ciag znakow
-                QMessageBox.information(self, "Czysc Progress", f"Plik {self.PROGRESS_FILE} zostal pomyslnie wyczyszczony.")
+                QMessageBox.information(self, "Czysc Progress", f"Plik {os.path.basename(file_path)} zostal pomyslnie wyczyszczony.")
                 self.unsaved_changes = True # Zmiana nastapila, ustaw flage
             except Exception as e:
-                QMessageBox.critical(self, "Blad Czyszczenia Progressu", f"Wystapil blad podczas czyszczenia pliku {self.PROGRESS_FILE}: {e}")
+                QMessageBox.critical(self, "Blad Czyszczenia Progressu", f"Wystapil blad podczas czyszczenia pliku {os.path.basename(file_path)}: {e}")
         else:
-            QMessageBox.information(self, "Czysc Progress", f"Plik {self.PROGRESS_FILE} nie istnieje.")
+            QMessageBox.information(self, "Czysc Progress", f"Plik {os.path.basename(file_path)} nie istnieje.")
 
     def save_data(self):
         """
-        Zapisuje aktualny stan listy zakupow do pliku JSON.
+        Zapisuje aktualny stan listy zakupow do globalnego pliku JSON.
         """
         data_to_save = []
         for i in range(self.shopping_list_widget.count()):
@@ -694,26 +721,31 @@ class ShoppingListApp(QWidget):
                     'is_enabled': item_data.get('is_enabled', True) # Zapisz rowniez stan wlaczania/wylaczania
                 })
         
+        file_path = self._get_global_data_file_path() # Uzyj globalnej sciezki
         try:
-            with open(self.DATA_FILE, 'w', encoding='utf-8') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data_to_save, f, indent=4)
-            QMessageBox.information(self, "Zapisano", f"Dane zostaly zapisane do pliku: {self.DATA_FILE}")
+            QMessageBox.information(self, "Zapisano", f"Dane zostaly zapisane do pliku: {os.path.basename(file_path)}")
             self.unsaved_changes = False # Zapisano zmiany, resetuj flage
         except Exception as e:
             QMessageBox.critical(self, "Blad Zapisu", f"Wystapil blad podczas zapisu danych: {e}")
 
     def load_data(self, show_message=True):
         """
-        Wczytuje stan listy zakupow z pliku JSON.
+        Wczytuje stan listy zakupow z globalnego pliku JSON.
         :param show_message: Czy wyswietlic QMessageBox po wczytaniu danych.
         """
-        if not os.path.exists(self.DATA_FILE):
+        file_path = self._get_global_data_file_path() # Uzyj globalnej sciezki
+        if not os.path.exists(file_path):
             if show_message:
                 QMessageBox.information(self, "Wczytywanie", "Plik z danymi nie istnieje. Rozpoczeto pusta liste.")
+            self.shopping_list_widget.clear() # Wyczyść listę, jeśli plik nie istnieje
+            self.calculate_totals() # Zaktualizuj sumy
+            self.unsaved_changes = False # Brak zmian do zapisania
             return
 
         try:
-            with open(self.DATA_FILE, 'r', encoding='utf-8') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 loaded_data = json.load(f)
             
             self.shopping_list_widget.clear() # Wyczyść biezaca liste przed wczytaniem
@@ -804,9 +836,7 @@ class ShoppingListApp(QWidget):
         Format pliku: artykul;przewazajacy_material;ilosc w oddzielnych liniach.
         Pominiete zostaja elementy wylaczone (odznaczone na liscie).
         """
-        file_name = "craft_ItemList.txt"
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(script_dir, file_name)
+        file_path = self._get_export_file_path() # Uzyj dynamicznej sciezki
 
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
@@ -825,7 +855,7 @@ class ShoppingListApp(QWidget):
 
                     f.write(f"{article};{predominant_material};{quantity}\n")
             
-            QMessageBox.information(self, "Eksport Zakonczony", f"Lista zostala pomyslnie wyeksportowana do pliku:\n{file_path}")
+            QMessageBox.information(self, "Eksport Zakonczony", f"Lista zostala pomyslnie wyeksportowana do pliku:\n{os.path.basename(file_path)}")
         except Exception as e:
             QMessageBox.critical(self, "Blad Eksportu", f"Wystapil blad podczas eksportowania listy: {e}")
 
