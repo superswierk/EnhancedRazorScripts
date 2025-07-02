@@ -293,7 +293,12 @@ for job in jobsTable:
         craftItems.Add( CraftItem( CRAFTITEMS[line[0]]["itemID"], ORES[line[1]],CRAFTITEMS[line[0]]["pageID"], CRAFTITEMS[line[0]]["type"], int(line[2]), line[0]) )
 
 overrideLastAmount = 0
-filePrevBody = System.IO.File.ReadAllText(fileNameProgress)
+try:
+    filePrevBody = System.IO.File.ReadAllText(fileNameProgress)
+except Exception as e:
+        print("Blad kurczaki : ",e)
+        System.IO.File.WriteAllText(fileNameProgress, "" )
+        filePrevBody = System.IO.File.ReadAllText(fileNameProgress)
 if filePrevBody != "":
     jobsDoneTable = filePrevBody.split("\n")
     prevIt = 0
