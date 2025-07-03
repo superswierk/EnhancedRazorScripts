@@ -26,7 +26,8 @@ STATICSKILLS = {
     "Drwalstwo": 17,
     "Tworzenie Lukow": 18,
     "Rolnictwo": 19,
-    "Zakradanie": 20
+    "Zakradanie": 20,
+    "Ukrywanie": 21
 }
 
 
