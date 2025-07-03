@@ -67,17 +67,14 @@ class ShoppingListApp(QWidget):
     # Stale dla opcji "Brak materialu"
     NO_MATERIAL_OPTION = "Brak materialu"
     
-    # Globalna nazwa pliku danych JSON
-    GLOBAL_DATA_FILE = "crafter_list_data.json"
-
     def __init__(self):
         super().__init__()
         self.is_dark_theme = True # Flaga do sledzenia aktualnego motywu
         self.unsaved_changes = False # Nowa flaga do sledzenia niezapisanych zmian
+        self.current_active_category = None # Przechowuje aktualnie wybrana kategorie
         self.initUI()
         self.set_dark_mode() # Ustawienie poczatkowego motywu na ciemny
-        # load_data_on_startup jest wywolywane po initUI, wiec category_combo bedzie juz ustawione
-        self.load_data_on_startup() # Proba wczytania danych przy starcie aplikacji
+        # load_data_on_startup jest wywolywane przez update_item_combo na koncu initUI
 
     def center(self):
         # Pobiera geometrię głównego okna
@@ -91,24 +88,29 @@ class ShoppingListApp(QWidget):
 
     # Metody pomocnicze do dynamicznego generowania nazw plikow
     def _get_current_category(self):
-        """Zwraca aktualnie wybrana kategorie."""
+        """Zwraca aktualnie wybrana kategorie z comboboxa."""
         return self.category_combo.currentText()
 
-    def _get_global_data_file_path(self):
-        """Zwraca pelna sciezke do globalnego pliku danych JSON."""
+    def _get_data_file_path(self, category=None):
+        """Zwraca pelna sciezke do pliku danych JSON dla podanej kategorii lub aktualnej."""
+        if category is None:
+            category = self._get_current_category()
+        file_name = f"crafter_list_data_{category}.json"
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        return os.path.join(script_dir, self.GLOBAL_DATA_FILE)
+        return os.path.join(script_dir, file_name)
 
-    def _get_progress_file_path(self):
-        """Zwraca pelna sciezke do pliku postepu dla aktualnej kategorii."""
-        category = self._get_current_category()
+    def _get_progress_file_path(self, category=None):
+        """Zwraca pelna sciezke do pliku postepu dla podanej kategorii lub aktualnej."""
+        if category is None:
+            category = self._get_current_category()
         file_name = f"craft_ItemList_{category}.progress"
         script_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(script_dir, file_name)
 
-    def _get_export_file_path(self):
-        """Zwraca pelna sciezke do pliku eksportu TXT dla aktualnej kategorii."""
-        category = self._get_current_category()
+    def _get_export_file_path(self, category=None):
+        """Zwraca pelna sciezke do pliku eksportu TXT dla podanej kategorii lub aktualnej."""
+        if category is None:
+            category = self._get_current_category()
         file_name = f"craft_ItemList_{category}.txt"
         script_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(script_dir, file_name)
@@ -128,7 +130,7 @@ class ShoppingListApp(QWidget):
         category_selection_layout.addWidget(QLabel("Wybierz kategorie:"))
         self.category_combo = QComboBox(self)
         self.category_combo.addItems(list(self.CRAFTING_RESOURCES.keys()))
-        # Po zmianie kategorii, zaktualizuj liste itemow (ale nie wczytuj danych, bo sa globalne)
+        # Po zmianie kategorii, wywolaj update_item_combo, ktory zajmie sie zapisem/odczytem
         self.category_combo.currentIndexChanged.connect(self.update_item_combo)
         self.category_combo.setFixedWidth(150) # Ustawienie stalej szerokosci
         category_selection_layout.addWidget(self.category_combo)
@@ -342,8 +344,12 @@ class ShoppingListApp(QWidget):
         # Ustaw poczatkowy fokus na pole wyboru kategorii
         self.category_combo.setFocus()
 
+        # Ustaw poczatkowa aktywna kategorie
+        self.current_active_category = self.category_combo.currentText()
+
         # Wywolaj aktualizacje stanow comboboxow i sum przy starcie
-        self.update_item_combo() # Wywolaj po to, by item_combo sie uzupelnil
+        # update_item_combo teraz obsluguje rowniez poczatkowe ladowanie danych
+        self.update_item_combo() 
         self.update_material_combos_state()
         self.calculate_totals() 
 
@@ -420,18 +426,29 @@ class ShoppingListApp(QWidget):
     def update_item_combo(self):
         """
         Aktualizuje liste rozwijana artykulow w zaleznosci od wybranej kategorii.
-        Nie wczytuje danych, poniewaz plik danych jest globalny.
+        Obsluguje rowniez zapis i odczyt danych z plikow JSON specyficznych dla kategorii.
         """
-        selected_category = self.category_combo.currentText()
-        items_in_category = list(self.CRAFTING_RESOURCES.get(selected_category, {}).keys())
-        
+        # Zapisz dane dla poprzednio aktywnej kategorii, jesli jakas byla i byly niezapisane zmiany
+        # Przekazujemy starą wartość self.current_active_category do save_data
+        if self.current_active_category and self.unsaved_changes:
+            self.save_data(show_message=False, category_to_save=self.current_active_category)
+
+        # Pobierz nowo wybrana kategorie
+        new_selected_category = self.category_combo.currentText()
+
+        # Zaktualizuj liste artykulow w comboboxie 'item_combo'
+        items_in_new_category = list(self.CRAFTING_RESOURCES.get(new_selected_category, {}).keys())
         self.item_combo.clear()
-        self.item_combo.addItems(items_in_category)
-        
-        # Zaktualizuj completer dla nowej listy artykulow
+        self.item_combo.addItems(items_in_new_category)
         self.completer_item.setModel(self.item_combo.model())
-        self.update_material_combos_state() # Zaktualizuj stan materialow dla nowo wybranego itemu
-        # Usunieto wywolanie self.load_data() - plik danych jest globalny i nie zmienia sie z kategoria
+        self.update_material_combos_state() # Zaktualizuj stan comboboxow materialow
+
+        # Zaktualizuj wewnetrzna zmienna sledzaca aktywna kategorie TERAZ
+        self.current_active_category = new_selected_category
+        
+        # Wczytaj dane dla nowej kategorii
+        self.load_data(show_message=False)
+        self.unsaved_changes = False # Po wczytaniu, nie ma niezapisanych zmian
 
     def update_material_combos_state(self):
         """
@@ -702,9 +719,11 @@ class ShoppingListApp(QWidget):
         else:
             QMessageBox.information(self, "Czysc Progress", f"Plik {os.path.basename(file_path)} nie istnieje.")
 
-    def save_data(self):
+    def save_data(self, show_message=True, category_to_save=None):
         """
-        Zapisuje aktualny stan listy zakupow do globalnego pliku JSON.
+        Zapisuje aktualny stan listy zakupow do pliku JSON specyficznego dla kategorii.
+        :param show_message: Czy wyswietlic QMessageBox po wczytaniu danych.
+        :param category_to_save: Opcjonalna kategoria, jesli chcemy zapisac dane dla innej niz aktualnie wybrana.
         """
         data_to_save = []
         for i in range(self.shopping_list_widget.count()):
@@ -713,35 +732,40 @@ class ShoppingListApp(QWidget):
             if item_data:
                 # Zapisz tylko te dane, ktore sa potrzebne do odtworzenia stanu
                 data_to_save.append({
-                    'category': item_data.get('category'), # Zapisz kategorie
+                    'category': item_data.get('category'),
                     'article': item_data.get('article'),
                     'metal_type': item_data.get('metal_type'),
                     'wood_type': item_data.get('wood_type'),
                     'quantity': item_data.get('quantity'),
-                    'is_enabled': item_data.get('is_enabled', True) # Zapisz rowniez stan wlaczania/wylaczania
+                    'is_enabled': item_data.get('is_enabled', True)
                 })
         
-        file_path = self._get_global_data_file_path() # Uzyj globalnej sciezki
+        # Uzyj podanej kategorii do zapisu, jesli jest, w przeciwnym razie uzyj aktualnej z comboboxa
+        file_path = self._get_data_file_path(category=category_to_save)
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data_to_save, f, indent=4)
-            QMessageBox.information(self, "Zapisano", f"Dane zostaly zapisane do pliku: {os.path.basename(file_path)}")
-            self.unsaved_changes = False # Zapisano zmiany, resetuj flage
+            if show_message:
+                QMessageBox.information(self, "Zapisano", f"Dane zostaly zapisane do pliku: {os.path.basename(file_path)}")
+            # self.unsaved_changes = False # Ta flaga jest resetowana w update_item_combo
         except Exception as e:
             QMessageBox.critical(self, "Blad Zapisu", f"Wystapil blad podczas zapisu danych: {e}")
 
     def load_data(self, show_message=True):
         """
-        Wczytuje stan listy zakupow z globalnego pliku JSON.
+        Wczytuje stan listy zakupow z pliku JSON specyficznego dla kategorii.
         :param show_message: Czy wyswietlic QMessageBox po wczytaniu danych.
         """
-        file_path = self._get_global_data_file_path() # Uzyj globalnej sciezki
+        # Uzyj self.current_active_category do wczytania danych
+        file_path = self._get_data_file_path(category=self.current_active_category)
+        loaded_data = []
+
         if not os.path.exists(file_path):
             if show_message:
-                QMessageBox.information(self, "Wczytywanie", "Plik z danymi nie istnieje. Rozpoczeto pusta liste.")
-            self.shopping_list_widget.clear() # Wyczyść listę, jeśli plik nie istnieje
-            self.calculate_totals() # Zaktualizuj sumy
-            self.unsaved_changes = False # Brak zmian do zapisania
+                QMessageBox.information(self, "Wczytywanie", "Plik z danymi dla tej kategorii nie istnieje. Rozpoczeto pusta liste.")
+            self.shopping_list_widget.clear()
+            self.calculate_totals()
+            self.unsaved_changes = False
             return
 
         try:
@@ -749,21 +773,19 @@ class ShoppingListApp(QWidget):
                 loaded_data = json.load(f)
             
             self.shopping_list_widget.clear() # Wyczyść biezaca liste przed wczytaniem
-            for i, item_data_raw in enumerate(loaded_data): # Uzyj enumerate do numeracji
-                category = item_data_raw.get('category', list(self.CRAFTING_RESOURCES.keys())[0]) # Wczytaj kategorie, domyslnie pierwsza
+
+            for i, item_data_raw in enumerate(loaded_data):
+                category = item_data_raw.get('category')
                 article = item_data_raw.get('article')
                 metal_type = item_data_raw.get('metal_type')
                 wood_type = item_data_raw.get('wood_type')
                 quantity = item_data_raw.get('quantity')
-                is_enabled = item_data_raw.get('is_enabled', True) # Wczytaj stan, domyslnie True dla starych plikow
+                is_enabled = item_data_raw.get('is_enabled', True)
 
                 if not all([article, isinstance(quantity, int)]):
-                    # Pomijanie blednych wpisow
                     print(f"Ostrzezenie: Pominiento niekompletny wpis: {item_data_raw}")
                     continue
 
-                # Recalculate resources and predominant material for display/storage
-                # Upewnij sie, ze kategoria i artykul istnieja w CRAFTING_RESOURCES
                 category_resources = self.CRAFTING_RESOURCES.get(category, {})
                 item_resources_base = category_resources.get(article, {"sztaby": 0, "deski": 0, "klejnoty": 0})
 
@@ -784,55 +806,53 @@ class ShoppingListApp(QWidget):
                     elif wood_type != self.NO_MATERIAL_OPTION:
                         predominant_material_for_display = wood_type
                 
-                # Odtworz tekst wyswietlany na liscie z numerem i kategoria
                 display_text = f"{i + 1}. {article} ({predominant_material_for_display}) - Ilosc: {quantity}"
-                display_text += f" [Kategoria: {category}]" # Dodano wyswietlanie kategorii
+                display_text += f" [Kategoria: {category}]"
                 display_text += f" [Sztaby: {metal_type}]"
                 display_text += f" [Deski: {wood_type}]"
 
-                # Zmiana: Jawne utworzenie QListWidgetItem przed ustawieniem danych i dodaniem do listy
                 new_list_item = QListWidgetItem(display_text)
                 new_list_item.setFlags(new_list_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                 new_list_item.setCheckState(Qt.CheckState.Checked if is_enabled else Qt.CheckState.Unchecked)
 
                 new_list_item.setData(Qt.ItemDataRole.UserRole, {
-                    'category': category, # Zapisz kategorie
+                    'category': category,
                     'article': article,
                     'metal_type': metal_type,
                     'wood_type': wood_type,
                     'quantity': quantity,
                     'resources': total_item_resources,
                     'predominant_material_display': predominant_material_for_display,
-                    'is_enabled': is_enabled # Ustawienie stanu wlaczania/wylaczania
+                    'is_enabled': is_enabled
                 })
-                self.shopping_list_widget.addItem(new_list_item) # Dodajemy przygotowany element
-                self.update_item_visual_state(new_list_item) # Zaktualizuj wyglad po wczytaniu
+                self.shopping_list_widget.addItem(new_list_item)
+                self.update_item_visual_state(new_list_item)
 
-            self.calculate_totals() # Zaktualizuj sumy po wczytaniu
-            # self.update_material_combos_state() # Juz wywolane przez update_item_combo po zmianie kategorii
+            self.calculate_totals()
             if show_message:
                 QMessageBox.information(self, "Wczytano", "Dane zostaly wczytane pomyslnie.")
-            self.unsaved_changes = False # Wczytano zmiany, resetuj flage
+            self.unsaved_changes = False
         except json.JSONDecodeError as e:
             if show_message:
                 QMessageBox.critical(self, "Blad Wczytywania", f"Blad dekodowania pliku JSON: {e}")
-            self.unsaved_changes = True # Jesli blad, traktuj jako potencjalnie niepoprawny stan
+            self.unsaved_changes = True
         except Exception as e:
             if show_message:
                 QMessageBox.critical(self, "Blad Wczytywania", f"Wystapil blad podczas wczytywania danych: {e}")
-            self.unsaved_changes = True # Jesli blad, traktuj jako potencjalnie niepoprawny stan
+            self.unsaved_changes = True
 
     def load_data_on_startup(self):
         """
         Wczytuje dane przy starcie aplikacji, ale bez wyswietlania komunikatu
         jesli plik nie istnieje lub wystapia bledy.
+        Ta metoda jest wywolywana tylko raz na starcie, aby zaladowac poczatkowa liste.
         """
         self.load_data(show_message=False)
 
 
     def export_list_to_file(self):
         """
-        Metoda eksportuje cala liste zakupow do pliku craft_ItemList.txt.
+        Metoda eksportuje cala liste zakupow do pliku craft_ItemList_<kategoria>.txt.
         Format pliku: artykul;przewazajacy_material;ilosc w oddzielnych liniach.
         Pominiete zostaja elementy wylaczone (odznaczone na liscie).
         """
