@@ -1,7 +1,7 @@
 import sys
 hidingMs = 10200
 stealthMs = 12200
-musicId = 0x0E9E #tamburyn 0x0E9E
+musicId = 0x0E9E #tamburyn 0x0E9E harfa 0x0EB2
 Misc.SendMessage( 'Beginning Hidding training', 90 )
 
 Timer.Create( 'hidingTimer', 1 )
@@ -16,7 +16,11 @@ def getByItemID(itemid, source):
     if hasattr(searchItem,'Contains'):
         for item in searchItem.Contains:
             if item.ItemID == itemid:
-                return item
+                for prop in item.Properties:
+                    if prop.ToString().find("ruchy") > -1:
+                        Misc.NoOperation()
+                    else:
+                        return item
             else:
                 Misc.NoOperation()
     else:

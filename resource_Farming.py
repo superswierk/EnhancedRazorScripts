@@ -74,7 +74,7 @@ TimeoutOnWaitAction = 4000
 ChopDelay = 1000
 dragDelay = 700
 hideDelay = 300
-#przenica 0x1A93
+#przenica 0x1EBF 0x1EBE
 #log 0x1BDD
 #kukurydza 0x0C7F
 #pomidor 0x0C6C
@@ -83,7 +83,7 @@ hideDelay = 300
 #bawelna 0x0DF9
 #cebula 0x0C6D
 #marchew 0x0C78
-vegTable = [  0x1EBF, 0x0C7F ]
+vegTable = [  0x1EBF,0x1EBE, 0x0C7F ]
 logID = 0x0C7F
 boardID = 0x1BD7
 weightLimit = Player.MaxWeight - 10
