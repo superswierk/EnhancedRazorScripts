@@ -54,8 +54,17 @@ class ShoppingListApp(QWidget):
             "sekata_laska": {"sztaby": 0, "deski": 5, "klejnoty": 0}
         },
         "Tworzenie_Lukow": {
-            "luk": {"sztaby": 3, "deski": 3, "klejnoty": 0},
-            "dlugi_luk": {"sztaby": 4, "deski": 4, "klejnoty": 0}
+            "luk": {"sztaby": 0, "deski": 7, "klejnoty": 0},
+            "dlugi_luk": {"sztaby": 0, "deski": 14, "klejnoty": 0},
+            "elfi_luk": {"sztaby": 0, "deski": 12, "klejnoty": 0},
+            "yumi": {"sztaby": 0, "deski": 15, "klejnoty": 0},
+            "elfi_dlugi_luk": {"sztaby": 0, "deski": 20, "klejnoty": 0},
+            "kusza": {"sztaby": 0, "deski": 7, "klejnoty": 0},
+            "ciezka_kusza": {"sztaby": 0, "deski": 15, "klejnoty": 0},
+            "szybka_kusza": {"sztaby": 0, "deski": 12, "klejnoty": 0},
+            "krasno_kusza": {"sztaby": 0, "deski": 14, "klejnoty": 0},
+            "krasno_ciezka_kusza": {"sztaby": 0, "deski": 20, "klejnoty": 0},
+            "strzaly": {"sztaby": 0, "deski": 1, "klejnoty": 0}
         }
     }
 
