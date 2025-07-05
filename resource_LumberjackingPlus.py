@@ -14,6 +14,14 @@ setY = 125
 offsetLabelY = 20
 offsetRadioY = 45
 offsetButtonY = 170
+runDrection = "Left"
+
+runeAxe = False
+singleMode = True
+silentMode = False
+dropLogs = False
+scanRadius = 40
+
 
 isMerenti = False
 
@@ -28,7 +36,8 @@ STATICTREES = {
     "Cis": 18,
     "Cedr": 19,
     "Meranti": 20,
-    "Zwykle": 21
+    "Zwykle": 21,
+    "Zwykle i Ohii": 22
 }
 
 
@@ -41,53 +50,21 @@ def sendgump():
 
     iY = 0
     Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz drzewa do ciecia:')
-
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,True,STATICTREES['Wszystkie'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Wszystkie')
-
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Wszystkie bez zwyklych'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Wszystkie bez zwyklych')
-
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Ohii'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Ohii')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Wierzba'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Wierzba')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Orzech'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Orzech')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Dab'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Dab')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Cyprys'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Cyprys')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Cis'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Cis')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Cedr'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Cedr')
-    
-    iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Meranti'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Meranti')
+    for i, item in enumerate(STATICTREES):
+        defaultVal = False 
+        if i == 0:
+            defaultVal = True
+        Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,defaultVal,STATICTREES[item])
+        Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,item)
+        iY = iY + 20
 
     iY = iY + 20
-    Gumps.AddRadio(gd,15,iY + offsetRadioY,209,208,False,STATICTREES['Zwykle'])
-    Gumps.AddLabel(gd,35,iY + offsetRadioY,2407,'Zwykle')
+    iX = 10
+    Gumps.AddButton(gd,iX + 145,iY + offsetRadioY,9702,9703,456,1,0)
+    Gumps.AddButton(gd,iX + 15,iY + offsetRadioY,9706,9707,455,1,0)
+    Gumps.AddButton(gd,iX + 80,iY + offsetRadioY + 18,9704,9705,457,1,0)
     
-    iY = iY + 40
-    Gumps.AddButton(gd,120,iY + offsetRadioY,247,248,456,1,0)
-
+    Gumps.AddLabel(gd,iX + 40,iY + offsetRadioY,2407,'Kirunek ucieczki')
     Gumps.SendGump(696969, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
     buttoncheck()
 
@@ -103,10 +80,19 @@ treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
 
 def buttoncheck():
     global isMerenti
+    global runeAxe
     global treeStaticIDs
+    global runDrection
     Gumps.WaitForGump(696969, 60000)
     Gumps.CloseGump(696969)
     gdata = Gumps.GetGumpData(696969)
+    if gdata.buttonid == 456:
+        runDrection = "Right"
+    elif gdata.buttonid == 455:
+        runDrection = "Left"
+    else:
+        runDrection = "Dont"
+    print(f"Will run: {runDrection}")
     switchList = gdata.switches
     if switchList.Count >= 1:
         if switchList[0] == STATICTREES['Wszystkie']:
@@ -151,14 +137,18 @@ def buttoncheck():
         elif switchList[0] == STATICTREES['Meranti']:
             treeStaticIDs = [ 0x0D43, 0x0D85, 0x0D59, 0x0D70 ]
             isMerenti = True
+            runeAxe = True
             print("Meranti")
         elif switchList[0] == STATICTREES['Zwykle']:
             treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3 ]
             print("Zwykle")
+        elif switchList[0] == STATICTREES['Zwykle i Ohii']:
+            treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3, 0x0C9E ]
+            print("Zwykle i Ohii")
         else:
-            print("Default value " + skillName)
+            print("Default value")
     else:
-        print("error nie zaznaczyles nic uzwyam domyslnego " + skillName)
+        print("error nie zaznaczyles nic uzwyam domyslnego")
 
 
         
@@ -174,11 +164,6 @@ lvlupThumb = "https://i.imgur.com/j5rUy80.png"
 # you want boards or logs?
 logsToBoards = False
 
-runeAxe = True
-singleMode = True
-silentMode = False
-dropLogs = False
-scanRadius = 40
 
 
 #********************
@@ -539,10 +524,12 @@ def depositLogs():
         MoveToBeetle()
 
 def CutTree():
+    global runDrection
     global beetleGood
     global chopCounter
     global blockCount
     global trees
+    global isMerenti
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -579,26 +566,30 @@ def CutTree():
     Misc.SendMessage( '--> GumpStarID: %i' % ( gumpId), 11 )
     enemeyMessage = False
     while ( Timer.Check('choppingTimer') == True ):
-        if enemeyMessage == False:
-            enemy = Target.GetTargetFromList( 'enemywar' )
-            if enemy != None:
-                enemeyMessage = True
-                sendDiscord("Uwaga wrog w popblizu!", 15291726, enemyThumb);
-                Player.ChatSay("STRAZE POMOCY BIJA MNIE")
-                Player.ChatSay("Za mna!")
-                Player.ChatSay("Za mna")
-                Timer.Create("runTimer",12000)
-                while Timer.Check("runTimer") == True:
-                    Player.Run('Left')
-                Misc.Pause(2000)
-                Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
+        if runDrection != "Dont":
+            if enemeyMessage == False:
+                enemy = Target.GetTargetFromList( 'enemywar' )
+                if enemy != None:
+                    enemeyMessage = True
+                    sendDiscord("Uwaga wrog w popblizu!", 15291726, enemyThumb);
+                    Player.ChatSay("STRAZE POMOCY BIJA MNIE")
+                    Player.ChatSay("Za mna!")
+                    Player.ChatSay("Za mna")
+                    if isMerenti == True:
+                        Timer.Create("runTimer",3000)
+                    else:
+                        Timer.Create("runTimer",8000)
+                    while Timer.Check("runTimer") == True:
+                        Player.Run(runDrection)
+                    Misc.Pause(2000)
+                    Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
         if (Journal.Search( 'Zniszczyles klody' ) or
             Journal.Search( 'Sciales' ) or
             Journal.Search( 'Obciales' ) or
             Journal.Search( 'Nie masz miejsca w Twoim plecaku' ) or
             Journal.Search( 'martwego' ) or
             Journal.Search( 'Znalazles troche' ) or
-            (singleMode == False and Journal.Search( 'To drzewo' )) or
+            ((singleMode == False or isMerenti == True) and Journal.Search( 'To drzewo' )) or
             (singleMode == False and Journal.Search( 'Jesienia' )) or
             (singleMode == False and Journal.Search( 'Zima' ))):
                 Journal.Clear()
@@ -608,12 +599,12 @@ def CutTree():
                 depositLogs()
                 if singleMode == True and runeAxe == False:
                     CutTree()
-        if (singleMode == True or runeAxe == True) and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
+        if (singleMode == True or (runeAxe == True and isMerenti == False)) and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
             return
         Misc.Pause( 100 )
         
         if dropLogs == False and Journal.Search( 'Nie masz juz miejsca' ):
-            Player.HeadMessage(33, 'BEETLE FULL STOPPING')
+            Player.HeadMessage(33, 'BEETLE FULL STOPPING4')
             say('Halo Halo! Kon jest FULL')
             if Gumps.HasGump(gumpId):
                 Gumps.SendAction(gumpId, 1)
@@ -734,48 +725,26 @@ def MoveToGround():
     
 
 def MoveToBeetle():
-    if logsToBoards == False:
-        fullCheck()
-    # Chop logs into boards
-    if logsToBoards:
-        saw = getByItemID(sawId, Player.Backpack.Serial)
-        for item in Player.Backpack.Contains:
-            if item.ItemID == logID:
-                Items.UseItem(saw)
-                Target.WaitForTarget(2000, True)
-                Target.TargetExecute(item)
-                Misc.Pause( dragDelay )
-    if logsToBoards == False:
-        if Player.Mount:
-            Mobiles.UseMobile( Player.Serial )
+    if Mobiles.FindBySerial( beetle ) is None:
+        sendDiscord("Cos sie popuslo - kon zaginal", 15291726, lumberThumb);
+        Misc.Pause(2000)
+        sys.exit()
+    
+    fullCheck()
+    
+    if Player.Mount:
+        Mobiles.UseMobile( Player.Serial )
+        Misc.Pause( dragDelay )
+    for item in Player.Backpack.Contains:
+        if item.ItemID == logID:
+            Items.Move( item, beetle, 0 )
             Misc.Pause( dragDelay )
 
-    # Move boards to beetle, if they will fit in the beetle
-    if logsToBoards == False:
-        for item in Player.Backpack.Contains:
-            if logsToBoards and item.ItemID == boardID:
-                numberOfBoardsInBeetle = GetNumberOfBoardsInBeetle()
-                if numberOfBoardsInBeetle + i.Amount < 1900:
-                    Items.Move( i, beetle, 0 )
-                    Misc.Pause( dragDelay )
-            elif not logsToBoards and item.ItemID == logID:
-                numberOfBoardsInBeetle = GetNumberOfLogsInBeetle()
-                if numberOfBoardsInBeetle + item.Amount < 1900:
-                    Items.Move( item, beetle, 0 )
-                    Misc.Pause( dragDelay )
-        groundItems = filterItem([boardID,logID])
-        fullCheck()
-        if groundItems:
-            Player.HeadMessage(33, 'BEETLE FULL STOPPING')
-            say('Halo 2 Halo 2! Kon jest pelny az sie przelewa')
-            sendDiscord("Najwyrazniej konie sa pelne", 15291726, lumberThumb);
-            Misc.Pause(6000)
-            #sendEmailMessage("Halo kon wzywa", "Kon jest pelny az sie przelewa")
-            sys.exit()
+    fullCheck()
 
-        if not Player.Mount:
-            Mobiles.UseMobile( beetle )
-            Misc.Pause( dragDelay )
+    if not Player.Mount:
+        Mobiles.UseMobile( beetle )
+        Misc.Pause( dragDelay )
         
 toonFilter = Mobiles.Filter()
 toonFilter.Enabled = True
@@ -799,7 +768,7 @@ def fullCheck():
     global newBeetle
     if dropLogs == False and (Journal.Search( 'zwierze nie moze') or Journal.Search( 'too heavy')):
         if beetle == newBeetle:
-            Player.HeadMessage(33, 'BEETLE FULL STOPPING')
+            Player.HeadMessage(33, 'BEETLE FULL STOPPING2')
             say('Halo Halo! Kon jest FULL')
             sendDiscord("Przepelnienie koni trzeba je oproznic", 15291726, lumberThumb);
             Misc.Pause(6000)
@@ -836,8 +805,7 @@ while onLoop:
     if Player.IsGhost == True:
         say('Uwaga ! Cos sie stalo ze sie zesralo!')
         sendDiscord("Postac umarla!", 15291726, deadThumb);
-        Misc.Pause(6000)
-        sendEmailMessage("Halo postac padla", "Cos sie stalo umarles")
+        Misc.Pause(3000)
         sys.exit()
     Misc.SendMessage('--> Starting Round', 87)
     ScanStatic()
