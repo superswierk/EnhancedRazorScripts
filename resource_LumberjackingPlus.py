@@ -16,14 +16,13 @@ offsetRadioY = 45
 offsetButtonY = 170
 runDrection = "Left"
 
-runeAxe = False
-singleMode = True
+multiMode = False
 silentMode = False
 dropLogs = False
 scanRadius = 40
 
 
-isMerenti = False
+isMeranti = False
 
 STATICTREES = {
     "Wszystkie": 11,
@@ -40,13 +39,20 @@ STATICTREES = {
     "Zwykle i Ohii": 22
 }
 
+def isInTable(value, table):
+    for item in table:
+        if item == value:
+            return True
+    return False
+
+
 
 
 def sendgump():
     gd = Gumps.CreateGump(movable=True) 
     
     Gumps.AddPage(gd, 0)
-    Gumps.AddBackground(gd, 0, 0, 200, (STATICTREES.Count + 3) * 20 + offsetRadioY, 2620) 
+    Gumps.AddBackground(gd, 0, 0, 200, (STATICTREES.Count + 5) * 20 + offsetRadioY, 2620) 
 
     iY = 0
     Gumps.AddLabel(gd,15,iY + offsetLabelY,2407,'Wybierz drzewa do ciecia:')
@@ -59,10 +65,16 @@ def sendgump():
         iY = iY + 20
 
     iY = iY + 20
+    
+    Gumps.AddCheck(gd,40,iY + offsetRadioY,210, 211,multiMode,9)
+    Gumps.AddLabel(gd,65,iY + offsetRadioY,2407,"Multi/Runic")
+    
+    iY = iY + 30
+    
     iX = 10
     Gumps.AddButton(gd,iX + 145,iY + offsetRadioY,9702,9703,456,1,0)
     Gumps.AddButton(gd,iX + 15,iY + offsetRadioY,9706,9707,455,1,0)
-    Gumps.AddButton(gd,iX + 80,iY + offsetRadioY + 18,9704,9705,457,1,0)
+    Gumps.AddButton(gd,iX + 85,iY + offsetRadioY + 18,9704,9705,457,1,0)
     
     Gumps.AddLabel(gd,iX + 40,iY + offsetRadioY,2407,'Kirunek ucieczki')
     Gumps.SendGump(696969, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
@@ -79,10 +91,10 @@ treeStaticIDs = [ 0x0C95, 0x0C96, 0x0C99, 0x0C9B, 0x0C9C, 0x0C9D, 0x0CA6,
 
 
 def buttoncheck():
-    global isMerenti
-    global runeAxe
+    global isMeranti
     global treeStaticIDs
     global runDrection
+    global multiMode
     Gumps.WaitForGump(696969, 60000)
     Gumps.CloseGump(696969)
     gdata = Gumps.GetGumpData(696969)
@@ -136,8 +148,7 @@ def buttoncheck():
             print("Cedr")
         elif switchList[0] == STATICTREES['Meranti']:
             treeStaticIDs = [ 0x0D43, 0x0D85, 0x0D59, 0x0D70 ]
-            isMerenti = True
-            runeAxe = True
+            isMeranti = True
             print("Meranti")
         elif switchList[0] == STATICTREES['Zwykle']:
             treeStaticIDs = [ 0x0CCD, 0x0CD0, 0x0CD3 ]
@@ -147,6 +158,12 @@ def buttoncheck():
             print("Zwykle i Ohii")
         else:
             print("Default value")
+        if isInTable(9, switchList):
+            print("using MultiMode")
+            multiMode = True
+        else:
+            print("using SingleMode")
+            multiMode = False
     else:
         print("error nie zaznaczyles nic uzwyam domyslnego")
 
@@ -409,7 +426,7 @@ def MoveToTree():
     treeCoords.Y = trees[ 0 ].y + 1
     #Items.Message(trees[0], 1, "Here")
 
-    if isMerenti == True:
+    if isMeranti == True:
         
         if sqrt( pow( ( treeCoords.X - Player.Position.X ), 2 ) + pow( ( treeCoords.Y - Player.Position.Y ), 2 ) ) > 20:
             print("ERROR point to far away")
@@ -504,7 +521,6 @@ def MoveToTree():
 
 def EquipAxe():
     global axeSerial
-
     if not leftHand:
         for item in Player.Backpack.Contains:
             if item.ItemID in axeList:
@@ -529,7 +545,7 @@ def CutTree():
     global chopCounter
     global blockCount
     global trees
-    global isMerenti
+    global isMeranti
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -556,7 +572,7 @@ def CutTree():
     Target.TargetExecute( trees[ 0 ].x, trees[ 0 ].y, trees[ 0 ].z, trees[ 0 ].id )
     
     choppingTime = 8000
-    if singleMode == True:
+    if multiMode == False:
         choppingTime = 8000
     
     Misc.Pause(1200)
@@ -575,8 +591,8 @@ def CutTree():
                     Player.ChatSay("STRAZE POMOCY BIJA MNIE")
                     Player.ChatSay("Za mna!")
                     Player.ChatSay("Za mna")
-                    if isMerenti == True:
-                        Timer.Create("runTimer",3000)
+                    if isMeranti == True:
+                        Timer.Create("runTimer",4000)
                     else:
                         Timer.Create("runTimer",8000)
                     while Timer.Check("runTimer") == True:
@@ -589,17 +605,17 @@ def CutTree():
             Journal.Search( 'Nie masz miejsca w Twoim plecaku' ) or
             Journal.Search( 'martwego' ) or
             Journal.Search( 'Znalazles troche' ) or
-            ((singleMode == False or isMerenti == True) and Journal.Search( 'To drzewo' )) or
-            (singleMode == False and Journal.Search( 'Jesienia' )) or
-            (singleMode == False and Journal.Search( 'Zima' ))):
+            (multiMode == True and Journal.Search( 'To drzewo' )) or
+            (multiMode == True and Journal.Search( 'Jesienia' )) or
+            (multiMode == True and Journal.Search( 'Zima' ))):
                 Journal.Clear()
                 Timer.Create('choppingTimer',choppingTime)
                 Misc.SendMessage( '--> Timer: %i' % ( chopCounter+1), 17 )
                 chopCounter=chopCounter+1
                 depositLogs()
-                if singleMode == True and runeAxe == False:
+                if multiMode == False:
                     CutTree()
-        if (singleMode == True or (runeAxe == True and isMerenti == False)) and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
+        if (multiMode == False) and (Journal.Search( 'To drzewo' ) or Journal.Search( 'Jesienia' ) or Journal.Search( 'Zima' )):
             return
         Misc.Pause( 100 )
         
