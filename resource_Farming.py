@@ -12,10 +12,6 @@ deadThumb = "https://i.imgur.com/QjVeOoA.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
 enemyThumb = "https://i.imgur.com/YvbQw56.png"
 lvlupThumb = "https://i.imgur.com/j5rUy80.png"
-glod = ""
-bialka = ""
-witaminy = ""
-weglowodany = ""
 
    
 singleMode = True
@@ -66,9 +62,9 @@ chopCounter=0
 #0x0C5D adbuz
 #0x0C4F bawelna 0x0C50
 #0x0D04 kapusta
-#0x0C55 pszenica
+#0x0C55 pszenica 0x1A93
 #0x0D98 jablon
-treeStaticIDs = [ 0x1A9B, 0x1A99, 0x0C50]
+treeStaticIDs = [ 0x1A93, 0x0C7D ]
 useItemID = None
 isColliding = False
     
@@ -76,11 +72,9 @@ isColliding = False
 EquipAxeDelay = 1000
 TimeoutOnWaitAction = 4000
 ChopDelay = 1000
-runebookBank = 0x41EA8DEE # Runebook for bank
-runebookTrees = 0x41EA8DEE # Runebook for tree spots
-recallPause = 3000
 dragDelay = 700
 hideDelay = 300
+#przenica 0x1A93
 #log 0x1BDD
 #kukurydza 0x0C7F
 #pomidor 0x0C6C
@@ -89,12 +83,9 @@ hideDelay = 300
 #bawelna 0x0DF9
 #cebula 0x0C6D
 #marchew 0x0C78
-vegTable = [ 0x1A9D, 0x0DF9 ]
+vegTable = [  0x1EBF, 0x0C7F ]
 logID = 0x0C7F
 boardID = 0x1BD7
-otherResourceID = [ 0x318F, 0x3199, 0x2F5F, 0x3190, 0x3191, ]
-logBag = 0x401FA597 # Serial of log bag in bank
-otherResourceBag = 0x40191C19 # Serial of other resource in bank
 weightLimit = Player.MaxWeight - 10
 bankX = 2051
 bankY = 1343
@@ -107,9 +98,6 @@ leftHand = Player.CheckLayer( 'LeftHand' )
 from System.Collections.Generic import List
 from System import Byte, Int32
 from math import sqrt
-import clr
-clr.AddReference('System.Speech')
-from System.Speech.Synthesis import SpeechSynthesizer
 tileinfo = List[Statics.TileInfo]
 trees = []
 treeCoords = None
@@ -136,72 +124,6 @@ def hide():
         Timer.Create('hideTimer',10000)
         Misc.Pause( 1000 )
         
-def RecallNextSpot():
-    global lastRune
-
-    Gumps.ResetGump()
-
-    Misc.SendMessage('--> Recall to Spot', 77)
-
-    Items.UseItem( runebookTrees )
-    Gumps.WaitForGump( 1431013363, TimeoutOnWaitAction )
-    Gumps.SendAction( 1431013363, lastRune )
-
-    Misc.Pause( recallPause )
-
-    lastRune = lastRune + 6
-    if lastRune > 95:
-        lastRune = 5
-
-    EquipAxe()
-
-
-def RecallBack():
-    global lastRune
-
-    Items.UseItem( runebookTrees )
-    Gumps.WaitForGump( 1431013363, TimeoutOnWaitAction )
-    Gumps.SendAction( 1431013363, lastRune )
-
-    Misc.Pause( recallPause )
-
-    EquipAxe()
-
-
-def DepositInBank():
-    global bankX
-    global bankY
-    while Player.Weight >= 140:
-        Gumps.ResetGump()
-        Items.UseItem( runebookBank )
-        Gumps.WaitForGump( 1431013363, 10000 )
-        Gumps.SendAction( 1431013363, 71 )
-        Misc.Pause( recallPause )
-
-        Player.ChatSay( 77, 'bank' )
-        Misc.Pause( 300 )
-
-        if Items.BackpackCount( logID, -1 ) > 0:
-            while Items.BackpackCount( logID, -1 ) > 0:
-                Misc.SendMessage( '--> Moving Log', 77 )
-                Items.Move( item, logBag, 0 )
-                Misc.Pause( dragDelay )
-
-        if Items.BackpackCount( boardID, -1 ) > 0:
-            while Items.BackpackCount( boardID, -1 ) > 0:
-                Misc.SendMessage( '--> Moving Log', 77 )
-                Items.Move( item, logBag, 0 )
-                Misc.Pause( dragDelay )
-
-        for otherid in otherResourceID:
-            if item.ItemID == otherid:
-                Misc.SendMessage( '--> Moving Other', 77 )
-                Items.Move( item, otherResourceBag, 0 )
-                Misc.Pause( dragDelay )
-            else:
-                Misc.NoOperation()
-
-
 def ScanStatic():
     global treenumber
     global trees
@@ -353,11 +275,6 @@ def CutTree():
     global chopCounter
     global blockCount
     global trees
-    global glod
-    global bialka
-    global witaminy
-    global weglowodany
-    global lvlCarpSkill
     chopCounter = 0
     hide()
     if Target.HasTarget():
@@ -395,25 +312,7 @@ def CutTree():
     gData = Gumps.GetGumpData(gumpId)
     Timer.Create('choppingTimer',choppingTime)
     while ( Timer.Check('choppingTimer') == True ):
-        lvlCarpSkillNew = Player.GetRealSkillValue('Rolnictwo')
-        if lvlCarpSkill != lvlCarpSkillNew:
-            lvlCarpSkill = lvlCarpSkillNew
-            sendDiscord("Wzrost umiejetnosci Rolnictwo masz teraz: " + str(Round(lvlCarpSkill,1)), 5814783, lvlupThumb)
-        Misc.Pause(1000)
-        if(Timer.Check('eatingLogTimer') == False):
-            Timer.Create('eatingLogTimer', 120000)
-            Player.ChatSay('.glod wszystko')
-            Misc.Pause(3000)
-            newGlod = Journal.GetLineText('Glod')
-            newBialka = Journal.GetLineText('Bialka')
-            newWitaminy = Journal.GetLineText('Witaminy')
-            newWeglowodany = Journal.GetLineText('Weglowodany')
-            if newGlod != glod or newBialka != bialka or newWitaminy != witaminy or newWeglowodany != weglowodany :
-                glod = newGlod
-                bialka = newBialka
-                witaminy = newWitaminy
-                weglowodany = newWeglowodany
-                sendDiscord("Status glodu:\n" + glod + "\n" + bialka + "\n" + witaminy + "\n" + weglowodany + "\n",2012169, foodThumb)
+        Misc.Pause(400)
         if (Journal.Search( 'Nie udalo Ci sie' ) or 
             Journal.Search( 'Udalo Ci sie' )or 
             Journal.Search( 'Nie masz miejsca w Twoim plecaku' )or 
@@ -433,7 +332,6 @@ def CutTree():
         
         if dropLogs == False and Journal.Search( 'Nie masz juz miejsca' ):
             Player.HeadMessage(33, 'BEETLE FULL STOPPING')
-            say('Halo Halo! Kon jest FULL')
             if Gumps.HasGump(gumpId):
                 Gumps.SendAction(gumpId, 1)
             sendDiscord("Konie sa przepelnione", 15291726, farmThumb);
@@ -442,30 +340,6 @@ def CutTree():
     Misc.Pause( 2000 )
     Misc.SendMessage( '--> Spaduwa', 77 )
     Misc.Pause( 100 )
-
-
-
-def GetNumberOfBoardsInBeetle():
-    global beetle
-    global boardID
-    global dragDelay
-
-    remount = False
-    if not Mobiles.FindBySerial( beetle ):
-        remount = True
-        Mobiles.UseMobile( Player.Serial )
-        Misc.Pause( dragDelay )
-
-    numberOfBoards = 0
-    for item in Mobiles.FindBySerial( beetle ).Backpack.Contains:
-        if item.ItemID == boardID:
-            numberOfBoards += item.Amount
-
-    if remount:
-        Mobiles.UseItem( beetle )
-        Misc.Pause( dragDelay )
-
-    return numberOfBoards
 
 
 def GetNumberOfLogsInBeetle():
@@ -520,14 +394,7 @@ def MoveToBeetle():
             if numberOfBoardsInBeetle + item.Amount < 1900:
                 Items.Move( item, beetle, 0 )
                 Misc.Pause( dragDelay )
-    groundItems = filterItem([boardID,logID])
     fullCheck()
-    if groundItems:
-        Player.HeadMessage(33, 'BEETLE FULL STOPPING')
-        sendDiscord("Konie sa przepelnione", 15291726, farmThumb);
-        Misc.Pause(6000)
-        sys.exit() 
-
     if not Player.Mount:
         Mobiles.UseMobile( beetle )
         Misc.Pause( dragDelay )
@@ -546,9 +413,7 @@ invulFilter.RangeMin = -1
 invulFilter.RangeMax = -1
 invulFilter.Friend = False
 invulFilter.Notorieties = List[Byte](bytes([7]))
-def say(text):
-    spk = SpeechSynthesizer()
-    spk.Speak(text)
+
 def fullCheck():
     global beetle
     global newBeetle
@@ -559,53 +424,24 @@ def fullCheck():
             Misc.Pause(6000)
             sys.exit()
         else:
-            say('Ej! zmiana koni')
             beetle = newBeetle
 
-def safteyNet():
-    if alert:
-        toon = Mobiles.ApplyFilter(toonFilter)
-        invul = Mobiles.ApplyFilter(invulFilter)
-        if toon:
-            Misc.FocusUOWindow()
-            say("Hey, someone is here. You should tab over and take a look")
-            toonName = Mobiles.Select(toon, 'Nearest')
-            if toonName:
-                Misc.SendMessage('Toon Near: ' + toonName.Name, 33)
-        elif invul:
-            say("Hey, something invulnerable here. You should tab over and take a look")
-            invulName = Mobiles.Select(invul, 'Nearest')
-            if invulName:
-                Misc.SendMessage('Uh Oh: Invul! Who the fuck is ' + invul.Name, 33)
-        else:
-            Misc.NoOperation()
 ##Friend.ChangeList('lj')
-Misc.SendMessage('--> Start up Woods', 77)
-lvlCarpSkill = Player.GetRealSkillValue('Rolnictwo')
-Player.ChatSay('.glod wszystko')
-Misc.Pause(3000)
-glod = Journal.GetLineText('Glod')
-bialka = Journal.GetLineText('Bialka')
-witaminy = Journal.GetLineText('Witaminy')
-weglowodany = Journal.GetLineText('Weglowodany')
-Timer.Create('eatingLogTimer', 120000)
+Misc.SendMessage('--> Start up Farming', 77)
 EquipAxe()
 while onLoop:
     #RecallNextSpot()
     if Player.IsGhost == True:
-        say('Uwaga ! Cos sie stalo ze sie zesralo!')
-        sendDiscord("Postac umarla!", 15291726, deadThumb);
-        Misc.Pause(6000)
-        sendEmailMessage("Halo postac padla", "Cos sie stalo umarles")
+        print("UMARLES")
+        Misc.Pause(2000)
         sys.exit() 
     Misc.SendMessage('--> Starting Round', 87)
     ScanStatic()
     i = 0
     while trees.Count > 0 and Player.IsGhost == False :
-        safteyNet()
         MoveToTree()
         CutTree()
         trees.pop( 0 )
         trees = sorted( trees, key = lambda tree: sqrt( pow( ( tree.x - Player.Position.X ), 2 ) + pow( ( tree.y - Player.Position.Y ), 2 ) ) )
     trees = []
-    Misc.Pause( 100 )
+    Misc.Pause( 200 )
