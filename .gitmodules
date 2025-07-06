@@ -1,0 +1,3 @@
+[submodule "UOCrafter"]
+	path = UOCrafter
+	url = git@github.com:superswierk/UOCrafter.git
