@@ -81,6 +81,7 @@ class ShoppingListApp(QWidget):
         self.is_dark_theme = True # Flaga do sledzenia aktualnego motywu
         self.unsaved_changes = False # Nowa flaga do sledzenia niezapisanych zmian
         self.current_active_category = None # Przechowuje aktualnie wybrana kategorie
+        self.app_version = "0.2.0" # Dodana zmienna dla wersji aplikacji
         self.initUI()
         self.set_dark_mode() # Ustawienie poczatkowego motywu na ciemny
         # load_data_on_startup jest wywolywane przez update_item_combo na koncu initUI
@@ -126,7 +127,7 @@ class ShoppingListApp(QWidget):
 
     def initUI(self):
         # Ustawienia okna glownego
-        self.setWindowTitle('UOCrafter') # Zmieniona nazwa aplikacji
+        self.setWindowTitle(f'UOCrafter v{self.app_version}') # Zmieniona nazwa aplikacji z wersja
         self.resize(800,680)
         self.center()
     
