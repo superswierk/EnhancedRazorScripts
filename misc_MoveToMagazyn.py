@@ -57,3 +57,5 @@ for item in containerFrom.Contains:
     if item.ItemID == itemIDFrom:
         Items.Move(item,magazynID,-1)
         Misc.Pause( 1000 )
+        
+Misc.SendMessage('Przenoszenie ZAKONCZONE',63)
