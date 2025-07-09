@@ -594,9 +594,11 @@ def CutTree():
                     if isMeranti == True:
                         Timer.Create("runTimer",4000)
                     else:
-                        Timer.Create("runTimer",8000)
+                        Timer.Create("runTimer",7000)
                     while Timer.Check("runTimer") == True:
                         Player.Run(runDrection)
+                    if Player.Name == "Vaekin":
+                        Player.ChatSay("Golus strzez zwloki")
                     Misc.Pause(2000)
                     Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
         if (Journal.Search( 'Zniszczyles klody' ) or
