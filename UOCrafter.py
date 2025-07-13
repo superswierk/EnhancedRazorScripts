@@ -1,1 +1,1 @@
-C:/Ultima/ClassicUO/ClassicUO/Data/Plugins/RazorEnhanced-0.8.2.243/Scripts/EnhancedRazorScripts/UOCrafter/UOCrafter.py
+./UOCrafter/UOCrafter.py

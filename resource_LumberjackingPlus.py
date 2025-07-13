@@ -126,7 +126,7 @@ def buttoncheck():
                 0x0C9E, ]
             print("Wszystkie bez zwyklych")
         elif switchList[0] == STATICTREES['Ohii']:
-            treeStaticIDs = [ 0x0C9E ]
+            treeStaticIDs = [ 0x0C9E,0x0D3F ]
             print("Ohii")
         elif switchList[0] == STATICTREES['Wierzba']:
             treeStaticIDs = [ 0x0CE6 ]

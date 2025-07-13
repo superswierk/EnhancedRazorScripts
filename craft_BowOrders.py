@@ -47,6 +47,8 @@ ORES = {
     "orzech": 0x0611,
     "cedr": 0x0094,
     "cis": 0x0220,
+    "wierzba": 0x01b8,
+    "ohii": 0x05aa,
     "cyprys": 0x0091
 }
 boardsId = [0x1BD7]

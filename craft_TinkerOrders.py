@@ -11,12 +11,14 @@ carpErrorThumb = "https://i.imgur.com/VctK73J.png"
 apoThumb = "https://i.imgur.com/eDQLGaI.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
 lvlupThumb = "https://i.imgur.com/j5rUy80.png"
+HoldOrdersTimerMs = 310000
 
 
 CRAFTITEMS = {
+    "czekaj": { "itemID" : 6666, "pageID" : 2, "type" : "metal" },
     "tworzenie_lukuw": { "itemID" : 4130, "pageID" : 2, "type" : "metal" },
     "mlotek_kowalski": { "itemID" : 5091, "pageID" : 2, "type" : "metal" },
-    "mlot_kowalski": { "itemID" : 5371, "pageID" : 2, "type" : "metal" },
+    "mlot_kowalski": { "itemID" : 4020, "pageID" : 2, "type" : "metal" },
     "wytrych": { "itemID" : 5371, "pageID" : 2, "type" : "metal" },
     "kilof": { "itemID" : 3717, "pageID" : 2, "type" : "metal" },
     "sierp": { "itemID" : 36864, "pageID" : 2, "type" : "metal" },
@@ -50,7 +52,23 @@ CRAFTITEMS = {
     "paleta": { "itemID" : 4033, "pageID" : 7, "type" : "drewno" },
     "pioro": { "itemID" : 4031, "pageID" : 7, "type" : "drewno" },
     "pioro_kartografa": { "itemID" : 25345, "pageID" : 7, "type" : "drewno" },
-    "narzedzie_stolarskie": { "itemID" : 4140, "pageID" : 7, "type" : "drewno" }
+    "narzedzie_stolarskie": { "itemID" : 4140, "pageID" : 7, "type" : "drewno" },
+    "kielich": { "itemID" : 2458, "pageID" : 10, "type" : "metal" },
+    "talerz": { "itemID" : 2519, "pageID" : 10, "type" : "metal" },
+    "garnekA": { "itemID" : 2528, "pageID" : 11, "type" : "metal" },
+    "garnekB": { "itemID" : 2541, "pageID" : 11, "type" : "metal" },
+    "garnuszek": { "itemID" : 2529, "pageID" : 11, "type" : "metal" },
+    "rondel": { "itemID" : 2547, "pageID" : 11, "type" : "metal" },
+    "widelecB": { "itemID" : 2549, "pageID" : 10, "type" : "metal" },
+    "widelecA": { "itemID" : 2548, "pageID" : 10, "type" : "metal" },
+    "tasak": { "itemID" : 3778, "pageID" : 10, "type" : "metal" },
+    "nozA": { "itemID" : 2550, "pageID" : 10, "type" : "metal" },
+    "nozB": { "itemID" : 2551, "pageID" : 10, "type" : "metal" },
+    "kolko": { "itemID" : 4113, "pageID" : 12, "type" : "metal" },
+    "narzedzie_stolarskieA": { "itemID" : 4146, "pageID" : 7, "type" : "drewno" },
+    "narzedzie_stolarskieB": { "itemID" : 4144, "pageID" : 7, "type" : "drewno" },
+    "zestaw_narzedzi": { "itemID" : 4179, "pageID" : 13, "type" : "metal" },
+    "zawias": { "itemID" : 4181, "pageID" : 13, "type" : "metal" }
 }
 
 
@@ -73,7 +91,10 @@ ORES = {
     "orzech": 0x0611,
     "cedr": 0x0094,
     "cis": 0x0220,
-    "cyprys": 0x0091
+    "wierzba": 0x01b8,
+    "ohii": 0x05aa,
+    "cyprys": 0x0091,
+    "brak_materialu": 0x6666
 }
 boardsId = [0x1BD7]
 stubsId = [0x1BF2]
@@ -195,6 +216,10 @@ def usun_ostatnia_linie(tekst):
 errorMessage = "Nieznany blad! Nie udalo sie dokonczyc craftowania"
 realItemsCrafted = 0
 
+def waitForTimer(name):
+    while Timer.Check(name) == True:
+        Misc.Pause(400)
+
 def clearJournal():
     Journal.Clear('fatalnym')
     Journal.Clear('Brakuje Ci')
@@ -207,6 +232,12 @@ def craftItem( itemToCraft ):
     global workingBag
     global realItemsCrafted
     realItemsCrafted = 0
+    
+    if itemToCraft.itemName == "czekaj":
+        print("Dummy item czekanie")
+        realItemsCrafted += 1
+        return True
+    
     endString = str(itemToCraft.amount) + " z " + str(itemToCraft.amount)
     tools = getByItemID(toolsId, self_pack)
     Items.UseItem(tools)
@@ -327,10 +358,10 @@ if filePrevBody != "":
 craftIterator = 0
 successIterator = 0
 wasFail = False
-for item in craftItems:
+for iItem, item in enumerate(craftItems):
     Misc.Pause(300)
     craftIterator = craftIterator + 1
-    print("craftuje item nr " + str(craftIterator))
+    print(f"craftuje item nr {str(craftIterator)} z {craftItems.Count}")
     if item.amount <= 0:
         print("skipping item nr " + str(craftIterator))
         continue
@@ -344,7 +375,17 @@ for item in craftItems:
                 overrideLastAmount = 0
         System.IO.File.AppendAllText(fileNameProgress, f"{item.itemName};{realItemsCrafted}\n" )
         Misc.Pause(1000)
+        if iItem < (craftItems.Count - 1) and craftItems[iItem + 1].itemName == "czekaj":
+            print("WYKONUJE CZEKANIE")
+            waitForTimer("HoldOrdersTimer")
+            Timer.Create("HoldOrdersTimer",HoldOrdersTimerMs);
+            print("KONCZE CZEKANIE")
+        Journal.Clear("Mam zamowienie")
         AcceptOrders()
+        Misc.Pause(600)
+        if Journal.Search("Mam zamowienie"):
+            Journal.Clear("Mam zamowienie")
+            sendDiscord("Zamowienie specjalnie zaraz wpadnie", 9592372, carpThumb)
     else:
         wasFail = True
         sendDiscord(errorMessage + f"\nUkonczono z sukcesem tylko {successIterator} zadan", 14696255, carpErrorThumb)
