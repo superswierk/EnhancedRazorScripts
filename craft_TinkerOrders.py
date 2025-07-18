@@ -63,6 +63,10 @@ CRAFTITEMS = {
     "widelecA": { "itemID" : 2548, "pageID" : 10, "type" : "metal" },
     "tasak": { "itemID" : 3778, "pageID" : 10, "type" : "metal" },
     "nozA": { "itemID" : 2550, "pageID" : 10, "type" : "metal" },
+    "lyzkaA": { "itemID" : 2552, "pageID" : 10, "type" : "metal" },
+    "lyzkaB": { "itemID" : 2553, "pageID" : 10, "type" : "metal" },
+    "patelniaA": { "itemID" : 2431, "pageID" : 11, "type" : "metal" },
+    "patelniaB": { "itemID" : 2530, "pageID" : 11, "type" : "metal" },
     "nozB": { "itemID" : 2551, "pageID" : 10, "type" : "metal" },
     "kolko": { "itemID" : 4113, "pageID" : 12, "type" : "metal" },
     "narzedzie_stolarskieA": { "itemID" : 4146, "pageID" : 7, "type" : "drewno" },
@@ -94,7 +98,8 @@ ORES = {
     "wierzba": 0x01b8,
     "ohii": 0x05aa,
     "cyprys": 0x0091,
-    "brak_materialu": 0x6666
+    "brak_materialu": 0x6666,
+    "klejnoty": 0x0000
 }
 boardsId = [0x1BD7]
 stubsId = [0x1BF2]
@@ -243,7 +248,7 @@ def craftItem( itemToCraft ):
     Items.UseItem(tools)
     Misc.SendMessage('czekam na gump craftingu', 77)
     Gumps.WaitForGump(0,10000)
-    Misc.Pause(4000)
+    Misc.Pause(1000)
     gumpId = Gumps.CurrentGump()
     print(f"wysylam page {itemToCraft.pageID}")
     Gumps.SendAdvancedAction(gumpId, itemToCraft.pageID, [], [1,2], [str(itemToCraft.amount),""])
@@ -381,7 +386,10 @@ for iItem, item in enumerate(craftItems):
             Timer.Create("HoldOrdersTimer",HoldOrdersTimerMs);
             print("KONCZE CZEKANIE")
         Journal.Clear("Mam zamowienie")
-        AcceptOrders()
+        if craftItems[iItem].itemName == "czekaj":
+            print("skip accept orders")
+        else:
+            AcceptOrders()
         Misc.Pause(600)
         if Journal.Search("Mam zamowienie"):
             Journal.Clear("Mam zamowienie")
