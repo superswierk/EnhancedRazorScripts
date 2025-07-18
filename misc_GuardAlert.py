@@ -1,5 +1,6 @@
 from Scripts.EnhancedRazorScripts.misc_Discord import *
 enemyThumb = "https://i.imgur.com/YvbQw56.png"
+miningThumb = "https://i.imgur.com/cEvazS3.png"
 Journal.Clear()
 while True:
     enemy = Target.GetTargetFromList( 'enemywar' )
@@ -12,4 +13,7 @@ while True:
         Misc.Pause(2000)
         Player.ChatSay("STRAZE POMOCY BIJA MNIE!")
         Misc.Pause(2000)
+    if Journal.Search( 'Nie masz miejsca' ) == True:
+        Journal.Clear( 'Nie masz miejsca' )
+        sendDiscord("Konie przepelnione!", 15291726, miningThumb)
     Misc.Pause(200)
