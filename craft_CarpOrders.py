@@ -11,9 +11,11 @@ carpErrorThumb = "https://i.imgur.com/aNdQPqv.png"
 apoThumb = "https://i.imgur.com/eDQLGaI.png"
 foodThumb = "https://i.imgur.com/uB0tTVj.png"
 lvlupThumb = "https://i.imgur.com/j5rUy80.png"
+HoldOrdersTimerMs = 310000
 
 
 CRAFTITEMS = {
+    "czekaj": { "itemID" : 6666, "pageID" : 2, "type" : "drewno" },
     "szafaA": { "itemID" : 2643, "pageID" : 5, "type" : "drewno" },
     "szafaB": { "itemID" : 2641, "pageID" : 5, "type" : "drewno" },
     "kij_pastuszy": { "itemID" : 3713, "pageID" : 11, "type" : "drewno" },
@@ -29,6 +31,7 @@ CRAFTITEMS = {
     "narzedzie_tkackie": { "itemID" : 45064, "pageID" : 13, "type" : "drewno" },
     "koryto": { "itemID" : 45066, "pageID" : 13, "type" : "drewno" },
     "duza_harfa": { "itemID" : 3761, "pageID" : 10, "type" : "drewno" },
+    "mocna_klatka": { "itemID" : 7810, "pageID" : 6, "type" : "drewno" },
 }
 
 
@@ -53,7 +56,8 @@ ORES = {
     "cis": 0x0220,
     "wierzba": 0x01b8,
     "ohii": 0x05aa,
-    "cyprys": 0x0091
+    "cyprys": 0x0091,
+    "brak_materialu": 0x6666
 }
 boardsId = [0x1BD7]
 stubsId = [0x1BF2]
@@ -175,6 +179,10 @@ def usun_ostatnia_linie(tekst):
 errorMessage = "Nieznany blad! Nie udalo sie dokonczyc craftowania"
 realItemsCrafted = 0
 
+def waitForTimer(name):
+    while Timer.Check(name) == True:
+        Misc.Pause(400)
+
 def clearJournal():
     Journal.Clear('fatalnym')
     Journal.Clear('Brakuje Ci')
@@ -187,6 +195,12 @@ def craftItem( itemToCraft ):
     global workingBag
     global realItemsCrafted
     realItemsCrafted = 0
+    
+    if itemToCraft.itemName == "czekaj":
+        print("Dummy item czekanie")
+        realItemsCrafted += 1
+        return True
+    
     endString = str(itemToCraft.amount) + " z " + str(itemToCraft.amount)
     tools = getByItemID(toolsId, self_pack)
     Items.UseItem(tools)
@@ -309,7 +323,7 @@ if filePrevBody != "":
 craftIterator = 0
 successIterator = 0
 wasFail = False
-for item in craftItems:
+for iItem, item in enumerate(craftItems):
     Misc.Pause(300)
     craftIterator = craftIterator + 1
     print("craftuje item nr " + str(craftIterator))
@@ -326,7 +340,20 @@ for item in craftItems:
                 overrideLastAmount = 0
         System.IO.File.AppendAllText(fileNameProgress, f"{item.itemName};{realItemsCrafted}\n" )
         Misc.Pause(1000)
-        AcceptOrders()
+        if iItem < (craftItems.Count - 1) and craftItems[iItem + 1].itemName == "czekaj":
+            print("WYKONUJE CZEKANIE")
+            waitForTimer("HoldOrdersTimer")
+            Timer.Create("HoldOrdersTimer",HoldOrdersTimerMs);
+            print("KONCZE CZEKANIE")
+        Journal.Clear("Mam zamowienie")
+        if craftItems[iItem].itemName == "czekaj":
+            print("skip accept orders")
+        else:
+            AcceptOrders()
+        Misc.Pause(600)
+        if Journal.Search("Mam zamowienie"):
+            Journal.Clear("Mam zamowienie")
+            sendDiscord("Zamowienie specjalnie zaraz wpadnie", 9592372, carpThumb)
     else:
         wasFail = True
         sendDiscord(errorMessage + f"\nUkonczono z sukcesem tylko {successIterator} zadan", 14696255, carpErrorThumb)
