@@ -4,7 +4,6 @@
 # Last updated: 12/2/21
 
 from Scripts.EnhancedRazorScripts.misc_Discord import *
-from Scripts.EnhancedRazorScripts.misc_Email import *
 from System.Collections.Generic import List
 from System import Byte, Int32
 import sys
@@ -628,7 +627,6 @@ def CutTree():
                 Gumps.SendAction(gumpId, 1)
             sendDiscord("Konie sa przepelnione", 15291726, lumberThumb);
             Misc.Pause(6000)
-            #sendEmailMessage("Halo kon chyba full", "Przemienili kampon")
             sys.exit()
     Misc.Pause( 2000 )
     Misc.SendMessage( '--> Spaduwa', 77 )
@@ -718,7 +716,6 @@ def GetNumberOfLogsInBeetle():
     else:
         sendDiscord("Cos sie popuslo - kon zaginal", 15291726, lumberThumb);
         Misc.Pause(6000)
-        #sendEmailMessage("Cos sie popuslo", "Nie znalazlem konia")
         sys.exit()
 
     if remount:
@@ -790,7 +787,6 @@ def fullCheck():
             say('Halo Halo! Kon jest FULL')
             sendDiscord("Przepelnienie koni trzeba je oproznic", 15291726, lumberThumb);
             Misc.Pause(6000)
-            #sendEmailMessage("Hej konie pelne", "Przepelnienie koni trzeba je oproznic")
             sys.exit()
         else:
             say('Ej! zmiana koni')
