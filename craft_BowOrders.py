@@ -102,8 +102,8 @@ def AcceptOrders():
     global ordContainer
     print("Akceptuje zamowienia po kolei")
     Misc.Pause(1000)
-    if isInJournal("Zapis Stanu",40) == True:
-        while isInJournal("Koniec zapisywania",40) == False:
+    if isInJournal("Zapis Stanu",60) == True:
+        while isInJournal("Koniec zapisywania",60) == False:
             Misc.Pause(1000)
             print("Czekam na zapis swiata...");
         Misc.Pause(3000)
