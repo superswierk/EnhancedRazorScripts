@@ -130,7 +130,7 @@ class CraftItem:
 craftItems = []
 workingBag = Target.PromptTarget( 'Wybierz pojemnik do pracy' )
 
-srcOrd = 0x538DCD1D#Target.PromptTarget( 'Pojemnik na zamowienia' )
+srcOrd = 0x54C2BAFA#0x538DCD1D#Target.PromptTarget( 'Pojemnik na zamowienia' )
 ordContainer = Items.FindBySerial(srcOrd)
 if srcOrd is None:
     Misc.SendMessage('Zly cel',33)
@@ -146,8 +146,25 @@ def isInJournal(text, secondsAgo):
             return True
     return False
     
+def Sort():
+    global workingBag
+    Player.ChatSay(".sortuj wytrychy")
+    Target.WaitForTarget( 5000 , False )
+    Target.TargetExecute(workingBag)
+    gumpId = 0
+    Misc.Pause(500)
+    while gumpId == 0:
+        Misc.Pause(100)
+        gumpId = Gumps.CurrentGump()
+    print(f"First gump {gumpId} found")
+    Gumps.SendAction(gumpId, 20)
+    Target.WaitForTarget( 5000 , False )
+    Target.TargetExecute(workingBag)
+    
+    
 def AcceptOrders():
     global ordContainer
+    Sort()
     print("Akceptuje zamowienia po kolei")
     Misc.Pause(1000)
     if isInJournal("Zapis Stanu",40) == True:
