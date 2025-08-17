@@ -32,6 +32,7 @@ CRAFTITEMS = {
     "koryto": { "itemID" : 45066, "pageID" : 13, "type" : "drewno" },
     "duza_harfa": { "itemID" : 3761, "pageID" : 10, "type" : "drewno" },
     "mocna_klatka": { "itemID" : 7810, "pageID" : 6, "type" : "drewno" },
+    "zwoje": { "itemID" : 3636, "pageID" : 2, "type" : "drewno" },
 }
 
 
@@ -57,6 +58,7 @@ ORES = {
     "wierzba": 0x01b8,
     "ohii": 0x05aa,
     "cyprys": 0x0091,
+    "arkanid": 0x0543,
     "brak_materialu": 0x6666
 }
 boardsId = [0x1BD7]
@@ -90,9 +92,6 @@ workingBag = Target.PromptTarget( 'Wybierz pojemnik do pracy' )
 
 srcOrd = 0x538DCD1D#Target.PromptTarget( 'Pojemnik na zamowienia' )
 ordContainer = Items.FindBySerial(srcOrd)
-if srcOrd is None:
-    Misc.SendMessage('Zly cel',33)
-    sys.exit()
     
 def currentTime():
     return Double(time.time() + Double(7200))
@@ -113,25 +112,26 @@ def AcceptOrders():
             Misc.Pause(1000)
             print("Czekam na zapis swiata...");
         Misc.Pause(3000)
-    for item in ordContainer.Contains:
-        if item.ItemID == orderID and item.Color == activeColor:
-            Items.UseItem(item)
-            gumpId = 0
-            Misc.Pause(500)
-            while gumpId == 0:
-                Misc.Pause(100)
-                gumpId = Gumps.CurrentGump()
-            print(f"First gump {gumpId} found")
-            Gumps.SendAction(gumpId, 2)
-            Gumps.WaitForGump(gumpId,10000)
-            Misc.Pause(1000)
-            #gumpId = 0
-            #while gumpId == 0:
-            #    Misc.Pause(100)
-            #    gumpId = Gumps.CurrentGump()
-            print(f"Second gump {gumpId} found")
-            Gumps.SendAction(gumpId, 0)
-            Misc.Pause(1000)
+    if ordContainer is not None:
+        for item in ordContainer.Contains:
+            if item.ItemID == orderID and item.Color == activeColor:
+                Items.UseItem(item)
+                gumpId = 0
+                Misc.Pause(500)
+                while gumpId == 0:
+                    Misc.Pause(100)
+                    gumpId = Gumps.CurrentGump()
+                print(f"First gump {gumpId} found")
+                Gumps.SendAction(gumpId, 2)
+                Gumps.WaitForGump(gumpId,10000)
+                Misc.Pause(1000)
+                #gumpId = 0
+                #while gumpId == 0:
+                #    Misc.Pause(100)
+                #    gumpId = Gumps.CurrentGump()
+                print(f"Second gump {gumpId} found")
+                Gumps.SendAction(gumpId, 0)
+                Misc.Pause(1000)
 
 
 def createItemsToCraft():
