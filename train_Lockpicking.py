@@ -4,6 +4,8 @@ from System import Byte, Int32, Double
 import sys
 import time
 
+carpThumb = "https://i.imgur.com/eIbSwww.png"
+
 Timer.Create( 'lockTimer', 1 )
 lockTimerMs = 10200
 
@@ -56,10 +58,10 @@ workingBag = Target.PromptTarget( 'wybierz kontener do pracy' )
 def SetCrates():
     global crates
     crates = []
-    crates.Add( Crate( 0x54A6DE69 ))
-    crates.Add( Crate( 0x54FEE694 ))
-    crates.Add( Crate( 0x54FEE6B0 ))
-    crates.Add( Crate( 0x54FEE68F ))
+    crates.Add( Crate( 0x55109A3B ))
+    crates.Add( Crate( 0x54A6DEB7 ))
+    crates.Add( Crate( 0x55109A21 ))
+    crates.Add( Crate( 0x55109B45 ))
 
 def CloseCrate():
     global crates
@@ -100,6 +102,8 @@ def OpenCrate():
         Timer.Create('lockTimer',lockTimerMs)
     else:
         Misc.SendMessage('Brak wytrychow!', 77)
+        sendDiscord("Koniec Wytrychow", 9592372, carpThumb)
+        Misc.Pause(3000)
         sys.exit()
         return False
     print("a teraz tutaj tutaj")
